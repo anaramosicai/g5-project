@@ -15,8 +15,8 @@ import java.util.concurrent.ConcurrentHashMap;
 @RestController
 public class ControladorREST {
 
-    Map<Integer, Pista> pistas = new ConcurrentHashMap<Integer, Pista>();
-    private int idPistaContador = 0;
+    Map<Long, Pista> pistas = new ConcurrentHashMap<Long, Pista>();
+    private long idPistaContador = 0;
     private static final int N = 1000;
 
 
@@ -42,7 +42,7 @@ public class ControladorREST {
             );
         }
 
-        int idPista = idPistaContador++;
+        long idPista = idPistaContador++;
 
         Pista pistaNuevo = new Pista(
                 idPista,
@@ -66,7 +66,7 @@ public class ControladorREST {
     }
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @GetMapping("/pistaPadel/courts/{courtId}")
-    public Pista obtenerDetalle(@PathVariable int courtId){
+    public Pista obtenerDetalle(@PathVariable long courtId){
         Pista pista = pistas.get(courtId);
         if(pista == null){
             throw new ResponseStatusException(
@@ -80,7 +80,7 @@ public class ControladorREST {
 
     @PatchMapping("/pistaPadel/courts/{courtId}")
     @PreAuthorize("hasRole('ADMIN')")
-    public Pista modificarPista(@PathVariable int courtId, @RequestBody Pista pistaMod){
+    public Pista modificarPista(@PathVariable long courtId, @RequestBody Pista pistaMod){
         Pista pista = pistas.get(courtId);
         if (pista == null){
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
@@ -88,7 +88,7 @@ public class ControladorREST {
 
         Pista pistaActualizada = new Pista(
                 courtId,
-                pista.nombre(),
+                pistaMod.nombre(),
                 pistaMod.ubicacion(),
                 pistaMod.precioHora(),
                 pistaMod.activa(),
@@ -101,7 +101,7 @@ public class ControladorREST {
 
     @DeleteMapping("/pistaPadel/courts/{courtId}")
     @PreAuthorize("hasRole('ADMIN')")
-    public void borrar(@PathVariable int courtId){
+    public void borrar(@PathVariable long courtId){
         Pista pista = pistas.get(courtId);
         if(pista == null){
             throw new ResponseStatusException(

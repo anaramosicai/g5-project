@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 public record Pista(
 
     @NonNull
-    int idPista,
+    long idPista,
 
     @NonNull
     String nombre,
