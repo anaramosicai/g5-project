@@ -3,9 +3,9 @@ Final Project of PAT by group 5
 
 ### Cambios realizados en Martina_branch:
 1º- Creación del record Usuario el cual usaré para los tres endpoints que me conciernen:
-    - **GET** /pistaPadel/users
-    - **GET** /pistaPadel/users/{userId}
-    - **PATCH** /pistaPadel/users/{userId}
+- **GET** /pistaPadel/users
+- **GET** /pistaPadel/users/{userId}
+- **PATCH** /pistaPadel/users/{userId}
 
 2º- Creación de UsuarioController para poder Controlar exclusivamente a cada usuario y segmentar código. Ahí empezaré a crear cada endpoint de los nombrados arriba.
 
