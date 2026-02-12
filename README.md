@@ -9,12 +9,18 @@ Final Project of PAT by group 5
 
 2º- Creación de UsuarioController para poder Controlar exclusivamente a cada usuario y segmentar código. Ahí empezaré a crear cada endpoint de los nombrados arriba.
 
+[REVISAR RESTRICCIONES]
+
 3º- Creación del primer GET.
 Añado la siguiente dependencia para poder usar la Preautorización de roles y la seguridad:
 ```java
       <dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-security</artifactId>
-		</dependency>```
+		</dependency>
+```
 
 En este primer GET se pide el Listado de usuarios, el cual, por facilidad, se devolverá ordenado en nombre alfabético (aunque podría haberse devuelto por fecha de registro).
+
+
+4º- Creación del segundo GET.
