@@ -1,6 +1,7 @@
 package edu.comillas.icai.gitt.pat.spring.grupo5;
 
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
@@ -111,4 +112,138 @@ public class ControladorREST {
         }
         pistas.remove(courtId);
     }
+
+    private final Map<Long, Reserva> reservas = new ConcurrentHashMap<>();
+    private long idReservaContador = 0;
+
+    private Logger logger = LoggerFactory.getLogger(getClass());
+
+    @PostMapping("/pistaPadel/reservations")
+    @ResponseStatus(HttpStatus.CREATED)
+    @PreAuthorize("hasRole('USER')")
+    public Reserva crearReserva(@RequestBody Reserva reservaNueva, BindingResult bindingResult) {
+
+        if (bindingResult.hasErrors()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+        }
+
+        if (reservaNueva.inicio().isAfter(reservaNueva.fin())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Inicio posterior a fin");
+        }
+
+        //Verifica que la pista asignada existe
+        if (!pistas.containsKey(reservaNueva.courtId())) {
+            throw new ResponseStatusException(
+                    HttpStatus.NOT_FOUND,
+                    "Pista no existe"
+            );
+        }
+
+        // Detección solapes (409)
+        boolean solapa = reservas.values().stream()
+                .filter(r -> r.courtId() == reservaNueva.courtId())
+                .anyMatch(r ->
+                        reservaNueva.inicio().isBefore(r.fin()) &&
+                                reservaNueva.fin().isAfter(r.inicio())
+                );
+
+        if (solapa) {
+            throw new ResponseStatusException(
+                    HttpStatus.CONFLICT,
+                    "Slot ocupado"
+            );
+        }
+
+        long ReservationId = idReservaContador++;
+
+        Reserva reservaCreada = new Reserva(
+                ReservationId,
+                reservaNueva.courtId(),
+                reservaNueva.userId(), // luego vendrá del SecurityContext
+                reservaNueva.inicio(),
+                reservaNueva.fin()
+        );
+
+        reservas.put(ReservationId, reservaCreada);
+        return reservaCreada;
+    }
+
+    @PatchMapping("/pistaPadel/reservations/{reservationId}")
+    @PreAuthorize("hasAnyRole('USER','ADMIN')")
+    public Reserva reprogramar(@PathVariable long reservationId, @RequestBody Reserva reservaNueva, BindingResult bindingResult) {
+
+        if (bindingResult.hasErrors()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+        }
+
+        Reserva actual = reservas.get(reservationId);
+        if (actual == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        }
+
+        //Verifica que la pista asignada existe
+        if (!pistas.containsKey(reservaNueva.courtId())) {
+            throw new ResponseStatusException(
+                    HttpStatus.NOT_FOUND,
+                    "Pista no existe"
+            );
+        }
+
+        // Detección solapes (409)
+        boolean solapa = reservas.values().stream()
+                .filter(r -> r.courtId() == actual.courtId())
+                .filter(r -> r.reservationId() != reservationId)
+                .anyMatch(r ->
+                        reservaNueva.inicio().isBefore(r.fin()) &&
+                                reservaNueva.fin().isAfter(r.inicio())
+                );
+
+        if (solapa) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT);
+        }
+
+        Reserva actualizada = new Reserva(
+                reservationId,
+                actual.courtId(),
+                actual.userId(),
+                reservaNueva.inicio(),
+                reservaNueva.fin()
+        );
+
+        reservas.put(reservationId, actualizada);
+        return actualizada;
+    }
+
+    @GetMapping("/pistaPadel/reservations/{reservationId}")
+    @PreAuthorize("hasAnyRole('USER','ADMIN')")
+    public Reserva obtenerReserva(@PathVariable long reservationId) {
+        Reserva reserva = reservas.get(reservationId);
+        if (reserva == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "no hay ninguna reserva con este id");
+        }
+        return reserva;
+    }
+
+    @GetMapping("/pistaPadel/admin/reservations")
+    @PreAuthorize("hasRole('ADMIN')")
+    public List<Reserva> reservas() {
+        ArrayList<Reserva> ReservaList = new ArrayList<>();
+        for (Reserva r : reservas.values()){
+            ReservaList.add(r);
+        }
+        return ReservaList;
+    }
+
+    @DeleteMapping("/pistaPadel/reservations/{reservationId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @PreAuthorize("hasAnyRole('USER','ADMIN')")
+    public void cancelar(@PathVariable long reservationId) {
+
+        Reserva reserva = reservas.get(reservationId);
+        if (reserva == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "no hay ninguna reserva con este id");
+        }
+        reservas.remove(reservationId);
+    }
 }
+
