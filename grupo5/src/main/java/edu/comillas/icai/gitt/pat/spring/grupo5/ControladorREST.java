@@ -143,11 +143,12 @@ public class ControladorREST {
                 usuarioNuevo.nombre(), usuarioNuevo.apellidos(), usuarioNuevo.telefono());
         if (bindingResult.hasErrors()) {
             // Error 400 --> datos inválidos
-            logger.error("Error inesperado");
+            logger.error("Datos inválidos");
             throw new ExcepcionUsuarioIncorrecto(bindingResult);
         }
         if (usuarios.get(usuarioNuevo.email())!= null) {
             // Error 409 --> email ya existe
+            logger.error("este email ya existe");
             throw new ResponseStatusException(HttpStatus.CONFLICT, "email ya existe");
         }
 
@@ -177,9 +178,9 @@ public class ControladorREST {
     /* ============================
         SECCIÓN: POST AUTH - LOGIN/TOKEN
         ============================ */
-
-    // Almacén de sesiones (token -> idUsuario)
+    // Índices de sesión
     private final Map<String, Long> tokenToUserId = new ConcurrentHashMap<>();
+    private final Map<Long, String> userIdToToken = new ConcurrentHashMap<>();
 
     // DTO de entrada
     public record LoginRequest(
@@ -209,11 +210,14 @@ public class ControladorREST {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "credenciales incorrectas");
         }
 
-        // 3) Generar token (UUID) y guardarlo en memoria
-        String token = UUID.randomUUID().toString();
-        tokenToUserId.put(token, u.idUsuario());
+        // 3) Generar token (UUID) y guardarlo en memoria --> Sólo permito un inicio de sesión por usuario
+        String tokenNuevo = UUID.randomUUID().toString();
+        String TokenViejo = userIdToToken.put(u.idUsuario(), tokenNuevo);
+        if (TokenViejo != null) tokenToUserId.remove(TokenViejo); // revoca la sesión anterior
+        tokenToUserId.put(tokenNuevo, u.idUsuario());
 
-        return new LoginResponse(token);
+
+        return new LoginResponse(tokenNuevo);
     }
 
     /* ============================
@@ -226,26 +230,34 @@ public class ControladorREST {
         if (token == null || !tokenToUserId.containsKey(token)) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "no autenticado");
         }
-        tokenToUserId.remove(token);
+
+        Long userId = tokenToUserId.remove(token);
+
+        // Limpia el índice inverso SOLO si coincide el token actual
+        if (userId != null) {
+            userIdToToken.computeIfPresent(userId, (k, v) -> v.equals(token) ? null : v);
+        }
     }
+
 
     /* ============================
         SECCIÓN: GET AUTH - ME
         ============================ */
     @GetMapping("/pistaPadel/auth/me")
     public Usuario me(@RequestHeader(name = "Authorization", required = false) String authHeader) {
+        logger.debug("Authorization header recibido: {}", authHeader);
         String token = extractBearer(authHeader);
-        if (token == null) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "no autenticado");
-        }
+        logger.debug("Token extraído: {}", token);
+        if (token == null) throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "no autenticado");
+
         Long userId = tokenToUserId.get(token);
-        if (userId == null) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "no autenticado");
-        }
+        logger.debug("userId buscado por token: {}", userId);
+        if (userId == null) throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "no autenticado");
+
         Usuario u = usuariosporId.get(userId);
         if (u == null) {
-            // Sesión “huérfana”: usuario borrado, etc.
             tokenToUserId.remove(token);
+            userIdToToken.computeIfPresent(userId, (k, v) -> v.equals(token) ? null : v);
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "no autenticado");
         }
         return u;

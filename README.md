@@ -133,20 +133,21 @@ private final Map<Long, Usuario> usuariosporId = new ConcurrentHashMap<>(); // g
 private final AtomicLong idUsuarioSeq = new AtomicLong(1);
 
 @PostMapping("/pistaPadel/auth/register")
-@ResponseStatus(HttpStatus.CREATED)
-public Usuario registrarUsuario(@Valid @RequestBody Usuario usuarioNuevo, BindingResult bindingResult) {
-    logger.info("Intento de registro para email={}", usuarioNuevo.email());
-    logger.debug("Usuario recibido: nombre={}, apellidos={}, telefono={}",
-            usuarioNuevo.nombre(), usuarioNuevo.apellidos(), usuarioNuevo.telefono());
-    if (bindingResult.hasErrors()) {
-        // Error 400 --> datos inválidos
-        logger.error("Error inesperado");
-        throw new ExcepcionUsuarioIncorrecto(bindingResult);
-    }
-    if (usuarios.get(usuarioNuevo.email()) != null) {
-        // Error 409 --> email ya existe
-        throw new ResponseStatusException(HttpStatus.CONFLICT, "email ya existe");
-    }
+    @ResponseStatus(HttpStatus.CREATED)
+    public Usuario registrarUsuario(@Valid @RequestBody Usuario usuarioNuevo, BindingResult bindingResult) {
+        logger.info("Intento de registro para email={}", usuarioNuevo.email());
+        logger.debug("Usurario recibido: nombre={}, apellidos={}, telefono={}",
+                usuarioNuevo.nombre(), usuarioNuevo.apellidos(), usuarioNuevo.telefono());
+        if (bindingResult.hasErrors()) {
+            // Error 400 --> datos inválidos
+            logger.error("Datos inválidos");
+            throw new ExcepcionUsuarioIncorrecto(bindingResult);
+        }
+        if (usuarios.get(usuarioNuevo.email())!= null) {
+            // Error 409 --> email ya existe
+            logger.error("este email ya existe");
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "email ya existe");
+        }
 
     // Generar id en servidor
     long id = idUsuarioSeq.getAndIncrement();
@@ -278,12 +279,22 @@ Intenté implementar este endpoint pasándole al método el record `Usuario`; si
         if (!ok) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "credenciales incorrectas");
         }
-        
-        // 3) Generar token (UUID) y guardarlo en memoria
-        String token = UUID.randomUUID().toString();
-        tokenToUserId.put(token, u.idUsuario());
 
-        return new LoginResponse(token);
+        // 3) Generar token (UUID) y guardarlo en memoria --> Sólo permito un inicio de sesión por usuario
+        String tokenNuevo = UUID.randomUUID().toString();
+        String TokenViejo = userIdToToken.put(u.idUsuario(), tokenNuevo);
+        if (TokenViejo != null) tokenToUserId.remove(TokenViejo); // revoca la sesión anterior
+        tokenToUserId.put(tokenNuevo, u.idUsuario());
+
+
+        return new LoginResponse(tokenNuevo);
+    }
+
+    // Función para extraer "Bearer <token>"
+    private String extractBearer(String authHeader) {
+        if (authHeader == null) return null;
+        String prefix = "Bearer ";
+        return authHeader.startsWith(prefix) ? authHeader.substring(prefix.length()).trim() : null;
     }
 ```
 
@@ -322,11 +333,107 @@ Intenté implementar este endpoint pasándole al método el record `Usuario`; si
 ---
 <details>
 <summary><strong>🔹 Implementación POST: Logout</strong></summary>
-
+Lo que hace este endpoint es eliminar el token que se haya creado al registrarse+logear in un usuario
 
 **Código:**
 ```java
+@PostMapping("/pistaPadel/auth/logout")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void logout(@RequestHeader(name = "Authorization", required = false) String authHeader) {
+        String token = extractBearer(authHeader);
+        if (token == null || !tokenToUserId.containsKey(token)) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "no autenticado");
+        }
 
+        Long userId = tokenToUserId.remove(token);
+
+        // Limpia el índice inverso SOLO si coincide el token actual
+        if (userId != null) {
+            userIdToToken.computeIfPresent(userId, (k, v) -> v.equals(token) ? null : v);
+        }
+    }
 ```
 
 </details>
+
+---
+<details>
+<summary><strong>🔹 Implementación GET: me</strong></summary>
+Nos devuelve nuestro usuario según el token que le proporcionemos, de esta forma:
+
+```
+Auth Typr: Bearer Token
+Token: pega_aquí_tu_token
+```
+<small>*Dentro de la pestaña Authorization de Postman*</small>
+
+**Código:**
+```java
+@GetMapping("/pistaPadel/auth/me")
+    public Usuario me(@RequestHeader(name = "Authorization", required = false) String authHeader) {
+        logger.debug("Authorization header recibido: {}", authHeader);
+        String token = extractBearer(authHeader);
+        logger.debug("Token extraído: {}", token);
+        if (token == null) throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "no autenticado");
+
+        Long userId = tokenToUserId.get(token);
+        logger.debug("userId buscado por token: {}", userId);
+        if (userId == null) throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "no autenticado");
+
+        Usuario u = usuariosporId.get(userId);
+        if (u == null) {
+            tokenToUserId.remove(token);
+            userIdToToken.computeIfPresent(userId, (k, v) -> v.equals(token) ? null : v);
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "no autenticado");
+        }
+        return u;
+    }
+```
+
+**Cambio again ConfigSeguridad:**
+```java
+.authorizeHttpRequests(auth -> auth
+                        // === ENDPOINTS PÚBLICOS (POST - registro, GET - healthcheck, ...)===
+                        .requestMatchers("/pistaPadel/auth/register").permitAll()
+                        .requestMatchers("/pistaPadel/auth/login").permitAll()
+                        .requestMatchers("/pistaPadel/auth/me").permitAll()
+                        .requestMatchers("/pistaPadel/auth/logout").permitAll()  // <-- hasta tener filtro
+                        .requestMatchers("/pistaPadel/health").permitAll()
+
+
+
+                        // === TODO LO DEMÁS PROTEGIDO ===
+                        .anyRequest().authenticated()
+                )
+```
+
+</details>
+
+---
+
+<details>
+<summary>📸 Ejemplos de GET me + logout</summary>
+
+**Primer intento GET - ME - Exitoso:**
+<div align="center">
+    <img src="./screenshots/prueba_get_me1.jpg" width="350" alt="Captura prueba get - me1.">
+</div>
+
+**Primer intento POST - LOGOUT -  Exitoso:**
+<div align="center">
+    <img src="./screenshots/prueba_logout1.jpg" width="350" alt="Captura prueba post - logout1.">
+</div>
+
+**Segundo intento GET - ME - Fallo (401):**
+<div align="center">
+    <img src="./screenshots/prueba_get_me2.jpg" width="350" alt="Captura prueba get - me2.">
+</div>
+
+**Segundo intento POST - LOGOUT - Fallo (401):**
+<div align="center">
+    <img src="./screenshots/prueba_logout2.jpg" width="350" alt="post - logout2.">
+</div>
+
+</details>
+
+**LINK POSTMAN:** https://anaramosicai-1242651.postman.co/workspace/Ana-Ramos's-Workspace~150adb93-51ba-4917-8bb9-8a85a0e683a5/collection/51611950-8ea4e773-4ab0-4e65-9f2b-6e444286a9e0?action=share&creator=51611950
