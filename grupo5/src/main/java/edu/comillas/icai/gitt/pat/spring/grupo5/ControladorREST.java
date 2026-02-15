@@ -3,10 +3,13 @@ package edu.comillas.icai.gitt.pat.spring.grupo5;
 
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
@@ -14,6 +17,7 @@ import org.springframework.web.server.ResponseStatusException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -123,7 +127,7 @@ public class ControladorREST {
 
 
     /* ============================
-        SECCIÓN: AUTH
+        SECCIÓN: POST AUTH - REGISTRO
         ============================ */
     private Logger logger = LoggerFactory.getLogger(getClass());
 
@@ -169,5 +173,90 @@ public class ControladorREST {
         // Devuelve 201 con un DTO de salida SIN password
         return u;
     }
+
+    /* ============================
+        SECCIÓN: POST AUTH - LOGIN/TOKEN
+        ============================ */
+
+    // Almacén de sesiones (token -> idUsuario)
+    private final Map<String, Long> tokenToUserId = new ConcurrentHashMap<>();
+
+    // DTO de entrada
+    public record LoginRequest(
+            @Email(message = "Email inválido")
+            @NotBlank(message = "Email requerido")
+            String email,
+            @NotBlank(message = "Password requerida")
+            String password
+    ) {}
+
+    // DTO de salida
+    public record LoginResponse(String token) {}
+
+    @PostMapping("/pistaPadel/auth/login")
+    public LoginResponse login(@Valid @RequestBody LoginRequest req) {
+        /*ERROR 401 - CREDENCIALES INCORRECTAS*/
+        // 1) ¿Existe el usuario?
+        Usuario u = usuarios.get(req.email());
+        if (u == null) {
+            // 401 (no 404) para no filtrar existencia de cuentas
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "credenciales incorrectas");
+        }
+
+        // 2) Comprobación password
+        boolean ok = req.password().equals(u.password());
+        if (!ok) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "credenciales incorrectas");
+        }
+
+        // 3) Generar token (UUID) y guardarlo en memoria
+        String token = UUID.randomUUID().toString();
+        tokenToUserId.put(token, u.idUsuario());
+
+        return new LoginResponse(token);
+    }
+
+    /* ============================
+        SECCIÓN: POST AUTH - LOGOUT
+        ============================ */
+    @PostMapping("/pistaPadel/auth/logout")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void logout(@RequestHeader(name = "Authorization", required = false) String authHeader) {
+        String token = extractBearer(authHeader);
+        if (token == null || !tokenToUserId.containsKey(token)) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "no autenticado");
+        }
+        tokenToUserId.remove(token);
+    }
+
+    /* ============================
+        SECCIÓN: GET AUTH - ME
+        ============================ */
+    @GetMapping("/pistaPadel/auth/me")
+    public Usuario me(@RequestHeader(name = "Authorization", required = false) String authHeader) {
+        String token = extractBearer(authHeader);
+        if (token == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "no autenticado");
+        }
+        Long userId = tokenToUserId.get(token);
+        if (userId == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "no autenticado");
+        }
+        Usuario u = usuariosporId.get(userId);
+        if (u == null) {
+            // Sesión “huérfana”: usuario borrado, etc.
+            tokenToUserId.remove(token);
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "no autenticado");
+        }
+        return u;
+    }
+
+    // Función para extraer "Bearer <token>"
+    private String extractBearer(String authHeader) {
+        if (authHeader == null) return null;
+        String prefix = "Bearer ";
+        return authHeader.startsWith(prefix) ? authHeader.substring(prefix.length()).trim() : null;
+    }
+
 
 }

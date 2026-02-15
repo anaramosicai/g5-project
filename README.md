@@ -2,10 +2,14 @@
 Final Project of PAT by group 5 
 
 ## 1. Cambios realizados en ANA_BRANCH
-### 1.1. Descripción de mi parte
+
+<details>
+<summary><strong>📌 1.1. Descripción de mi parte</strong></summary>
+
 Mi parte trataba de la **Autenticación + detalle de usuario (errores tipo 401/403)**
 
-Tenía  los siguientes endpoints a desarrollar:
+Tenía los siguientes endpoints a desarrollar:
+
 <table border="1" cellpadding="10" cellspacing="0">
   <thead>
     <tr>
@@ -49,66 +53,49 @@ Tenía  los siguientes endpoints a desarrollar:
   </tbody>
 </table>
 
-Tabla repaso HTTP STATUS CODES
-<table border="1" cellpadding="10" cellspacing="0">
-  <thead>
-    <tr>
-      <th>Código</th>
-      <th>Descripción</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>200</td>
-      <td> OK </td>
-    </tr>
-    <tr>
-      <td>201</td>
-      <td> Created </td>
-    </tr>
-    <tr>
-      <td>204</td>
-      <td> No Content </td>
-    </tr>
-    <tr>
-      <td>400</td>
-      <td> Bad Request </td>
-    </tr>
-    <tr>
-      <td>401</td>
-      <td> Unauthorizded </td>
-    </tr>
-    <tr>
-      <td>403</td>
-      <td> Forbidden </td>
-    </tr>
-    <tr>
-      <td>409</td>
-      <td> Conflict </td>
-    </tr>
-  </tbody>
-</table>
+<details>
+<summary><strong>📊 Tabla referencia: HTTP STATUS CODES</strong></summary>
 
-### 1.2. Desarrollo de mi parte
-Tomando como base el código que subio mi compañera Felicia parto creando el **record** **`Usuario`** que tiene los siguientes caracterísitcas y restricciones:
+| Código | Descripción |
+|--------|-------------|
+| 200 | OK |
+| 201 | Created |
+| 204 | No Content |
+| 400 | Bad Request |
+| 401 | Unauthorized |
+| 403 | Forbidden |
+| 409 | Conflict |
 
-- Caracterísitcas
-  - `idUsuario`: Identificador único del usuario.
-  - `nombre`: Nombre del usuario.
-  - `apellidos`: Apellidos del usuario.
-  - `email`: Correo electrónico (único en el sistema).
-  - `password`: Contraseña cifrada.
-  - `telefono`: Teléfono de contacto.
-  - `rol`: Rol del usuario en el sistema. <small>*Valores posibles: USER, ADMIN.*</small>
-  - `fechaRegistro`: Fecha y hora de alta en el sistema.
-  - `activo`: Indica si el usuario está activo o deshabilitado.
+</details>
 
-- Restricciones
-  - El email debe ser **único**.
-  - Un usuario puede tener **0..n** reservas.
-  - Solo los usuarios con **rol ADMIN** pueden **gestionar pistas**.
+</details>
 
-#### Record: Usuario
+## 1.2. Desarrollo de mi parte
+
+Tomando como base el código que subió mi compañera Felicia, partí creando el **record** `Usuario`.
+
+---
+
+<details>
+<summary><strong>🔹 Record: Usuario (Características y Restricciones)</strong></summary>
+
+**Características:**
+- `idUsuario`: Identificador único del usuario.
+- `nombre`: Nombre del usuario.
+- `apellidos`: Apellidos del usuario.
+- `email`: Correo electrónico (único en el sistema).
+- `password`: Contraseña cifrada.
+- `telefono`: Teléfono de contacto.
+- `rol`: Rol del usuario en el sistema. *Valores posibles: USER, ADMIN.*
+- `fechaRegistro`: Fecha y hora de alta en el sistema.
+- `activo`: Indica si el usuario está activo o deshabilitado.
+
+**Restricciones:**
+- El email debe ser **único**.
+- Un usuario puede tener **0..n** reservas.
+- Solo los usuarios con **rol ADMIN** pueden **gestionar pistas**.
+
+**Código:**
 
 ```java
 public record Usuario(
@@ -129,51 +116,217 @@ public record Usuario(
 {}
 ```
 
-#### Implementación POST: resgistro
+</details>
+
+---
+
+<details>
+<summary><strong>🔹 Implementación POST: Registro</strong></summary>
+
+Implementación del endpoint de registro con validaciones:
 
 ```java
-    private Logger logger = LoggerFactory.getLogger(getClass());
+private Logger logger = LoggerFactory.getLogger(getClass());
 
-    private final Map<String, Usuario> usuarios = new ConcurrentHashMap<>(); // guardo los usurarios por email
-    private final Map<Long, Usuario> usuariosporId = new ConcurrentHashMap<>(); // guardo los usurarios por email
-    private final AtomicLong idUsuarioSeq = new AtomicLong(1);
+private final Map<String, Usuario> usuarios = new ConcurrentHashMap<>(); // guardo los usuarios por email
+private final Map<Long, Usuario> usuariosporId = new ConcurrentHashMap<>(); // guardo los usuarios por id
+private final AtomicLong idUsuarioSeq = new AtomicLong(1);
 
-    @PostMapping("/pistaPadel/auth/register")
-    @ResponseStatus(HttpStatus.CREATED)
-    public Usuario registrarUsuario(@Valid @RequestBody Usuario usuarioNuevo, BindingResult bindingResult) {
-        logger.info("Intento de registro para email={}", usuarioNuevo.email());
-        logger.debug("Usurario recibido: nombre={}, apellidos={}, telefono={}",
-                usuarioNuevo.nombre(), usuarioNuevo.apellidos(), usuarioNuevo.telefono());
-        if (bindingResult.hasErrors()) {
-            // Error 400 --> datos inválidos
-            logger.error("Error inesperado");
-            throw new ExcepcionUsuarioIncorrecto(bindingResult);
+@PostMapping("/pistaPadel/auth/register")
+@ResponseStatus(HttpStatus.CREATED)
+public Usuario registrarUsuario(@Valid @RequestBody Usuario usuarioNuevo, BindingResult bindingResult) {
+    logger.info("Intento de registro para email={}", usuarioNuevo.email());
+    logger.debug("Usuario recibido: nombre={}, apellidos={}, telefono={}",
+            usuarioNuevo.nombre(), usuarioNuevo.apellidos(), usuarioNuevo.telefono());
+    if (bindingResult.hasErrors()) {
+        // Error 400 --> datos inválidos
+        logger.error("Error inesperado");
+        throw new ExcepcionUsuarioIncorrecto(bindingResult);
+    }
+    if (usuarios.get(usuarioNuevo.email()) != null) {
+        // Error 409 --> email ya existe
+        throw new ResponseStatusException(HttpStatus.CONFLICT, "email ya existe");
+    }
+
+    // Generar id en servidor
+    long id = idUsuarioSeq.getAndIncrement();
+
+    Usuario u = new Usuario(
+            id,
+            usuarioNuevo.nombre(),
+            usuarioNuevo.apellidos(),
+            usuarioNuevo.email(),
+            usuarioNuevo.password(),
+            usuarioNuevo.telefono(),
+            NombreRol.USER, // rol por defecto
+            java.time.LocalDateTime.now(),
+            true
+    );
+
+    usuariosporId.put(id, u);
+    usuarios.put(u.email(), u);
+
+    logger.info("Usuario registrado correctamente id={} email={}", id, usuarioNuevo.email());
+    // Devuelve 201 con un DTO de salida SIN password
+    return u;
+}
+```
+
+<details>
+<summary>📸 Ejemplos de prueba</summary>
+
+**Primer intento - Exitoso:**
+<div align="center">
+    <img src="./screenshots/prueba_post_registro.jpg" width="350" alt="Captura prueba post - registro1.">
+</div>
+
+**Segundo intento - Fallo (mismo email):**
+<div align="center">
+    <img src="./screenshots/prueba_post_registro_2.jpg" width="350" alt="Captura prueba post - registro2.">
+</div>
+
+</details>
+
+</details>
+
+---
+
+<details>
+<summary><strong>🔹 Cambios en ConfigSeguridad</strong></summary>
+
+Realicé cambios en la función `configuracion()` para abrir y cerrar los endpoints al público, permitiendo separar los que requieren autenticación de los públicos:
+
+```java
+@Bean
+public SecurityFilterChain configuracion(HttpSecurity http) throws Exception {
+    http
+            // Para API: puedes desactivar CSRF completamente o restringirlo a tu ruta de API
+            .csrf(csrf -> csrf.disable())
+            .csrf(csrf -> csrf.ignoringRequestMatchers("/pistaPadel/**"))
+
+            .authorizeHttpRequests(auth -> auth
+                    // === ENDPOINTS PÚBLICOS (POST - registro, GET - healthcheck)===
+                    .requestMatchers("/pistaPadel/auth/register").permitAll()
+                    .requestMatchers("/pistaPadel/health").permitAll()
+
+                    // === TODO LO DEMÁS PROTEGIDO ===
+                    .anyRequest().authenticated()
+            )
+
+            // httpBasic y/o formLogin para probar rápidamente
+            .httpBasic(Customizer.withDefaults())
+            .formLogin(Customizer.withDefaults());
+
+    return http.build();
+}
+```
+
+</details>
+
+---
+
+<details>
+<summary><strong>🔹 Implementación POST: Login/Token</strong></summary>
+
+Intenté implementar este endpoint pasándole al método el record `Usuario`; sin embargo, como éste cuenta con muchas anotaciones de validación (`@NotBlank`), ponerlo seguido de `@RequestBody` fallará (error 400) por no introducir todos los campos.
+
+**Problema:** Para login solo se introduce email y contraseña, no todos los campos del Usuario.
+
+**Solución:** Usar **DTOs** (Data Transfer Objects).
+
+<details>
+<summary>ℹ️ ¿Qué son los DTOs y por qué usarlos aquí?</summary>
+
+**DTOs (Data Transfer Objects)** son objetos simples diseñados solo para transportar datos entre capas. En este caso:
+
+- **Ventaja 1:** Validación independiente. El DTO `LoginRequest` solo valida email y contraseña.
+- **Ventaja 2:** Seguridad. No expones todos los campos del Usuario en la solicitud.
+- **Ventaja 3:** Flexibilidad. Puedes tener diferentes DTOs para diferentes casos de uso.
+- **Ventaja 4:** El `@Valid` funciona correctamente porque el DTO es un JavaBean.
+
+</details>
+
+**Código:**
+```java
+// Almacén de sesiones (token -> idUsuario)
+    private final Map<String, Long> tokenToUserId = new ConcurrentHashMap<>();
+
+    // DTO de entrada
+    public record LoginRequest(
+            @Email(message = "Email inválido")
+            @NotBlank(message = "Email requerido")
+            String email,
+            @NotBlank(message = "Password requerida")
+            String password
+    ) {}
+
+    // DTO de salida
+    public record LoginResponse(String token) {}
+
+    @PostMapping("/pistaPadel/auth/login")
+    public LoginResponse login(@Valid @RequestBody LoginRequest req) {
+        /*ERROR 401 - CREDENCIALES INCORRECTAS*/
+        // 1) ¿Existe el usuario?
+        Usuario u = usuarios.get(req.email());
+        if (u == null) {
+            // 401 (no 404) para no filtrar existencia de cuentas
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "credenciales incorrectas");
         }
-        if (usuarios.get(usuarioNuevo.email())!= null) {
-            // Error 409 --> email ya existe
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "email ya existe");
+
+        // 2) Comprobación password
+        boolean ok = req.password().equals(u.password());
+        if (!ok) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "credenciales incorrectas");
         }
+        
+        // 3) Generar token (UUID) y guardarlo en memoria
+        String token = UUID.randomUUID().toString();
+        tokenToUserId.put(token, u.idUsuario());
 
-        // Generar id en servidor
-        long id = idUsuarioSeq.getAndIncrement();
-
-        Usuario u = new Usuario(
-                id,
-                usuarioNuevo.nombre(),
-                usuarioNuevo.apellidos(),
-                usuarioNuevo.email(),
-                usuarioNuevo.password(),
-                usuarioNuevo.telefono(),
-                NombreRol.USER, // rol por defecto
-                java.time.LocalDateTime.now(),
-                true
-        );
-
-        usuariosporId.put(id, u);
-        usuarios.put(u.email(), u);
-
-        logger.info("Usuario registrado correctamente id={} email={}", id, usuarioNuevo.email());
-        // Devuelve 201 con un DTO de salida SIN password
-        return u;
+        return new LoginResponse(token);
     }
 ```
+
+**Más cambios en ConfigSeguridad: autorizo el login**
+```java
+.authorizeHttpRequests(auth -> auth
+                        // === ENDPOINTS PÚBLICOS (POST - registro, GET - healthcheck, ...)===
+                        .requestMatchers("/pistaPadel/auth/register").permitAll()
+                        .requestMatchers("/pistaPadel/health").permitAll()
+                        .requestMatchers("/pistaPadel/auth/login").permitAll()
+                        
+
+                        // === TODO LO DEMÁS PROTEGIDO ===
+                        .anyRequest().authenticated()
+                )
+```
+
+<details>
+<summary>📸 Ejemplos de prueba</summary>
+
+**Primer intento - Exitoso:**
+<div align="center">
+    <img src="./screenshots/prueba_post_login1.jpg" width="350" alt="Captura prueba post - login1.">
+</div>
+
+**Segundo intento - Fallo (401):**
+<div align="center">
+    <img src="./screenshots/prueba_post_login2.jpg" width="350" alt="Captura prueba post - login2.">
+</div>
+
+</details>
+
+
+</details>
+
+---
+<details>
+<summary><strong>🔹 Implementación POST: Logout</strong></summary>
+
+
+**Código:**
+```java
+
+```
+
+</details>

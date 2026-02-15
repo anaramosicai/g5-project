@@ -17,12 +17,29 @@ import org.springframework.security.web.SecurityFilterChain;
 public class ConfigSeguridad {
     @Bean
     public SecurityFilterChain configuracion(HttpSecurity http) throws Exception {
-        http.authorizeHttpRequests((authorize) -> authorize.anyRequest().authenticated())
-                .formLogin(Customizer.withDefaults())
+        http
+                // Para API: puedes desactivar CSRF completamente o restringirlo a tu ruta de API
+                .csrf(csrf -> csrf.disable())
+                .csrf(csrf -> csrf.ignoringRequestMatchers("/pistaPadel/**"))
+
+                .authorizeHttpRequests(auth -> auth
+                        // === ENDPOINTS PÚBLICOS (POST - registro, GET - healthcheck, ...)===
+                        .requestMatchers("/pistaPadel/auth/register").permitAll()
+                        .requestMatchers("/pistaPadel/health").permitAll()
+                        .requestMatchers("/pistaPadel/auth/login").permitAll()
+
+
+                        // === TODO LO DEMÁS PROTEGIDO ===
+                        .anyRequest().authenticated()
+                )
+
+                // httpBasic y/o formLogin para probar rápidamente
                 .httpBasic(Customizer.withDefaults())
-                .csrf(csrf -> csrf.ignoringRequestMatchers("/pistaPadel/**"));
+                .formLogin(Customizer.withDefaults());
+
         return http.build();
     }
+
 
     @Bean public UserDetailsService usuarios() {
         UserDetails user = User.withDefaultPasswordEncoder()
