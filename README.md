@@ -42,6 +42,8 @@ Con ello aseguro poder cumplir en el futuro con las condiciones que me impongan 
 [REVISAR]
 Para este endpoint, se usará la librería Jackson (de gran utilidad para trabajar con JSON) y dentro de la misma, su clase principal que será "ObjectMapper". La gran ventaja de esta clase es que nos permite aplicar cambios parciales de un Map a un objeto Java (más si son records, de tipo inmutable).
 
+[SEGUIR POR AQUÍ Y REVISAR PATCH CON POSTMAN]
+
 **IMPORTANTE:** De cara a aquel que se encargue de hacer el POST de registro de Usuario, en el body, el usuario se registrará pero no puede él determinar su ID ni su rol (el cual será siempre USER en su caso), de eso se encargará el servidor.
 
 7º- Copio de nuevo de 'felicia_branch' la clase 'ConfigSeguridad'. Esto me permitirá habilitar los roles (principalmente con el que trabajo, que es ADMIN) y controlar el acceso a los endpoint mediante '@PreAuthorize'.
