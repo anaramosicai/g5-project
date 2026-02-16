@@ -2,11 +2,12 @@
 Final Project of PAT by group 5 
 
 ## Cambios realizados en Martina_branch:
-En primer lugar, mi parte irá principalmente enfocada al tratado de Usuario, en conjunto con la parte de Ana (autorización + usuario). Me encargaré de la realización de los tres endpoint siguientes:
+En primer lugar, mi parte irá principalmente enfocada al tratado de Usuario, en conjunto con la parte de Ana (autorización + usuario). Me encargaré de la realización de los cuatro endpoint siguientes:
 
 - **GET** /pistaPadel/users
 - **GET** /pistaPadel/users/{userId}
 - **PATCH** /pistaPadel/users/{userId}
+- **GET** /pistaPadel/health
 
 ### TRATADO Y CREACIÓN DE CLASES
 
@@ -121,6 +122,22 @@ Una vez hecho esto, procedemos a comprobar el funcionamiento del PATCH
 <img width="865" height="707" alt="image" src="https://github.com/user-attachments/assets/9d1b0aa8-a455-43d8-8f14-b51335b54591" />
 
 
+### IMPLEMENTACIÓN GET PARA HEALTHCHECK
+
+Este endpoint es realmente sencillo y se usa principalmente por otros sistemas para ver si nuestra aplicación está viva y responde funcionando correctamente.
+
+Su implementación es así de sencilla:
+
+```java
+@GetMapping("/pistaPadel/health")
+    public Map<String, String> health(){
+        return Map.of("status", "ok");
+    }
+```
+
+* Foto demostración del funcionamiento:
+
+<img width="874" height="426" alt="image" src="https://github.com/user-attachments/assets/9ac027fb-6a69-4714-b57d-6f3521e60303" />
 
 
 
