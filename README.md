@@ -65,6 +65,9 @@ De cara al manejo de errores 401 y 403, podemos modificar su mensaje en lugar de
                 )
 ```
 
+Foto demostración de funcionamiento:
+<img width="919" height="866" alt="image" src="https://github.com/user-attachments/assets/e7f53e62-f95e-4893-9c88-a30e368a324f" />
+
 ### IMPLEMENTACIÓN GET POR ID DE USUARIO
 
 Creación del segundo GET. (@GetMapping("/pistaPadel/users/{userId}"))
