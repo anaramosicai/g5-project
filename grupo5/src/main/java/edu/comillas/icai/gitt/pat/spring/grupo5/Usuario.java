@@ -1,16 +1,24 @@
 package edu.comillas.icai.gitt.pat.spring.grupo5;
 
+import org.jspecify.annotations.NonNull;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+
 import java.time.LocalDateTime;
 
 public record Usuario(
+        @NonNull
         Long idUsuario,
+        @NotBlank(message = "El nombre es obligatorio")
         String nombre,
         String apellidos,
-        @Email String email, // Validacion de que tiene formato correcto
+        @Email(message = "El formato del email es incorrecto")
+        @NotBlank(message = "El email es obligatorio")
+        String email,
+        @NotBlank(message = "La contraseña es obligatoria")
         String password,
         String telefono,
-        Rol rol,
+        NombreRol rol,
         LocalDateTime fechaRegistro,
-        Boolean activo
-) {
-}
+        Boolean activo)
+{}
