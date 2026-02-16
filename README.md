@@ -124,7 +124,6 @@ Una vez hecho esto, procedemos a comprobar el funcionamiento del PATCH
 
 
 
-
 -----> Pregunta: ¿No sería mejor aprovechar la clase creada 'Rol' para ConfigSeguridad en lugar de escribir manualmente "ADMIN" o "USER"?
 
 
