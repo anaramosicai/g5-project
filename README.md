@@ -42,6 +42,28 @@ En este primer GET se pide el Listado de usuarios, el cual, por facilidad, se de
 
 --> Lo de por páginas era opcional, si diera tiempo, añadirlo.
 
+En cuanto a las respuestas esperadas, este método puede devolvernos un 200 (indicador de que se efectuó bien), un 401 (indicador de que no se está autorizado) o un 403 (indicador de que no tenemos permisos y por tanto se nos prohibe acceder al método).
+Si el GET devuelve un objeto, tendremos como respuesta el 200.
+Si se intenta acceder sin autenticar, Spring Security se encargará de devolver el 401. 
+Si intentamos acceder desde otro rol que no sea ADMIN, con '@PreAuthorize("hasRole('ADMIN')")' logramos que Spring Security devuelva el aviso 403. 
+Spring Security se ejecuta antes de la llamada del endpoint, cuando llega la petición API, se ejecutan filtros de seguridad antes de acceder como tal al endpoint.
+
+De cara al manejo de errores 401 y 403, podemos modificar su mensaje en lugar de trabajar con lo predeterminado de Spring, añadiendo a nuestra clase 'ConfigSeguridad' el siguiente código:
+
+```java
+// === MANEJO DE ERRORES 401 Y 403 ===
+                // ¿Qué sucede cuando...? (Aplicado a todos los endpoint protegidos)
+                .exceptionHandling(ex -> ex
+                        // Usuario NO autenticado → 401
+                        .authenticationEntryPoint((request, response, authException) ->
+                                response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "401 - No autenticado") )
+                        // Usuario autenticado pero sin permisos → 403
+                        .accessDeniedHandler((request, response, accessDeniedException) ->
+                                response.sendError(HttpServletResponse.SC_FORBIDDEN,
+                                        "403 - Acceso denegado")
+                        )
+                )
+```
 
 ### IMPLEMENTACIÓN GET POR ID DE USUARIO
 
