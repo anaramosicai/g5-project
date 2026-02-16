@@ -87,8 +87,40 @@ Creación del segundo GET. (@GetMapping("/pistaPadel/users/{userId}"))
 
 Creación del endpoint con PATCH que nos permita actualizar datos dado un Id de usuario.
 
+Para el PATCH, en primer lugar, se ha de comprobar que el usuario que se nos pide actualizar existe y que el email que nos dan no está repetido en los registros.
+Bloqueo aquellos campos que quiero que permanezcan inalterables (idUsuario, rol y fechaRegistro) y procedo a crear el nuevo usuario actualizado:
+```java
+Usuario actualizado;
+        try{
+            actualizado = new Usuario(
+                    user.idUsuario(),
+                    cambios.containsKey("nombre") ? (String) cambios.get("nombre") : user.nombre(),
+                    cambios.containsKey("apellidos") ? (String) cambios.get("apellidos") : user.apellidos(),
+                    cambios.containsKey("email") ? (String) cambios.get("email") : user.email(),
+                    cambios.containsKey("password") ? (String) cambios.get("password") : user.password(),
+                    cambios.containsKey("telefono") ? (String) cambios.get("telefono") : user.telefono(),
+                    user.rol(),
+                    user.fechaRegistro(),
+                    cambios.containsKey("activo") ? (Boolean) cambios.get("activo") : user.activo()
+            );
 
-[AÑADIR COMPROBACIÓN DE QUE FUNCIONA EL PATCH CON POSTMAN]
+        } catch (IllegalArgumentException e){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "Campo inválido");
+        }
+```
+
+Además, como previamente se estaba trabajando con dos HashMap (uno por email y otro por id), actualizo ambos con los nuevos datos para que haya una sincronización completa.
+
+Una vez hecho esto, procedemos a comprobar el funcionamiento del PATCH
+
+* Foto demostración del funcionamiento:
+
+<img width="861" height="822" alt="image" src="https://github.com/user-attachments/assets/9312d0f9-7276-472b-8280-7724818e82c1" />
+
+<img width="865" height="707" alt="image" src="https://github.com/user-attachments/assets/9d1b0aa8-a455-43d8-8f14-b51335b54591" />
+
+
 
 
 
