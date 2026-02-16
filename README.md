@@ -65,7 +65,8 @@ De cara al manejo de errores 401 y 403, podemos modificar su mensaje en lugar de
                 )
 ```
 
-Foto demostración de funcionamiento:
+* Foto demostración de funcionamiento:
+
 <img width="919" height="866" alt="image" src="https://github.com/user-attachments/assets/ca52493b-ba4c-4916-aab7-96f6e2ca088d" />
 
 
@@ -74,14 +75,20 @@ Foto demostración de funcionamiento:
 Creación del segundo GET. (@GetMapping("/pistaPadel/users/{userId}"))
 
 
+* Fotos demostración de funcionamiento:
+
+<img width="865" height="638" alt="image" src="https://github.com/user-attachments/assets/b0c60a44-5b8d-48a2-9690-d98ff828b40a" />
+
+<img width="862" height="481" alt="image" src="https://github.com/user-attachments/assets/bca8bc6e-a659-4de2-b7f8-9b1f522b15c8" />
+
+
 
 ### IMPLEMENTACIÓN PATCH DE USUARIO
 
 Creación del endpoint con PATCH que nos permita actualizar datos dado un Id de usuario.
-[REVISAR]
-Para este endpoint, se usará la librería Jackson (de gran utilidad para trabajar con JSON) y dentro de la misma, su clase principal que será "ObjectMapper". La gran ventaja de esta clase es que nos permite aplicar cambios parciales de un Map a un objeto Java (más si son records, de tipo inmutable).
 
-[SEGUIR POR AQUÍ Y REVISAR PATCH CON POSTMAN]
+
+[AÑADIR COMPROBACIÓN DE QUE FUNCIONA EL PATCH CON POSTMAN]
 
 
 
