@@ -66,7 +66,8 @@ De cara al manejo de errores 401 y 403, podemos modificar su mensaje en lugar de
 ```
 
 Foto demostración de funcionamiento:
-<img width="919" height="866" alt="image" src="https://github.com/user-attachments/assets/e7f53e62-f95e-4893-9c88-a30e368a324f" />
+<img width="919" height="866" alt="image" src="https://github.com/user-attachments/assets/ca52493b-ba4c-4916-aab7-96f6e2ca088d" />
+
 
 ### IMPLEMENTACIÓN GET POR ID DE USUARIO
 
