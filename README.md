@@ -9,7 +9,8 @@ En primer lugar, mi parte irá principalmente enfocada al tratado de Usuario, en
 - **PATCH** /pistaPadel/users/{userId}
 - **GET** /pistaPadel/health
 
-### TRATADO Y CREACIÓN DE CLASES
+<details>
+<summary><strong>TRATADO Y CREACIÓN DE CLASES</strong></summary>
 
 En conjunto con Ana, se crea el record Usuario y dentro de este se añaden una serie de validaciones. Por ejemplo, con '@Email' logramos validar que el formato de los correos introducidos son correctos.
 
@@ -18,7 +19,10 @@ Copio también las clases Rol y NombreRol, las cuales necesitaré cuando trabaje
 
 **IMPORTANTE:** De cara a aquel que se encargue de hacer el POST de registro de Usuario, en el body, el usuario se registrará pero no puede él determinar su ID ni su rol (el cual será siempre USER en su caso), de eso se encargará el servidor.
 
-### TRATADO DE DEPENDENCIAS
+</details>
+
+<details>
+<summary><strong>TRATADO DE DEPENDENCIAS</strong></summary>
 
 * Añado la siguiente dependencia para poder usar la Preautorización de roles y la seguridad:
 ```java
@@ -37,7 +41,22 @@ Copio también las clases Rol y NombreRol, las cuales necesitaré cuando trabaje
 ```
 Con ello aseguro poder cumplir en el futuro con las condiciones que me impongan y las validaciones que se usaron en el record de Usuario.
 
-### IMPLEMENTACIÓN GET DE USUARIOS
+* La dependencia para la parte de test que he decidido añadir:
+
+```java
+<dependency>
+    <groupId>org.springframework.security</groupId>
+    <artifactId>spring-security-test</artifactId>
+    <scope>test</scope>
+</dependency>
+
+```
+
+</details>
+
+<details>
+<summary><strong>IMPLEMENTACIÓN GET DE USUARIOS</strong></summary>
+
 
 En este primer GET se pide el Listado de usuarios, el cual, por facilidad, se devolverá ordenado en nombre alfabético de apellido (aunque podría haberse devuelto por fecha de registro).
 
@@ -69,9 +88,10 @@ De cara al manejo de errores 401 y 403, podemos modificar su mensaje en lugar de
 * Foto demostración de funcionamiento:
 
 <img width="919" height="866" alt="image" src="https://github.com/user-attachments/assets/ca52493b-ba4c-4916-aab7-96f6e2ca088d" />
+</details>
 
-
-### IMPLEMENTACIÓN GET POR ID DE USUARIO
+<details>
+<summary><strong>IMPLEMENTACIÓN GET POR ID DE USUARIO</strong></summary>
 
 Creación del segundo GET. (@GetMapping("/pistaPadel/users/{userId}"))
 
@@ -81,10 +101,10 @@ Creación del segundo GET. (@GetMapping("/pistaPadel/users/{userId}"))
 <img width="865" height="638" alt="image" src="https://github.com/user-attachments/assets/b0c60a44-5b8d-48a2-9690-d98ff828b40a" />
 
 <img width="862" height="481" alt="image" src="https://github.com/user-attachments/assets/bca8bc6e-a659-4de2-b7f8-9b1f522b15c8" />
+</details>
 
-
-
-### IMPLEMENTACIÓN PATCH DE USUARIO
+<details>
+<summary><strong>IMPLEMENTACIÓN PATCH DE USUARIO</strong></summary>
 
 Creación del endpoint con PATCH que nos permita actualizar datos dado un Id de usuario.
 
@@ -120,9 +140,12 @@ Una vez hecho esto, procedemos a comprobar el funcionamiento del PATCH
 <img width="861" height="822" alt="image" src="https://github.com/user-attachments/assets/9312d0f9-7276-472b-8280-7724818e82c1" />
 
 <img width="865" height="707" alt="image" src="https://github.com/user-attachments/assets/9d1b0aa8-a455-43d8-8f14-b51335b54591" />
+</details>
 
 
-### IMPLEMENTACIÓN GET PARA HEALTHCHECK
+<details>
+<summary><strong>IMPLEMENTACIÓN GET PARA HEALTHCHECK</strong></summary>
+
 
 Este endpoint es realmente sencillo y se usa principalmente por otros sistemas para ver si nuestra aplicación está viva y responde funcionando correctamente.
 
@@ -138,9 +161,65 @@ Su implementación es así de sencilla:
 * Foto demostración del funcionamiento:
 
 <img width="874" height="426" alt="image" src="https://github.com/user-attachments/assets/9ac027fb-6a69-4714-b57d-6f3521e60303" />
+</details>
 
 
 
 -----> Pregunta: ¿No sería mejor aprovechar la clase creada 'Rol' para ConfigSeguridad en lugar de escribir manualmente "ADMIN" o "USER"?
 
+<details>
+<summary><strong>INTEGRATION TEST</strong></summary>
+
+> Para esta parte, he de probar que las respuestas que se dan al realizar el **GET /pistaPadel/users/{userId}** son las esperadas.
+En mi caso, probaré dicho endpoint en lugar del GET a todos los usuarios por optimizar el tiempo y porque decidiré asumir como primer "approach" que si puedo recuperar un usuario mediante el GET, podré recuperar los demás.
+```java
+@Test
+    @WithMockUser(roles = "ADMIN")
+    void obtenerUsuarioporIdTest_OK() throws Exception {
+
+        // Defino un usuario cualquiera de tipo String (así funciona MockMvc)
+        String usuario = """
+                {
+                "nombre": "Martina",
+                "apellidos": "Ortiz",
+                "email": "mod@test.com",
+                "password": "123",
+                "telefono": "123456789"
+                }
+                """;
+        // Simulo el POST previo al GET
+        mockMvc.perform(post("/pistaPadel/auth/register")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(usuario))
+                .andExpect(status().isCreated());
+        // Simulo el GET al id 1:
+        mockMvc.perform(get("/pistaPadel/users/1"))
+                .andExpect(status().isOk())
+                // Ademas de verificar el 200, verifico que mi devuelve mis datos
+                .andExpect(jsonPath("$.nombre").value("Martina"))
+                .andExpect(jsonPath("$.email").value("mod@test.com"));
+        // Para evitar ir campo por campo, verifico solo dos, los mas clave*/
+
+    }
+
+    @Test
+    @WithMockUser(roles = "ADMIN")
+    void obtenerUsuarioporId_NoExistente() throws Exception{
+        // Para verificar el error 404
+        mockMvc.perform(get("/pistaPadel/users/33"))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    @WithMockUser(roles = "USER")
+    void obtenerUsuarioporId_SinPermiso() throws Exception{
+        mockMvc.perform(get("/pistaPadel/users/1"))
+                .andExpect(status().isForbidden());
+    }
+```
+
+
+[PROSEGUIR POR AQUÍ]
+
+</details>
 
