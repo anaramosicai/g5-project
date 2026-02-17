@@ -130,8 +130,6 @@ Tomando como base el código que subió mi compañera Felicia, partí creando el
 <!-- Ana README start -->
 
 ```
-# g5-project
-Final Project of PAT by group 5 
 
 ## 1. Cambios realizados en ANA_BRANCH
 
@@ -418,7 +416,6 @@ Intenté implementar este endpoint pasándole al método el record `Usuario`; si
         if (TokenViejo != null) tokenToUserId.remove(TokenViejo); // revoca la sesión anterior
         tokenToUserId.put(tokenNuevo, u.idUsuario());
 
-
         return new LoginResponse(tokenNuevo);
     }
 
@@ -458,7 +455,6 @@ Intenté implementar este endpoint pasándole al método el record `Usuario`; si
 </div>
 
 </details>
-
 
 </details>
 
@@ -532,8 +528,6 @@ Token: pega_aquí_tu_token
                         .requestMatchers("/pistaPadel/auth/logout").permitAll()  // <-- hasta tener filtro
                         .requestMatchers("/pistaPadel/health").permitAll()
 
-
-
                         // === TODO LO DEMÁS PROTEGIDO ===
                         .anyRequest().authenticated()
                 )
@@ -594,8 +588,6 @@ En conjunto con Ana, se crea el record Usuario y dentro de este se añaden una s
 
 <!-- Contenido íntegro de Martina -->
 ```
-# g5-project
-Final Project of PAT by group 5 
 
 ## Cambios realizados en Martina_branch:
 En primer lugar, mi parte irá principalmente enfocada al tratado de Usuario, en conjunto con la parte de Ana (autorización + usuario). Me encargaré de la realización de los cuatro endpoint siguientes:
@@ -653,7 +645,6 @@ Con ello aseguro poder cumplir en el futuro con las condiciones que me impongan 
 <details>
 <summary><strong>IMPLEMENTACIÓN GET DE USUARIOS</strong></summary>
 
-
 En este primer GET se pide el Listado de usuarios, el cual, por facilidad, se devolverá ordenado en nombre alfabético de apellido (aunque podría haberse devuelto por fecha de registro).
 
 --> Lo de por páginas era opcional, si diera tiempo, añadirlo.
@@ -690,7 +681,6 @@ De cara al manejo de errores 401 y 403, podemos modificar su mensaje en lugar de
 <summary><strong>IMPLEMENTACIÓN GET POR ID DE USUARIO</strong></summary>
 
 Creación del segundo GET. (@GetMapping("/pistaPadel/users/{userId}"))
-
 
 * Fotos demostración de funcionamiento:
 
@@ -738,10 +728,8 @@ Una vez hecho esto, procedemos a comprobar el funcionamiento del PATCH
 <img width="865" height="707" alt="image" src="https://github.com/user-attachments/assets/9d1b0aa8-a455-43d8-8f14-b51335b54591" />
 </details>
 
-
 <details>
 <summary><strong>IMPLEMENTACIÓN GET PARA HEALTHCHECK</strong></summary>
-
 
 Este endpoint es realmente sencillo y se usa principalmente por otros sistemas para ver si nuestra aplicación está viva y responde funcionando correctamente.
 
@@ -758,8 +746,6 @@ Su implementación es así de sencilla:
 
 <img width="874" height="426" alt="image" src="https://github.com/user-attachments/assets/9ac027fb-6a69-4714-b57d-6f3521e60303" />
 </details>
-
-
 
 -----> Pregunta: ¿No sería mejor aprovechar la clase creada 'Rol' para ConfigSeguridad en lugar de escribir manualmente "ADMIN" o "USER"?
 
@@ -814,11 +800,9 @@ En mi caso, probaré dicho endpoint en lugar del GET a todos los usuarios por op
     }
 ```
 
-
 [PROSEGUIR POR AQUÍ ---> VERIFICAR QUE FUNCIONA EL TEST DEL GET]
 
 </details>
-
 
 ```
 
@@ -826,8 +810,6 @@ En mi caso, probaré dicho endpoint en lugar del GET a todos los usuarios por op
 
 <!-- Antonio README completo -->
 ```
-# g5-project
-Final Project of PAT by group 5 
 
 ```
 
@@ -835,8 +817,6 @@ Final Project of PAT by group 5
 
 <!-- Yago README completo -->
 ```
-# g5-project
-Final Project of PAT by group 5 
 
 ```
 
