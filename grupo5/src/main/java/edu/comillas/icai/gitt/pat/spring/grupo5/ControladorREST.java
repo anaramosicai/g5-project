@@ -158,5 +158,11 @@ public class ControladorREST {
         return actualizado;
     }
 
+    // Principalmente pensado para que otro sistema verifique si mi servicio está vivo:
+    @GetMapping("/pistaPadel/health")
+    public Map<String, String> health(){
+        return Map.of("status", "ok");
+    }
+
 
 }
