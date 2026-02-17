@@ -219,7 +219,7 @@ En mi caso, probaré dicho endpoint en lugar del GET a todos los usuarios por op
 ```
 
 
-[PROSEGUIR POR AQUÍ]
+[PROSEGUIR POR AQUÍ ---> VERIFICAR QUE FUNCIONA EL TEST DEL GET]
 
 </details>
 
