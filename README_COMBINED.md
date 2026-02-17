@@ -113,24 +113,6 @@ Tomando como base el código que subió mi compañera Felicia, partí creando el
 
 </details>
 
-<!-- Contenido íntegro de Ana -->
-```markdown
---- Ana ---
-
-/* Inicio del README de Ana */
-
-```
-
-<!-- Reemplazado por el contenido completo importado -->
-```
-# (ANA - contenido completo a continuación)
-``` 
-<!-- inserted full Ana content below -->
-
-<!-- Ana README start -->
-
-```
-
 ## 1. Cambios realizados en ANA_BRANCH
 
 <details>
@@ -563,8 +545,6 @@ Token: pega_aquí_tu_token
 </details>
 
 **LINK POSTMAN:** https://anaramosicai-1242651.postman.co/workspace/Ana-Ramos's-Workspace~150adb93-51ba-4917-8bb9-8a85a0e683a5/collection/51611950-8ea4e773-4ab0-4e65-9f2b-6e444286a9e0?action=share&creator=51611950
-```
-<!-- Ana README end -->
 
 ### Martina (integrada sobre la combinación actual)
 
@@ -585,9 +565,6 @@ En conjunto con Ana, se crea el record Usuario y dentro de este se añaden una s
 **IMPORTANTE:** De cara al POST de registro de Usuario, en el body, el usuario se registrará pero no puede él determinar su ID ni su rol (el cual será siempre USER en su caso), de eso se encargará el servidor.
 
 </details>
-
-<!-- Contenido íntegro de Martina -->
-```
 
 ## Cambios realizados en Martina_branch:
 En primer lugar, mi parte irá principalmente enfocada al tratado de Usuario, en conjunto con la parte de Ana (autorización + usuario). Me encargaré de la realización de los cuatro endpoint siguientes:
@@ -747,8 +724,6 @@ Su implementación es así de sencilla:
 <img width="874" height="426" alt="image" src="https://github.com/user-attachments/assets/9ac027fb-6a69-4714-b57d-6f3521e60303" />
 </details>
 
------> Pregunta: ¿No sería mejor aprovechar la clase creada 'Rol' para ConfigSeguridad en lugar de escribir manualmente "ADMIN" o "USER"?
-
 <details>
 <summary><strong>INTEGRATION TEST</strong></summary>
 
@@ -800,25 +775,15 @@ En mi caso, probaré dicho endpoint en lugar del GET a todos los usuarios por op
     }
 ```
 
-[PROSEGUIR POR AQUÍ ---> VERIFICAR QUE FUNCIONA EL TEST DEL GET]
-
 </details>
 
 ```
 
-### Antonio
+## Antonio
 
-<!-- Antonio README completo -->
-```
 
-```
+## Yago
 
-### Yago
-
-<!-- Yago README completo -->
-```
-
-```
 
 ---
 
