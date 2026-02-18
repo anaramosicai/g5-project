@@ -1,17 +1,18 @@
 package edu.comillas.icai.gitt.pat.spring.grupo5;
 
+import jakarta.validation.constraints.NotNull;
 import org.jspecify.annotations.NonNull;
 
 import java.time.LocalDateTime;
 
 public record Reserva(
         long reservationId,
-        @NonNull
+        @NotNull
         long courtId,
-        @NonNull
+        @NotNull
         String userId,
-        @NonNull
+        @NotNull
         LocalDateTime inicio,
-        @NonNull
+        @NotNull
         LocalDateTime fin
 ) {}
