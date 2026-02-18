@@ -1,7 +1,5 @@
 package edu.comillas.icai.gitt.pat.spring.grupo5;
 
-
-
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
@@ -27,7 +25,40 @@ class ControladorRestIntegrationTest {
     @Autowired
     private MockMvc mockMvc;
 
+    @Autowired
+    private ObjectMapper objectMapper;
+
     private static final String REGISTER = "/pistaPadel/auth/register";
+
+    private Pista pista;
+
+    @BeforeEach
+    void setUp(){
+        pista = new Pista(
+        1,
+        "Madrid central 1",
+        "Madrid",
+        10,
+        true,
+        "2026-02-15");
+    }
+
+    @Test
+    void creaPistaOkTest() throws Exception{
+        mockMvc.perform(post("/pistaPadel/courts")
+                        .contentType(String.valueOf(MediaType.APPLICATION_JSON))
+                        .content(objectMapper.writeValueAsString(pista)))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.nombre").value("Madrid central 1"));
+    }
+
+    @Test
+    void creaPistaIncorrectoTest() throws Exception{
+        mockMvc.perform(post("/pistaPadel/courts")
+                    .contentType(String.valueOf(MediaType.APPLICATION_JSON))
+                    .content(String.valueOf(pista)))
+                .andExpect(status().isBadRequest());
+    }
 
     @Test
     void registro_ok_201() throws Exception {
