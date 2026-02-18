@@ -7,16 +7,20 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.time.LocalDate;
+import java.util.Map;
 
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.hamcrest.Matchers.*;
 
 import java.time.LocalDateTime;
 
@@ -53,6 +57,91 @@ class ControladorRestIntegrationTest {
     @BeforeEach
     void setup() {
         controladorREST.reset();
+
+        // Limpiar colecciones y contadores internos del controlador (como en ControladorRestTest_1)
+        controladorREST.pistas.clear();
+
+        @SuppressWarnings("unchecked")
+        Map<Long, Reserva> reservasMap = (Map<Long, Reserva>) ReflectionTestUtils.getField(controladorREST, "reservas");
+        reservasMap.clear();
+
+        ReflectionTestUtils.setField(controladorREST, "idPistaContador", 0L);
+        ReflectionTestUtils.setField(controladorREST, "idReservaContador", 0L);
+
+        // Preparar datos de prueba: una pista y una reserva ocupada
+        Pista p1 = new Pista(
+                1L,
+                "Central",
+                "Exterior",
+                2000L,
+                true,
+                LocalDate.now().toString()
+        );
+        controladorREST.pistas.put(1L, p1);
+
+        ReflectionTestUtils.setField(controladorREST, "idPistaContador", 2L);
+
+        Reserva r = new Reserva(
+                100L,
+                1L,
+                "u123",
+                LocalDateTime.parse("2026-03-20T10:00"),
+                LocalDateTime.parse("2026-03-20T11:00")
+        );
+        reservasMap.put(100L, r);
+
+        ReflectionTestUtils.setField(controladorREST, "idReservaContador", 101L);
+    }
+
+    // ========== TESTS ADICIONALES (de ControladorRestTest_1) ==========
+
+    @Test
+    void availability_sin_courtId_hay_alguna_pista_libre_200() throws Exception {
+        mockMvc.perform(get("/pistaPadel/availability")
+                        .param("date", "2026-03-21"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.fecha").value("2026-03-21"))
+                .andExpect(jsonPath("$.courtId").isEmpty())
+                .andExpect(jsonPath("$.disponible").value(true))
+                .andExpect(jsonPath("$.mensaje").value(containsString("Hay disponibilidad")));
+    }
+
+    @Test
+    void availability_con_courtId_ocupada_200() throws Exception {
+        mockMvc.perform(get("/pistaPadel/availability")
+                        .param("date", "2026-03-20")
+                        .param("courtId", "1"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.disponible").value(false));
+    }
+
+    @Test
+    void availability_fecha_invalida_400() throws Exception {
+        mockMvc.perform(get("/pistaPadel/availability")
+                        .param("date", "2026-13-45"))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void disponibilidad_pista_concreta_no_existe_404() throws Exception {
+        mockMvc.perform(get("/pistaPadel/courts/999/availability")
+                        .param("date", "2026-03-20"))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void mis_reservas_sin_usuario_401() throws Exception {
+        mockMvc.perform(get("/pistaPadel/reservations"))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void mis_reservas_usuario_sin_reservas_devuelve_lista_vacia() throws Exception {
+        mockMvc.perform(get("/pistaPadel/reservations")
+                        .with(user("otro_usuario_sin_nada").roles("USER")))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$", hasSize(0)));
     }
 
     // ========== TESTS DE REGISTRO ==========

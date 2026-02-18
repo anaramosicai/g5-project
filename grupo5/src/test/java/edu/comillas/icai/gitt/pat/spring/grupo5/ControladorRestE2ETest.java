@@ -12,6 +12,9 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.junit.jupiter.api.Assertions;
 import org.springframework.boot.test.web.server.LocalServerPort;
+import org.springframework.test.util.ReflectionTestUtils;
+import java.time.LocalDate;
+import java.util.Map;
 
 import java.time.LocalDateTime;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -55,7 +58,38 @@ class ControladorRestE2ETest {
         controladorREST.reset();
         baseUrl = "http://localhost:" + port + "/pistaPadel";
         logger.info("=== SETUP: Base URL = {} ===", baseUrl);
+                // Preparar estado interno similar a ControladorRestTestE2E_1
+                controladorREST.pistas.clear();
+
+                @SuppressWarnings("unchecked")
+                Map<Long, Reserva> reservasMap = (Map<Long, Reserva>) ReflectionTestUtils.getField(controladorREST, "reservas");
+                if (reservasMap != null) reservasMap.clear();
+
+                ReflectionTestUtils.setField(controladorREST, "idPistaContador", 0L);
+                ReflectionTestUtils.setField(controladorREST, "idReservaContador", 0L);
+
+                Pista p1 = new Pista(
+                                1L,
+                                "Central",
+                                "Exterior",
+                                2000,
+                                true,
+                                LocalDate.now().toString()
+                );
+                controladorREST.pistas.put(1L, p1);
+                ReflectionTestUtils.setField(controladorREST, "idPistaContador", 2L);
     }
+
+        @Test
+        void availability_sin_courtId_devuelve_disponible() {
+                ResponseEntity<String> response = restTemplate.getForEntity(baseUrl + "/availability?date=2026-03-21", String.class);
+                logger.info("TEST E2E availability - Status: {}", response.getStatusCode());
+                Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
+                String body = response.getBody();
+                Assertions.assertNotNull(body);
+                Assertions.assertTrue(body.contains("\"disponible\":true") || body.contains("\"disponible\": true"));
+                Assertions.assertTrue(body.contains("Hay disponibilidad"));
+        }
 
     // ========== TESTS DE REGISTRO ==========
 
