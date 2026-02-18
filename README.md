@@ -783,14 +783,4 @@ En mi caso, probaré dicho endpoint en lugar del GET a todos los usuarios por op
 ## Yago
 
 
----
 
-## Notas sobre combinación
-
-- He usado la versión de Felicia como punto de partida y luego añadí los contenidos de Ana y Martina respetando sus apartados técnicos.
-- Antonio y Yago se incluyen al final con sus secciones; revisarlas y mover o consolidar partes si queréis una estructura más integrada (por ejemplo, un único apartado de Endpoints agrupados por área) sería recomendable.
-
-Si quieres, puedo:
-
-- Crear una versión final en la rama `combine-readmes` y abrir un PR.
-- Refinar el merging para eliminar duplicaciones y reestructurar secciones.
