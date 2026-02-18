@@ -9,6 +9,11 @@ import org.springframework.http.*;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.springframework.boot.test.web.server.LocalServerPort;
+
+import java.time.LocalDateTime;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Test E2E del endpoint real POST /pistaPadel/auth/register
@@ -107,4 +112,86 @@ class ControladorRestE2ETest {
                 REGISTER, HttpMethod.POST, new HttpEntity<>(body, headers), String.class);
         Assertions.assertEquals(HttpStatus.CONFLICT, r2.getStatusCode());
     }
+
+
+        /**
+         * Test E2E del endpoint real  RESERVAS
+         */
+        @LocalServerPort
+        private int port;
+        
+        @Autowired
+        private TestRestTemplate restTemplate;
+        
+        private String baseUrl;
+        private Long courtId;
+        
+        @BeforeEach
+        void setup() {
+        baseUrl = "http://localhost:" + port + "/pistaPadel";
+        
+        // Creamos una pista como ADMIN
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBasicAuth("admin", "clave"); // ← credenciales correctas del usuario admin en memoria
+        
+        Pista pista = new Pista(0, "Pista Test E2E", "Indoor", 3500, true, "2026-01-01");
+        
+        ResponseEntity<Pista> response = restTemplate.exchange(
+                baseUrl + "/courts",
+                HttpMethod.POST,
+                new HttpEntity<>(pista, headers),
+                Pista.class
+        );
+        
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
+        courtId = response.getBody().idPista();
+        }
+        
+        @Test
+        void flujoCompletoReservaComoUser() {
+        
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBasicAuth("usuario", "clave");
+        
+        Reserva reservaNueva = new Reserva(
+                0,
+                courtId,
+                "usuario",
+                LocalDateTime.of(2026, 5, 20, 16, 0),
+                LocalDateTime.of(2026, 5, 20, 17, 0)
+        );
+        
+        // Crear reserva
+        ResponseEntity<Reserva> createResp = restTemplate.exchange(
+                baseUrl + "/reservations",
+                HttpMethod.POST,
+                new HttpEntity<>(reservaNueva, headers),
+                Reserva.class
+        );
+        
+        assertThat(createResp.getStatusCode()).isEqualTo(HttpStatus.CREATED);
+        Long reservationId = createResp.getBody().reservationId();
+        
+        // Obtener detalle
+        ResponseEntity<Reserva> getResp = restTemplate.exchange(
+                baseUrl + "/reservations/" + reservationId,
+                HttpMethod.GET,
+                new HttpEntity<>(headers),
+                Reserva.class
+        );
+        
+        assertThat(getResp.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(getResp.getBody().inicio()).isEqualTo(reservaNueva.inicio());
+        
+        // Cancelar
+        ResponseEntity<Void> deleteResp = restTemplate.exchange(
+                baseUrl + "/reservations/" + reservationId,
+                HttpMethod.DELETE,
+                new HttpEntity<>(headers),
+                Void.class
+        );
+        
+        assertThat(deleteResp.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
+        }
 }
+
