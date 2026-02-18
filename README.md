@@ -1,5 +1,212 @@
 # g5-project
-Final Project of PAT by group 5 
+Final Project of PAT by group 5
+
+---
+
+## Base (Felicia)
+
+**Description of written code**
+I created a record named Pista and added endpoints to the REST controller. In the class `ConfigSeguridad` I created two possible user authentications: USER and ADMIN which have different authorities to change details in the different courts. I also created to types of tests where creating a pista is ok and one in incorrect. 
+
+<details>
+<summary><strong>Description of the endpoints from my part</strong></summary>
+<table border="1" cellpadding="10" cellspacing="0">
+  <thead>
+    <tr>
+      <th>MÉTODO</th>
+      <th>RUTA</th>
+      <th>DESCRIPCIÓN</th>
+      <th>RESPUESTAS (mínimas)</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>POST</strong></td>
+      <td><code>/pistaPadel/courts</code></td>
+      <td>(ADMIN) Crear pista (nombre,
+				ubicación, precio/hora,
+				activa…).
+	  </td>
+      <td>201, 400, 401, 403, 409 (nombre duplicado)</td>
+    </tr>
+    <tr>
+      <td><strong>GET</strong></td>
+      <td><code>/pistaPadel/courts</code></td>
+      <td>Listar pistas (filtro opcional active=true/false).</td>
+      <td>200 ok</td>
+    </tr>
+    <tr>
+      <td><strong>GET</strong></td>
+      <td><code>/pistaPadel/courts/{courtId}</code></td>
+      <td>Obtener detalle de una pista.</td>
+      <td>204 ok, 404</td>
+    </tr>
+    <tr>
+      <td><strong>PATCH</strong></td>
+      <td><code>/pistaPadel/courts/{courtId}</code></td>
+      <td>(ADMIN) Modificar pista (precio, activa, etc.).</td>
+      <td>200 ok, 400 Bad request, 401 no autenticado, 403 Forbidden Error, 404</td>
+    </tr>
+    <tr>
+      <td><strong>DELETE</strong></td>
+      <td><code>/pistaPadel/courts/{courtId}</code></td>
+      <td>(ADMIN) Eliminar pista (o desactivar).</td>
+      <td>204, 401, 403, 404, 409 (si hay reservas futuras, si queréis imponer regla)</td>
+    </tr>
+  </tbody>
+</table>
+
+
+
+<summary><strong>🔹 Record: Pista (Características y Restricciones)</strong></summary>
+**Características:**
+- `idPista`:Identificador único de la pista.
+- `nombre`: Nombre identificativo de la pista (ej. “Pista 1”).
+- `ubicacion`: Ubicación o descripción física.
+- `precioHora`: Precio de la pista por hora.
+- `activa`: Indica si la pista está disponible para reservas.
+- `fechaAlta`: Fecha de creación de la pista.
+
+
+**Restricciones:**
+- El nombre de la pista debe ser **único**.
+- Un pista puede tener **0..n** reservas.
+- No se puede reservar una pista inactiva..
+
+</details>
+
+
+<details>
+<summary><strong>Integration test</strong></summary>
+
+> I created two test for **POST /pistaPadel/courts/**. I also created a example pista to check the creaPistaOkTest is going through. I check this by double checking with the name of the pista that I created with the name "Madrid central 1".
+```java
+@Test
+    void creaPistaOkTest() throws Exception{
+        Pista pista = new Pista(
+                        1,
+                        "Madrid central 1",
+                        "Madrid",
+                        10,
+                        true,
+                        "2026-02-15");
+
+        mockMvc.perform(post("/pistaPadel/courts")
+                        .contentType(String.valueOf(MediaType.APPLICATION_JSON))
+                        .content(objectMapper.writeValueAsString(pista)))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.nombre").value("Madrid central 1"));
+    }
+    @Test
+    void creaPistaIncorrectoTest() throws Exception{
+        mockMvc.perform(post("/pistaPadel/courts")
+                    .contentType(String.valueOf(MediaType.APPLICATION_JSON))
+                    .content(String.valueOf(pista)))
+                .andExpect(status().isBadRequest());
+    }
+```
+
+</details>
+
+
+
+---
+
+## Contribuciones combinadas
+
+### Ana (integrada sobre Felicia)
+
+## 1. Cambios realizados en ANA_BRANCH
+
+<details>
+<summary><strong>📌 1.1. Descripción de mi parte</strong></summary>
+
+Mi parte trataba de la **Autenticación + detalle de usuario (errores tipo 401/403)**
+Tenía los siguientes endpoints a desarrollar:
+
+<table border="1" cellpadding="10" cellspacing="0">
+  <thead>
+    <tr>
+      <th>MÉTODO</th>
+      <th>RUTA</th>
+      <th>DESCRIPCIÓN</th>
+      <th>RESPUESTAS (mínimas)</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>POST</strong></td>
+      <td><code>/pistaPadel/auth/register</code></td>
+      <td>Registrar usuario (rol USER por defecto)</td>
+      <td>201 creado, 400 datos inválidos, 409 email ya existe</td>
+    </tr>
+    <tr>
+      <td><strong>POST</strong></td>
+      <td><code>/pistaPadel/auth/login</code></td>
+      <td>Login y obtención de token (sesión)</td>
+      <td>200 ok, 400 request inválida, 401 credenciales incorrectas</td>
+    </tr>
+    <tr>
+      <td><strong>POST</strong></td>
+      <td><code>/pistaPadel/auth/logout</code></td>
+      <td>Logout (invalidar sesión/tokens si aplica)</td>
+      <td>204 ok, 401 no autenticado</td>
+    </tr>
+    <tr>
+      <td><strong>GET</strong></td>
+      <td><code>/pistaPadel/auth/me</code></td>
+      <td>Devuelve el usuario autenticado</td>
+      <td>200 ok, 401 no autenticado</td>
+    </tr>
+    <tr>
+      <td><strong>GET</strong></td>
+      <td><code>/pistaPadel/users/{userId}</code></td>
+      <td>(ADMIN o dueño) Obtener un usuario por id</td>
+      <td>200, 401, 403, 404 no existe</td>
+    </tr>
+  </tbody>
+</table>
+
+<details>
+<summary><strong>📊 Tabla referencia: HTTP STATUS CODES</strong></summary>
+
+| Código | Descripción |
+|--------|-------------|
+| 200 | OK |
+| 201 | Created |
+| 204 | No Content |
+| 400 | Bad Request |
+| 401 | Unauthorized |
+| 403 | Forbidden |
+| 409 | Conflict |
+
+</details>
+
+</details>
+
+## 1.2. Desarrollo de mi parte
+
+Tomando como base el código que subió mi compañera Felicia, partí creando el **record** `Usuario`.
+
+<details>
+<summary><strong>🔹 Record: Usuario (Características y Restricciones)</strong></summary>
+**Características:**
+- `idUsuario`: Identificador único del usuario.
+- `nombre`: Nombre del usuario.
+- `apellidos`: Apellidos del usuario.
+- `email`: Correo electrónico (único en el sistema).
+- `password`: Contraseña cifrada.
+- `telefono`: Teléfono de contacto.
+- `rol`: Rol del usuario en el sistema. *Valores posibles: USER, ADMIN.*
+- `fechaRegistro`: Fecha y hora de alta en el sistema.
+- `activo`: Indica si el usuario está activo o deshabilitado.
+
+**Restricciones:**
+- El email debe ser **único**.
+- Un usuario puede tener **0..n** reservas.
+- Solo los usuarios con **rol ADMIN** pueden **gestionar pistas**.
+
+</details>
 
 ## 1. Cambios realizados en ANA_BRANCH
 
@@ -286,7 +493,6 @@ Intenté implementar este endpoint pasándole al método el record `Usuario`; si
         if (TokenViejo != null) tokenToUserId.remove(TokenViejo); // revoca la sesión anterior
         tokenToUserId.put(tokenNuevo, u.idUsuario());
 
-
         return new LoginResponse(tokenNuevo);
     }
 
@@ -326,7 +532,6 @@ Intenté implementar este endpoint pasándole al método el record `Usuario`; si
 </div>
 
 </details>
-
 
 </details>
 
@@ -400,8 +605,6 @@ Token: pega_aquí_tu_token
                         .requestMatchers("/pistaPadel/auth/logout").permitAll()  // <-- hasta tener filtro
                         .requestMatchers("/pistaPadel/health").permitAll()
 
-
-
                         // === TODO LO DEMÁS PROTEGIDO ===
                         .anyRequest().authenticated()
                 )
@@ -437,3 +640,242 @@ Token: pega_aquí_tu_token
 </details>
 
 **LINK POSTMAN:** https://anaramosicai-1242651.postman.co/workspace/Ana-Ramos's-Workspace~150adb93-51ba-4917-8bb9-8a85a0e683a5/collection/51611950-8ea4e773-4ab0-4e65-9f2b-6e444286a9e0?action=share&creator=51611950
+
+### Martina (integrada sobre la combinación actual)
+
+## Cambios realizados en Martina_branch:
+
+En primer lugar, mi parte irá principalmente enfocada al tratado de Usuario, en conjunto con la parte de Ana (autorización + usuario). Me encargaré de la realización de los cuatro endpoint siguientes:
+
+- **GET** /pistaPadel/users
+- **GET** /pistaPadel/users/{userId}
+- **PATCH** /pistaPadel/users/{userId}
+- **GET** /pistaPadel/health
+
+<details>
+<summary><strong>TRATADO Y CREACIÓN DE CLASES</strong></summary>
+
+En conjunto con Ana, se crea el record Usuario y dentro de este se añaden una serie de validaciones. Copio también las clases `Rol` y `NombreRol`, las cuales necesitaré cuando trabaje con mis otras clases. Además de `ConfigSeguridad`, clase que me permitirá habilitar los roles (principalmente con el que trabajo, que es ADMIN) y controlar el acceso a los endpoint mediante `@PreAuthorize`.
+
+**IMPORTANTE:** De cara al POST de registro de Usuario, en el body, el usuario se registrará pero no puede él determinar su ID ni su rol (el cual será siempre USER en su caso), de eso se encargará el servidor.
+
+</details>
+
+## Cambios realizados en Martina_branch:
+En primer lugar, mi parte irá principalmente enfocada al tratado de Usuario, en conjunto con la parte de Ana (autorización + usuario). Me encargaré de la realización de los cuatro endpoint siguientes:
+
+- **GET** /pistaPadel/users
+- **GET** /pistaPadel/users/{userId}
+- **PATCH** /pistaPadel/users/{userId}
+- **GET** /pistaPadel/health
+
+<details>
+<summary><strong>TRATADO Y CREACIÓN DE CLASES</strong></summary>
+
+En conjunto con Ana, se crea el record Usuario y dentro de este se añaden una serie de validaciones. Por ejemplo, con '@Email' logramos validar que el formato de los correos introducidos son correctos.
+
+Por otro lado, tomando como base la clase 'ControladorREST' de 'felicia_branch', comenzaré a añadir cada endpoint de los nombrados arriba.
+Copio también las clases Rol y NombreRol, las cuales necesitaré cuando trabaje con mis otras clases. Además de 'ConfigSeguridad', clase que me permitirá habilitar los roles (principalmente con el que trabajo, que es ADMIN) y controlar el acceso a los endpoint mediante '@PreAuthorize'.
+
+**IMPORTANTE:** De cara a aquel que se encargue de hacer el POST de registro de Usuario, en el body, el usuario se registrará pero no puede él determinar su ID ni su rol (el cual será siempre USER en su caso), de eso se encargará el servidor.
+
+</details>
+
+<details>
+<summary><strong>TRATADO DE DEPENDENCIAS</strong></summary>
+
+* Añado la siguiente dependencia para poder usar la Preautorización de roles y la seguridad:
+```java
+      <dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-security</artifactId>
+		</dependency>
+```
+
+* Además de la dependencia para realizar validaciones:
+```java
+<dependency>
+  <groupId>org.springframework.boot</groupId>
+  <artifactId>spring-boot-starter-validation</artifactId>
+</dependency>
+```
+Con ello aseguro poder cumplir en el futuro con las condiciones que me impongan y las validaciones que se usaron en el record de Usuario.
+
+* La dependencia para la parte de test que he decidido añadir:
+
+```java
+<dependency>
+    <groupId>org.springframework.security</groupId>
+    <artifactId>spring-security-test</artifactId>
+    <scope>test</scope>
+</dependency>
+
+```
+
+</details>
+
+<details>
+<summary><strong>IMPLEMENTACIÓN GET DE USUARIOS</strong></summary>
+
+En este primer GET se pide el Listado de usuarios, el cual, por facilidad, se devolverá ordenado en nombre alfabético de apellido (aunque podría haberse devuelto por fecha de registro).
+
+--> Lo de por páginas era opcional, si diera tiempo, añadirlo.
+
+En cuanto a las respuestas esperadas, este método puede devolvernos un 200 (indicador de que se efectuó bien), un 401 (indicador de que no se está autorizado) o un 403 (indicador de que no tenemos permisos y por tanto se nos prohibe acceder al método).
+Si el GET devuelve un objeto, tendremos como respuesta el 200.
+Si se intenta acceder sin autenticar, Spring Security se encargará de devolver el 401. 
+Si intentamos acceder desde otro rol que no sea ADMIN, con '@PreAuthorize("hasRole('ADMIN')")' logramos que Spring Security devuelva el aviso 403. 
+Spring Security se ejecuta antes de la llamada del endpoint, cuando llega la petición API, se ejecutan filtros de seguridad antes de acceder como tal al endpoint.
+
+De cara al manejo de errores 401 y 403, podemos modificar su mensaje en lugar de trabajar con lo predeterminado de Spring, añadiendo a nuestra clase 'ConfigSeguridad' el siguiente código:
+
+```java
+// === MANEJO DE ERRORES 401 Y 403 ===
+                // ¿Qué sucede cuando...? (Aplicado a todos los endpoint protegidos)
+                .exceptionHandling(ex -> ex
+                        // Usuario NO autenticado → 401
+                        .authenticationEntryPoint((request, response, authException) ->
+                                response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "401 - No autenticado") )
+                        // Usuario autenticado pero sin permisos → 403
+                        .accessDeniedHandler((request, response, accessDeniedException) ->
+                                response.sendError(HttpServletResponse.SC_FORBIDDEN,
+                                        "403 - Acceso denegado")
+                        )
+                )
+```
+
+* Foto demostración de funcionamiento:
+
+<img width="919" height="866" alt="image" src="https://github.com/user-attachments/assets/ca52493b-ba4c-4916-aab7-96f6e2ca088d" />
+</details>
+
+<details>
+<summary><strong>IMPLEMENTACIÓN GET POR ID DE USUARIO</strong></summary>
+
+Creación del segundo GET. (@GetMapping("/pistaPadel/users/{userId}"))
+
+* Fotos demostración de funcionamiento:
+
+<img width="865" height="638" alt="image" src="https://github.com/user-attachments/assets/b0c60a44-5b8d-48a2-9690-d98ff828b40a" />
+
+<img width="862" height="481" alt="image" src="https://github.com/user-attachments/assets/bca8bc6e-a659-4de2-b7f8-9b1f522b15c8" />
+</details>
+
+<details>
+<summary><strong>IMPLEMENTACIÓN PATCH DE USUARIO</strong></summary>
+
+Creación del endpoint con PATCH que nos permita actualizar datos dado un Id de usuario.
+
+Para el PATCH, en primer lugar, se ha de comprobar que el usuario que se nos pide actualizar existe y que el email que nos dan no está repetido en los registros.
+Bloqueo aquellos campos que quiero que permanezcan inalterables (idUsuario, rol y fechaRegistro) y procedo a crear el nuevo usuario actualizado:
+```java
+Usuario actualizado;
+        try{
+            actualizado = new Usuario(
+                    user.idUsuario(),
+                    cambios.containsKey("nombre") ? (String) cambios.get("nombre") : user.nombre(),
+                    cambios.containsKey("apellidos") ? (String) cambios.get("apellidos") : user.apellidos(),
+                    cambios.containsKey("email") ? (String) cambios.get("email") : user.email(),
+                    cambios.containsKey("password") ? (String) cambios.get("password") : user.password(),
+                    cambios.containsKey("telefono") ? (String) cambios.get("telefono") : user.telefono(),
+                    user.rol(),
+                    user.fechaRegistro(),
+                    cambios.containsKey("activo") ? (Boolean) cambios.get("activo") : user.activo()
+            );
+
+        } catch (IllegalArgumentException e){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "Campo inválido");
+        }
+```
+
+Además, como previamente se estaba trabajando con dos HashMap (uno por email y otro por id), actualizo ambos con los nuevos datos para que haya una sincronización completa.
+
+Una vez hecho esto, procedemos a comprobar el funcionamiento del PATCH
+
+* Foto demostración del funcionamiento:
+
+<img width="861" height="822" alt="image" src="https://github.com/user-attachments/assets/9312d0f9-7276-472b-8280-7724818e82c1" />
+
+<img width="865" height="707" alt="image" src="https://github.com/user-attachments/assets/9d1b0aa8-a455-43d8-8f14-b51335b54591" />
+</details>
+
+<details>
+<summary><strong>IMPLEMENTACIÓN GET PARA HEALTHCHECK</strong></summary>
+
+Este endpoint es realmente sencillo y se usa principalmente por otros sistemas para ver si nuestra aplicación está viva y responde funcionando correctamente.
+
+Su implementación es así de sencilla:
+
+```java
+@GetMapping("/pistaPadel/health")
+    public Map<String, String> health(){
+        return Map.of("status", "ok");
+    }
+```
+
+* Foto demostración del funcionamiento:
+
+<img width="874" height="426" alt="image" src="https://github.com/user-attachments/assets/9ac027fb-6a69-4714-b57d-6f3521e60303" />
+</details>
+
+<details>
+<summary><strong>INTEGRATION TEST</strong></summary>
+
+> Para esta parte, he de probar que las respuestas que se dan al realizar el **GET /pistaPadel/users/{userId}** son las esperadas.
+En mi caso, probaré dicho endpoint en lugar del GET a todos los usuarios por optimizar el tiempo y porque decidiré asumir como primer "approach" que si puedo recuperar un usuario mediante el GET, podré recuperar los demás.
+```java
+@Test
+    @WithMockUser(roles = "ADMIN")
+    void obtenerUsuarioporIdTest_OK() throws Exception {
+
+        // Defino un usuario cualquiera de tipo String (así funciona MockMvc)
+        String usuario = """
+                {
+                "nombre": "Martina",
+                "apellidos": "Ortiz",
+                "email": "mod@test.com",
+                "password": "123",
+                "telefono": "123456789"
+                }
+                """;
+        // Simulo el POST previo al GET
+        mockMvc.perform(post("/pistaPadel/auth/register")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(usuario))
+                .andExpect(status().isCreated());
+        // Simulo el GET al id 1:
+        mockMvc.perform(get("/pistaPadel/users/1"))
+                .andExpect(status().isOk())
+                // Ademas de verificar el 200, verifico que mi devuelve mis datos
+                .andExpect(jsonPath("$.nombre").value("Martina"))
+                .andExpect(jsonPath("$.email").value("mod@test.com"));
+        // Para evitar ir campo por campo, verifico solo dos, los mas clave*/
+
+    }
+
+    @Test
+    @WithMockUser(roles = "ADMIN")
+    void obtenerUsuarioporId_NoExistente() throws Exception{
+        // Para verificar el error 404
+        mockMvc.perform(get("/pistaPadel/users/33"))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    @WithMockUser(roles = "USER")
+    void obtenerUsuarioporId_SinPermiso() throws Exception{
+        mockMvc.perform(get("/pistaPadel/users/1"))
+                .andExpect(status().isForbidden());
+    }
+```
+
+</details>
+
+## Antonio
+
+
+## Yago
+
+
+

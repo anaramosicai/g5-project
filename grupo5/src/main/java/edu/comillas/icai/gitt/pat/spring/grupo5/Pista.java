@@ -1,28 +1,25 @@
 package edu.comillas.icai.gitt.pat.spring.grupo5;
 
-import org.jspecify.annotations.NonNull;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
+import jakarta.validation.constraints.NotNull;
 
 public record Pista(
 
-    @NonNull
+    @NotNull
     long idPista,
 
-    @NonNull
+    @NotNull
     String nombre,
 
-    @NonNull
+    @NotNull
     String ubicacion,
 
-    @NonNull
+    @NotNull
     long precioHora,
 
-    @NonNull
+    @NotNull
     boolean activa,
 
-    @NonNull
+    @NotNull
     String fechaAlta)
 
 {}
