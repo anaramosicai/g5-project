@@ -83,13 +83,20 @@ I created a record named Pista and added endpoints to the REST controller. In th
 ```java
 @Test
     void creaPistaOkTest() throws Exception{
+        Pista pista = new Pista(
+                        1,
+                        "Madrid central 1",
+                        "Madrid",
+                        10,
+                        true,
+                        "2026-02-15");
+
         mockMvc.perform(post("/pistaPadel/courts")
                         .contentType(String.valueOf(MediaType.APPLICATION_JSON))
                         .content(objectMapper.writeValueAsString(pista)))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.nombre").value("Madrid central 1"));
     }
-
     @Test
     void creaPistaIncorrectoTest() throws Exception{
         mockMvc.perform(post("/pistaPadel/courts")
