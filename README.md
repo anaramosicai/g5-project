@@ -5,8 +5,11 @@ Final Project of PAT by group 5
 
 ## Base (Felicia)
 
+**Description of written code**
+I created a record named Pista and added endpoints to the REST controller. In the class `ConfigSeguridad` I created two possible user authentications: USER and ADMIN which have different authorities to change details in the different courts. I also created to types of tests where creating a pista is ok and one in incorrect. 
+
 <details>
-<summary><strong>Descripción de mi parte</strong></summary>
+<summary><strong>Description of the endpoints from my part</strong></summary>
 <table border="1" cellpadding="10" cellspacing="0">
   <thead>
     <tr>
@@ -72,8 +75,33 @@ Final Project of PAT by group 5
 
 </details>
 
-**Description of written code**
-I created a record named Pista and added endpoints to the REST controller. In the class `ConfigSeguridad` I created two possible user authentications: USER and ADMIN which have different authorities to change details in the different courts.
+
+<details>
+<summary><strong>Integration test</strong></summary>
+
+> I created two test for **POST /pistaPadel/courts/**. I also created a example pista to check the creaPistaOkTest is going through. I check this by double checking with the name of the pista that I created with the name "Madrid central 1".
+```java
+@Test
+    void creaPistaOkTest() throws Exception{
+        mockMvc.perform(post("/pistaPadel/courts")
+                        .contentType(String.valueOf(MediaType.APPLICATION_JSON))
+                        .content(objectMapper.writeValueAsString(pista)))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.nombre").value("Madrid central 1"));
+    }
+
+    @Test
+    void creaPistaIncorrectoTest() throws Exception{
+        mockMvc.perform(post("/pistaPadel/courts")
+                    .contentType(String.valueOf(MediaType.APPLICATION_JSON))
+                    .content(String.valueOf(pista)))
+                .andExpect(status().isBadRequest());
+    }
+```
+
+</details>
+
+
 
 ---
 
