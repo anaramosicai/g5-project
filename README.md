@@ -777,8 +777,6 @@ En mi caso, probaré dicho endpoint en lugar del GET a todos los usuarios por op
 
 </details>
 
-```
-
 ## Antonio
 
 
