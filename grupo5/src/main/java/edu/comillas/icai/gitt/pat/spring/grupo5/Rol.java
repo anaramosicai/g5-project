@@ -1,16 +1,16 @@
 package edu.comillas.icai.gitt.pat.spring.grupo5;
 
-import org.jspecify.annotations.NonNull;
+import jakarta.validation.constraints.NotNull;
 
 public record Rol(
 
-        @NonNull
+        @NotNull
         int idRol,
 
-        @NonNull
-        NomreRol nombreRol,
+        @NotNull
+        NombreRol nombreRol,
 
-        @NonNull
+        @NotNull
         String descripcion)
 {
 }
