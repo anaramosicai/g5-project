@@ -3,7 +3,10 @@ package edu.comillas.icai.gitt.pat.spring.grupo5;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 //import org.springframework.boot.test.web.client.TestRestTemplate; //<-- no va y la dependency está incluída ¯_ (ツ)_/¯
-import org.springframework.boot.resttestclient.TestRestTemplate;
+//import org.springframework.boot.resttestclient.TestRestTemplate;
+
+import org.springframework.boot.test.web.client.TestRestTemplate;
+
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.*;
 import org.springframework.test.annotation.DirtiesContext;
@@ -32,6 +35,49 @@ class ControladorRestE2ETest {
     private TestRestTemplate restTemplate;
 
     private static final String REGISTER = "/pistaPadel/auth/register";
+
+    private static final String COURT = "/pistaPadel/courts";
+
+    @LocalServerPort
+    private int port;
+
+    private String getBaseUrl() {
+        return "http://localhost:" + port + "/pistaPadel/courts";
+    }
+
+    @Test
+    void creaPistaOkTest() {
+        Pista pista = new Pista(
+                1,
+                "Madrid central 1",
+                "Madrid",
+                10,
+                true,
+                "2026-02-15");
+
+         ResponseEntity<Pista> response = restTemplate.withBasicAuth("admin", "clave")
+                                                       .postForEntity(getBaseUrl(),
+                                                                     pista,
+                                                                     Pista.class);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
+        assertThat(response.getBody().nombre()).isEqualTo("Madrid central 1");        
+    }
+
+    @Test
+    void creaPistaIncorrectoTest() {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        HttpEntity<String> request = new HttpEntity<>("{ invalid json }", headers);
+
+        ResponseEntity<String> response = restTemplate.withBasicAuth("admin", "clave")
+                                                      .postForEntity(getBaseUrl(),
+                                                                     request,
+                                                                     String.class);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+    }
 
     @Test
     void registro_ok_201() {
@@ -117,11 +163,7 @@ class ControladorRestE2ETest {
         /**
          * Test E2E del endpoint real  RESERVAS
          */
-        @LocalServerPort
-        private int port;
         
-        @Autowired
-        private TestRestTemplate restTemplate;
         
         private String baseUrl;
         private Long courtId;
