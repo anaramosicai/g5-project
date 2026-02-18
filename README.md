@@ -779,6 +779,90 @@ En mi caso, probaré dicho endpoint en lugar del GET a todos los usuarios por op
 
 ## Antonio
 
+**Mi parte:** CRUD completo de **Reservas** + creación del record `Reserva`  
+**Endpoints implementados:**
+
+<table border="1" cellpadding="10" cellspacing="0">
+  <thead>
+    <tr>
+      <th>MÉTODO</th>
+      <th>RUTA</th>
+      <th>DESCRIPCIÓN</th>
+      <th>RESPUESTAS (mínimas)</th>
+      <th>ROLES REQUERIDOS</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>POST</strong></td>
+      <td><code>/pistaPadel/reservations</code></td>
+      <td>Crear una nueva reserva</td>
+      <td>201 Created, 400 Bad Request, 404 Pista no existe, 409 Slot ocupado</td>
+      <td>USER</td>
+    </tr>
+    <tr>
+      <td><strong>GET</strong></td>
+      <td><code>/pistaPadel/reservations/{reservationId}</code></td>
+      <td>Obtener detalle de una reserva</td>
+      <td>200 OK, 401 Unauthorized, 403 Forbidden, 404 Not Found</td>
+      <td>USER o ADMIN</td>
+    </tr>
+    <tr>
+      <td><strong>PATCH</strong></td>
+      <td><code>/pistaPadel/reservations/{reservationId}</code></td>
+      <td>Reprogramar (cambiar horario) una reserva</td>
+      <td>200 OK, 400 Bad Request, 404 Not Found, 409 Slot ocupado</td>
+      <td>USER o ADMIN</td>
+    </tr>
+    <tr>
+      <td><strong>DELETE</strong></td>
+      <td><code>/pistaPadel/reservations/{reservationId}</code></td>
+      <td>Cancelar una reserva</td>
+      <td>204 No Content, 401 Unauthorized, 403 Forbidden, 404 Not Found</td>
+      <td>USER o ADMIN</td>
+    </tr>
+    <tr>
+      <td><strong>GET</strong></td>
+      <td><code>/pistaPadel/admin/reservations</code></td>
+      <td>Listado completo de todas las reservas (solo admin)</td>
+      <td>200 OK, 401 Unauthorized, 403 Forbidden</td>
+      <td>ADMIN</td>
+    </tr>
+  </tbody>
+</table>
+
+<details>
+<summary><strong>📌 Resumen de mi contribución</strong></summary>
+
+Partiendo del trabajo de Felicia (pistas), Ana (autenticación) y Martina (gestión avanzada de usuarios), implementé:
+
+- Record `Reserva` con validaciones básicas
+- Almacenamiento en memoria con `ConcurrentHashMap<Long, Reserva>`
+- Contador incremental para `reservationId`
+- Validación de **solapamiento de horarios** en la misma pista (409 Conflict)
+- Comprobación de existencia de la pista (404 Not Found)
+- Uso de `@PreAuthorize` para restringir acceso según roles
+- Manejo de excepciones con `ResponseStatusException` coherente con el resto del equipo
+
+</details>
+
+<details>
+<summary><strong>🔹 Record Reserva</strong></summary>
+
+```java
+public record Reserva(
+        long reservationId,
+        @NotNull
+        long courtId,
+        @NotNull
+        String userId,
+        @NotNull
+        LocalDateTime inicio,
+        @NotNull
+        LocalDateTime fin
+) {}
+```
+</details>
 
 ## Yago
 
