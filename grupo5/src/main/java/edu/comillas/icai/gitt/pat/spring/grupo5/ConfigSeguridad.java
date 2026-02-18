@@ -28,10 +28,6 @@ public class ConfigSeguridad {
                 .authorizeHttpRequests(auth -> auth
                         // ENDPOINTS PÚBLICOS
                         .requestMatchers("/pistaPadel/auth/register").permitAll()
-                        .requestMatchers("/pistaPadel/auth/login").permitAll()
-                        .requestMatchers("/pistaPadel/auth/me").permitAll()
-                        .requestMatchers("/pistaPadel/auth/logout").permitAll()
-                        .requestMatchers("/pistaPadel/health").permitAll()
 
                         // LO DEMÁS PROTEGIDO
                         .anyRequest().authenticated()
