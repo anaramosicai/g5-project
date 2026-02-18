@@ -1,13 +1,14 @@
 package edu.comillas.icai.gitt.pat.spring.grupo5;
 
-import org.jspecify.annotations.NonNull;
+//import org.jspecify.annotations.NonNull;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 
 import java.time.LocalDateTime;
 
 public record Usuario(
-        @NonNull
+        @NotNull
         Long idUsuario,
         @NotBlank(message = "El nombre es obligatorio")
         String nombre,

@@ -21,6 +21,8 @@ import java.util.stream.Collectors;
 @RestController
 public class ControladorREST {
 
+
+
     // ============================
     // SECCIÓN: PISTAS
     // ============================
@@ -571,6 +573,14 @@ public class ControladorREST {
         return reservas.values().stream()
                 .filter(r -> r.courtId() == courtId)
                 .noneMatch(r -> r.inicio().toLocalDate().equals(fecha));
+    }
+
+    //  DE UTILIDAD PARA TESTS:
+
+    void reset() {
+        usuarios.clear();
+        usuariosporId.clear();
+        idUsuarioSeq.set(1);
     }
 }
 

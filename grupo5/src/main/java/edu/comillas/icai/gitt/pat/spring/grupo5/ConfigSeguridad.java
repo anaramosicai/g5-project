@@ -3,6 +3,7 @@ package edu.comillas.icai.gitt.pat.spring.grupo5;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -16,6 +17,7 @@ import org.springframework.security.web.SecurityFilterChain;
 @EnableMethodSecurity
 @EnableWebSecurity
 @Configuration
+@Profile("!test") // Para que no sea del profile test y haya discodancia
 public class ConfigSeguridad {
 
     @Bean
@@ -28,10 +30,6 @@ public class ConfigSeguridad {
                 .authorizeHttpRequests(auth -> auth
                         // ENDPOINTS PÚBLICOS
                         .requestMatchers("/pistaPadel/auth/register").permitAll()
-                        .requestMatchers("/pistaPadel/auth/login").permitAll()
-                        .requestMatchers("/pistaPadel/auth/me").permitAll()
-                        .requestMatchers("/pistaPadel/auth/logout").permitAll()
-                        .requestMatchers("/pistaPadel/health").permitAll()
 
                         // LO DEMÁS PROTEGIDO
                         .anyRequest().authenticated()
