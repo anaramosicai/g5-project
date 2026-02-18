@@ -7,12 +7,72 @@ Final Project of PAT by group 5
 
 Endpoints created
 
-POST /pistaPadel/courts
-GET /pistaPadel/courts
-GET /pistaPadel/courts/{courtId}
-PATCH /pistaPadel/courts/{courtId}
-DELETE /pistaPadel/courts/{courtId}
+<table border="1" cellpadding="10" cellspacing="0">
+  <thead>
+    <tr>
+      <th>MÉTODO</th>
+      <th>RUTA</th>
+      <th>DESCRIPCIÓN</th>
+      <th>RESPUESTAS (mínimas)</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>POST</strong></td>
+      <td><code>/pistaPadel/courts</code></td>
+      <td>(ADMIN) Crear pista (nombre,
+				ubicación, precio/hora,
+				activa…).
+	  </td>
+      <td>201, 400, 401, 403, 409 (nombre duplicado)</td>
+    </tr>
+    <tr>
+      <td><strong>GET</strong></td>
+      <td><code>/pistaPadel/courts</code></td>
+      <td>Listar pistas (filtro opcional active=true/false).</td>
+      <td>200 ok</td>
+    </tr>
+    <tr>
+      <td><strong>GET</strong></td>
+      <td><code>/pistaPadel/courts/{courtId}</code></td>
+      <td>Obtener detalle de una pista.</td>
+      <td>204 ok, 404</td>
+    </tr>
+    <tr>
+      <td><strong>PATCH</strong></td>
+      <td><code>/pistaPadel/courts/{courtId}</code></td>
+      <td>(ADMIN) Modificar pista (precio, activa, etc.).</td>
+      <td>200 ok, 400 Bad request, 401 no autenticado, 403 Forbidden Error, 404</td>
+    </tr>
+    <tr>
+      <td><strong>DELETE</strong></td>
+      <td><code>/pistaPadel/courts/{courtId}</code></td>
+      <td>(ADMIN) Eliminar pista (o desactivar).</td>
+      <td>204, 401, 403, 404, 409 (si hay reservas futuras, si queréis imponer regla)</td>
+    </tr>
+  </tbody>
+</table>
 
+
+<details>
+<summary><strong>🔹 Record: Pista (Características y Restricciones)</strong></summary>
+**Características:**
+- `idPista`:Identificador único de la pista.
+- `nombre`: Nombre identificativo de la pista (ej. “Pista 1”).
+- `ubicacion`: Ubicación o descripción física.
+- `precioHora`: Precio de la pista por hora.
+- `activa`: Indica si la pista está disponible para reservas.
+- `fechaAlta`: Fecha de creación de la pista.
+
+
+**Restricciones:**
+- El nombre de la pista debe ser **único**.
+- Un pista puede tener **0..n** reservas.
+- No se puede reservar una pista inactiva..
+
+</details>
+
+**Description of written code**
 I created a record named Pista and added endpoints to the REST controller. In the class `ConfigSeguridad` I created two possible user authentications: USER and ADMIN which have different authorities to change details in the different courts.
 
 ---
