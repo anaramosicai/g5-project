@@ -2,8 +2,16 @@ package edu.comillas.icai.gitt.pat.spring.grupo5;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
-import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
+
+//import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
+//import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.test.web.servlet.MvcResult;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+
+
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -139,6 +147,14 @@ class ControladorRestIntegrationTest {
 
     @Test
     void creaPistaIncorrectoTest() throws Exception{
+        Pista pista = new Pista(
+                        1,
+                        "Madrid central 1",
+                        "Madrid",
+                        10,
+                        true,
+                        "2026-02-15");
+
         mockMvc.perform(post("/pistaPadel/courts")
                     .contentType(String.valueOf(MediaType.APPLICATION_JSON))
                     .content(String.valueOf(pista)))
@@ -149,11 +165,7 @@ class ControladorRestIntegrationTest {
     /**
      * Test de integración del endpoint RESERVAS
      */
-    @Autowired
-    private MockMvc mockMvc;
-    
-    @Autowired
-    private ObjectMapper objectMapper;
+
     
     // Método privado para crear una pista con rol de admin
     private Long crearPistaPrueba() throws Exception {
@@ -232,5 +244,5 @@ class ControladorRestIntegrationTest {
     
     private record ReservaDTO(Long courtId, String userId, LocalDateTime inicio, LocalDateTime fin) {}
     }
-}
+
 

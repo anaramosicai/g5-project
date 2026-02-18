@@ -8,7 +8,7 @@ public record Rol(
         int idRol,
 
         @NotNull
-        NomreRol nombreRol,
+        NombreRol nombreRol,
 
         @NotNull
         String descripcion)
