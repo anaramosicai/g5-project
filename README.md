@@ -52,9 +52,9 @@ Final Project of PAT by group 5
     </tr>
   </tbody>
 </table>
-<details>
 
-<details>
+
+
 <summary><strong>🔹 Record: Pista (Características y Restricciones)</strong></summary>
 **Características:**
 - `idPista`:Identificador único de la pista.
