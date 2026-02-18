@@ -40,21 +40,16 @@ class ControladorRestIntegrationTest {
 
     private static final String REGISTER = "/pistaPadel/auth/register";
 
-    private Pista pista;
-
-    @BeforeEach
-    void setUp(){
-        pista = new Pista(
-        1,
-        "Madrid central 1",
-        "Madrid",
-        10,
-        true,
-        "2026-02-15");
-    }
-
     @Test
     void creaPistaOkTest() throws Exception{
+        Pista pista = new Pista(
+                        1,
+                        "Madrid central 1",
+                        "Madrid",
+                        10,
+                        true,
+                        "2026-02-15");
+
         mockMvc.perform(post("/pistaPadel/courts")
                         .contentType(String.valueOf(MediaType.APPLICATION_JSON))
                         .content(objectMapper.writeValueAsString(pista)))
