@@ -5,7 +5,7 @@ Final Project of PAT by group 5
 
 ## Base (Felicia)
 
-Endpoints created
+<details>
 <summary><strong>Descripción de mi parte</strong></summary>
 <table border="1" cellpadding="10" cellspacing="0">
   <thead>
@@ -52,7 +52,7 @@ Endpoints created
     </tr>
   </tbody>
 </table>
-
+<details>
 
 <details>
 <summary><strong>🔹 Record: Pista (Características y Restricciones)</strong></summary>
