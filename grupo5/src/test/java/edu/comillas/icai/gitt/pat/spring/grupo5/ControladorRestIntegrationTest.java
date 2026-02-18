@@ -41,31 +41,6 @@ class ControladorRestIntegrationTest {
     private static final String REGISTER = "/pistaPadel/auth/register";
 
     @Test
-    void creaPistaOkTest() throws Exception{
-        Pista pista = new Pista(
-                        1,
-                        "Madrid central 1",
-                        "Madrid",
-                        10,
-                        true,
-                        "2026-02-15");
-
-        mockMvc.perform(post("/pistaPadel/courts")
-                        .contentType(String.valueOf(MediaType.APPLICATION_JSON))
-                        .content(objectMapper.writeValueAsString(pista)))
-                .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.nombre").value("Madrid central 1"));
-    }
-
-    @Test
-    void creaPistaIncorrectoTest() throws Exception{
-        mockMvc.perform(post("/pistaPadel/courts")
-                    .contentType(String.valueOf(MediaType.APPLICATION_JSON))
-                    .content(String.valueOf(pista)))
-                .andExpect(status().isBadRequest());
-    }
-
-    @Test
     void registro_ok_201() throws Exception {
         String body = """
             {
@@ -141,6 +116,35 @@ class ControladorRestIntegrationTest {
                         .content(body))
                 .andExpect(status().isConflict());
     }
+
+    /**
+     * Test de integración del endpoint PISTAS
+     */
+    @Test
+    void creaPistaOkTest() throws Exception{
+        Pista pista = new Pista(
+                        1,
+                        "Madrid central 1",
+                        "Madrid",
+                        10,
+                        true,
+                        "2026-02-15");
+
+        mockMvc.perform(post("/pistaPadel/courts")
+                        .contentType(String.valueOf(MediaType.APPLICATION_JSON))
+                        .content(objectMapper.writeValueAsString(pista)))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.nombre").value("Madrid central 1"));
+    }
+
+    @Test
+    void creaPistaIncorrectoTest() throws Exception{
+        mockMvc.perform(post("/pistaPadel/courts")
+                    .contentType(String.valueOf(MediaType.APPLICATION_JSON))
+                    .content(String.valueOf(pista)))
+                .andExpect(status().isBadRequest());
+    }
+
 
     /**
      * Test de integración del endpoint RESERVAS
@@ -229,3 +233,4 @@ class ControladorRestIntegrationTest {
     private record ReservaDTO(Long courtId, String userId, LocalDateTime inicio, LocalDateTime fin) {}
     }
 }
+
