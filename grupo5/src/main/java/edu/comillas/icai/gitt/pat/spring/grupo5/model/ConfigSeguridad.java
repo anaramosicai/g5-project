@@ -1,6 +1,5 @@
-package edu.comillas.icai.gitt.pat.spring.grupo5;
+package edu.comillas.icai.gitt.pat.spring.grupo5.model;
 
-import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;

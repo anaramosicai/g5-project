@@ -1,10 +1,18 @@
-package edu.comillas.icai.gitt.pat.spring.grupo5;
+package edu.comillas.icai.gitt.pat.spring.grupo5.controlador;
 
+import edu.comillas.icai.gitt.pat.spring.grupo5.model.DisponibilidadResponse;
+import edu.comillas.icai.gitt.pat.spring.grupo5.model.ExcepcionUsuarioIncorrecto;
+import edu.comillas.icai.gitt.pat.spring.grupo5.model.NombreRol;
+import edu.comillas.icai.gitt.pat.spring.grupo5.entity.Pista;
+import edu.comillas.icai.gitt.pat.spring.grupo5.entity.Reserva;
+import edu.comillas.icai.gitt.pat.spring.grupo5.entity.Usuario;
+import edu.comillas.icai.gitt.pat.spring.grupo5.servicio.UsuarioService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
@@ -20,6 +28,9 @@ import java.util.stream.Collectors;
 
 @RestController
 public class ControladorREST {
+
+    @Autowired
+    UsuarioService usuarioService;
 
 
 
@@ -137,18 +148,6 @@ public class ControladorREST {
 
     private final Map<String, Long> tokenToUserId = new ConcurrentHashMap<>();
     private final Map<Long, String> userIdToToken = new ConcurrentHashMap<>();
-
-    // DTO para Login
-    public record LoginRequest(
-            @Email(message = "Email inválido")
-            @NotBlank(message = "Email requerido")
-            String email,
-            @NotBlank(message = "Password requerida")
-            String password
-    ) {}
-
-    // DTO para respuesta de Login
-    public record LoginResponse(String token) {}
 
     @PostMapping("/pistaPadel/auth/register")
     @ResponseStatus(HttpStatus.CREATED)

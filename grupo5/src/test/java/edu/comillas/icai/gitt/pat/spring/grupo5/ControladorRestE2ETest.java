@@ -1,5 +1,8 @@
 package edu.comillas.icai.gitt.pat.spring.grupo5;
 
+import edu.comillas.icai.gitt.pat.spring.grupo5.controlador.ControladorREST;
+import edu.comillas.icai.gitt.pat.spring.grupo5.entity.Pista;
+import edu.comillas.icai.gitt.pat.spring.grupo5.entity.Reserva;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 //import org.springframework.boot.test.web.client.TestRestTemplate; //<-- no va y la dependency está incluída ¯_ (ツ)_/¯

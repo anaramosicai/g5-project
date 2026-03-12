@@ -1,4 +1,4 @@
-package edu.comillas.icai.gitt.pat.spring.grupo5;
+package edu.comillas.icai.gitt.pat.spring.grupo5.entity;
 
 import jakarta.validation.constraints.NotNull;
 
