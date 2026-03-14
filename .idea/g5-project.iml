@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module type="JAVA_MODULE" version="4">
+  <component name="NewModuleRootManager" inherit-compiler-output="true">
+    <exclude-output />
+    <content url="file://$MODULE_DIR$" />
+    <orderEntry type="inheritedJdk" />
+    <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="library" name="Maven: org.springframework:spring-web:7.0.4" level="project" />
+    <orderEntry type="library" name="Maven: org.springframework.security:spring-security-core:7.1.0-SNAPSHOT" level="project" />
+    <orderEntry type="library" name="Maven: org.jspecify:jspecify:1.0.0" level="project" />
+    <orderEntry type="library" name="Maven: org.slf4j:slf4j-api:2.0.17" level="project" />
+    <orderEntry type="library" name="Maven: org.springframework:spring-context:7.0.4" level="project" />
+    <orderEntry type="library" name="Maven: org.springframework.boot:spring-boot:4.1.0-SNAPSHOT" level="project" />
+    <orderEntry type="library" name="Maven: org.springframework.boot:spring-boot-autoconfigure:4.1.0-SNAPSHOT" level="project" />
+    <orderEntry type="library" name="Maven: org.springframework.security:spring-security-config:7.1.0-SNAPSHOT" level="project" />
+    <orderEntry type="library" name="Maven: org.springframework.security:spring-security-web:7.1.0-SNAPSHOT" level="project" />
+  </component>
+</module>
