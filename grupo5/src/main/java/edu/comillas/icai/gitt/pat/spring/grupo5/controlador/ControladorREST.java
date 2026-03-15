@@ -257,87 +257,20 @@ public class ControladorREST {
 
     @GetMapping("/pistaPadel/users")
     @PreAuthorize("hasRole('ADMIN')")
-    public Collection<Usuario> listarUsuarios() {
-        logger.info("Devolucion lista de usuarios registrados");
-        return usuariosporId.values()
-                .stream()
-                .sorted(Comparator.comparing(Usuario::apellidos))
-                .toList();
+    public Collection<Usuario> listarUsuarios(){
+        return usuarioService.listarUsuarios();
     }
 
     @GetMapping("/pistaPadel/users/{userId}")
     @PreAuthorize("hasRole('ADMIN')")
     public Usuario obtenerUsuario(@PathVariable Long userId) {
-        if (usuariosporId.get(userId) == null) {
-            logger.info("Usuario no encontrado al hacer GET del userId");
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
-        }
-        return usuariosporId.get(userId);
+        return usuarioService.obtenerUsuario(userId);
     }
 
     @PatchMapping("/pistaPadel/users/{userId}")
     @PreAuthorize("hasRole('ADMIN')")
-    public Usuario actualizarUsuario(@PathVariable Long userId,
-                                     @RequestBody Map<String, Object> cambios) {
-
-        logger.info("PATCH /users/{} llamado con cambios: {}", userId, cambios);
-
-        Usuario user = usuariosporId.get(userId);
-        if (user == null) {
-            logger.info("Usuario no encontrado al hacer PATCH del userId");
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
-        }
-
-        String emailViejo = user.email();
-
-        // Valido email único
-        if (cambios.containsKey("email")) {
-            String nuevoEmail = (String) cambios.get("email");
-            boolean emailExiste = usuariosporId.values().stream()
-                    .anyMatch(u -> u.email().equalsIgnoreCase(nuevoEmail)
-                            && !u.idUsuario().equals(userId));
-            if (emailExiste) {
-                throw new ResponseStatusException(HttpStatus.CONFLICT, "Email ya registrado en app");
-            }
-        }
-
-        // Bloqueo aquellos campos que no quiera cambiar:
-        cambios.remove("idUsuario");
-        cambios.remove("rol");
-        cambios.remove("fechaRegistro");
-
-        // Creo el nuevo objeto con los cambios realizados:
-        Usuario actualizado;
-        try {
-            actualizado = new Usuario(
-                    user.idUsuario(),
-                    cambios.containsKey("nombre") ? (String) cambios.get("nombre") : user.nombre(),
-                    cambios.containsKey("apellidos") ? (String) cambios.get("apellidos") : user.apellidos(),
-                    cambios.containsKey("email") ? (String) cambios.get("email") : user.email(),
-                    cambios.containsKey("password") ? (String) cambios.get("password") : user.password(),
-                    cambios.containsKey("telefono") ? (String) cambios.get("telefono") : user.telefono(),
-                    user.rol(),
-                    user.fechaRegistro(),
-                    cambios.containsKey("activo") ? (Boolean) cambios.get("activo") : user.activo()
-            );
-
-        } catch (IllegalArgumentException e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                    "Campo inválido");
-        }
-        // Actualizo Map con userId
-        usuariosporId.put(userId, actualizado);
-        logger.info("Usuario actualizado correctamente: id={}, email={}", actualizado.idUsuario(), actualizado.email());
-
-        // Actualizo también Map con email por sincronización:
-        if (!emailViejo.equalsIgnoreCase(actualizado.email())) {
-            usuarios.remove(emailViejo);
-            usuarios.put(actualizado.email(), actualizado);
-        } else {
-            usuarios.put(actualizado.email(), actualizado);
-        }
-
-        return actualizado;
+    public Usuario actualizarUsuario(@PathVariable Long userId, @RequestBody Map<String, Object> cambios) {
+        return usuarioService.actualizarUsuario(userId, cambios);
     }
 
     // ============================
