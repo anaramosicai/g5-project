@@ -3,6 +3,8 @@ package edu.comillas.icai.gitt.pat.spring.grupo5.entity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 
+import java.util.List;
+
 @Entity
 public class Pista {
     @Id
@@ -32,4 +34,7 @@ public class Pista {
         this.activa = activa;
         this.fechaAlta = fechaAlta;
     }
+    @OneToMany(mappedBy = "pista")
+    private List<Reserva> reservas;
+
 }

@@ -1,11 +1,10 @@
 package edu.comillas.icai.gitt.pat.spring.grupo5.controlador;
 
-import edu.comillas.icai.gitt.pat.spring.grupo5.model.DisponibilidadResponse;
-import edu.comillas.icai.gitt.pat.spring.grupo5.model.ExcepcionUsuarioIncorrecto;
-import edu.comillas.icai.gitt.pat.spring.grupo5.model.NombreRol;
+import edu.comillas.icai.gitt.pat.spring.grupo5.model.*;
 import edu.comillas.icai.gitt.pat.spring.grupo5.entity.Pista;
 import edu.comillas.icai.gitt.pat.spring.grupo5.entity.Reserva;
 import edu.comillas.icai.gitt.pat.spring.grupo5.entity.Usuario;
+import edu.comillas.icai.gitt.pat.spring.grupo5.servicio.PistaService;
 import edu.comillas.icai.gitt.pat.spring.grupo5.servicio.UsuarioService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
@@ -32,115 +31,146 @@ public class ControladorREST {
     @Autowired
     UsuarioService usuarioService;
 
-
+    @Autowired
+    PistaService pistaService;
 
     // ============================
     // SECCIÓN: PISTAS
     // ============================
 
-    private Map<Long, Pista> pistas = new ConcurrentHashMap<>();
-    private long idPistaContador = 0;
-    private static final int N = 1000;
-
-
     @PostMapping("/pistaPadel/courts")
     @ResponseStatus(HttpStatus.CREATED)
     @PreAuthorize("hasRole('ADMIN')")
     public Pista crea(@RequestBody Pista pista) {
-
-        boolean nombreDuplicado = pistas.values().stream()
-                .anyMatch(p -> p.nombre().equalsIgnoreCase(pista.nombre()));
-
-        if (nombreDuplicado) {
-            throw new ResponseStatusException(
-                    HttpStatus.CONFLICT,
-                    "Otra pista con igual nombre"
-            );
-        }
-
-        if (idPistaContador > N) {
-            throw new ResponseStatusException(
-                    HttpStatus.CONFLICT,
-                    "idPista es mayor de N"
-            );
-        }
-
-        long idPista = idPistaContador++;
-
-        Pista pistaNuevo = new Pista(
-                idPista,
-                pista.nombre(),
-                pista.ubicacion(),
-                pista.precioHora(),
-                pista.activa(),
-                pista.fechaAlta()
-        );
-        pistas.put(idPista, pistaNuevo);
-        return pistaNuevo;
+        return pistaService.crea(pista);
     }
 
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @GetMapping("/pistaPadel/courts")
     public List<Pista> pistas() {
-        ArrayList<Pista> pistaList = new ArrayList<>();
-        for (Pista p : pistas.values()) {
-            pistaList.add(p);
-        }
-        return pistaList;
+        return pistaService.leeTodas();
     }
 
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @GetMapping("/pistaPadel/courts/{courtId}")
     public Pista obtenerDetalle(@PathVariable long courtId) {
-        Pista pista = pistas.get(courtId);
-        if (pista == null) {
-            throw new ResponseStatusException(
-                    HttpStatus.NOT_FOUND,
-                    "No hay una pista con este id"
-            );
-        }
-
-        return pista;
+        return pistaService.lee(courtId);
     }
 
     @PatchMapping("/pistaPadel/courts/{courtId}")
     @PreAuthorize("hasRole('ADMIN')")
     public Pista modificarPista(@PathVariable long courtId, @RequestBody Pista pistaMod) {
-        Pista pista = pistas.get(courtId);
-        if (pista == null) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
-        }
-
-        Pista pistaActualizada = new Pista(
-                courtId,
-                pistaMod.nombre(),
-                pistaMod.ubicacion(),
-                pistaMod.precioHora(),
-                pistaMod.activa(),
-                pistaMod.fechaAlta());
-
-        pistas.put(courtId, pistaActualizada);
-        return pistaActualizada;
+        return pistaService.cambiar(pistaMod, courtId);
     }
 
     @DeleteMapping("/pistaPadel/courts/{courtId}")
     @PreAuthorize("hasRole('ADMIN')")
     public void borrar(@PathVariable long courtId) {
-        Pista pista = pistas.get(courtId);
-        if (pista == null) {
-            throw new ResponseStatusException(
-                    HttpStatus.NOT_FOUND,
-                    "No hay una pista con este id"
-            );
-        }
-        pistas.remove(courtId);
+        pistaService.borrar(courtId);
     }
+//    private Map<Long, Pista> pistas = new ConcurrentHashMap<>();
+//    private long idPistaContador = 0;
+//    private static final int N = 1000;
+//
+//
+//    @PostMapping("/pistaPadel/courts")
+//    @ResponseStatus(HttpStatus.CREATED)
+//    @PreAuthorize("hasRole('ADMIN')")
+//    public Pista crea(@RequestBody Pista pista) {
+//
+//        boolean nombreDuplicado = pistas.values().stream()
+//                .anyMatch(p -> p.nombre().equalsIgnoreCase(pista.nombre()));
+//
+//        if (nombreDuplicado) {
+//            throw new ResponseStatusException(
+//                    HttpStatus.CONFLICT,
+//                    "Otra pista con igual nombre"
+//            );
+//        }
+//
+//        if (idPistaContador > N) {
+//            throw new ResponseStatusException(
+//                    HttpStatus.CONFLICT,
+//                    "idPista es mayor de N"
+//            );
+//        }
+//
+//        long idPista = idPistaContador++;
+//
+//        Pista pistaNuevo = new Pista(
+//                idPista,
+//                pista.nombre(),
+//                pista.ubicacion(),
+//                pista.precioHora(),
+//                pista.activa(),
+//                pista.fechaAlta()
+//        );
+//        pistas.put(idPista, pistaNuevo);
+//        return pistaNuevo;
+//    }
+//
+//    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+//    @GetMapping("/pistaPadel/courts")
+//    public List<Pista> pistas() {
+//        ArrayList<Pista> pistaList = new ArrayList<>();
+//        for (Pista p : pistas.values()) {
+//            pistaList.add(p);
+//        }
+//        return pistaList;
+//    }
+//
+//    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+//    @GetMapping("/pistaPadel/courts/{courtId}")
+//    public Pista obtenerDetalle(@PathVariable long courtId) {
+//        Pista pista = pistas.get(courtId);
+//        if (pista == null) {
+//            throw new ResponseStatusException(
+//                    HttpStatus.NOT_FOUND,
+//                    "No hay una pista con este id"
+//            );
+//        }
+//
+//        return pista;
+//    }
+//
+//    @PatchMapping("/pistaPadel/courts/{courtId}")
+//    @PreAuthorize("hasRole('ADMIN')")
+//    public Pista modificarPista(@PathVariable long courtId, @RequestBody Pista pistaMod) {
+//        Pista pista = pistas.get(courtId);
+//        if (pista == null) {
+//            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+//        }
+//
+//        Pista pistaActualizada = new Pista(
+//                courtId,
+//                pistaMod.nombre(),
+//                pistaMod.ubicacion(),
+//                pistaMod.precioHora(),
+//                pistaMod.activa(),
+//                pistaMod.fechaAlta());
+//
+//        pistas.put(courtId, pistaActualizada);
+//        return pistaActualizada;
+//    }
+//
+//    @DeleteMapping("/pistaPadel/courts/{courtId}")
+//    @PreAuthorize("hasRole('ADMIN')")
+//    public void borrar(@PathVariable long courtId) {
+//        Pista pista = pistas.get(courtId);
+//        if (pista == null) {
+//            throw new ResponseStatusException(
+//                    HttpStatus.NOT_FOUND,
+//                    "No hay una pista con este id"
+//            );
+//        }
+//        pistas.remove(courtId);
+//    }
 
     // ============================
     // SECCIÓN: AUTENTICACIÓN
     // ============================
 
-    private Logger logger = LoggerFactory.getLogger(getClass());
+    /*private Logger logger = LoggerFactory.getLogger(getClass());
 
     private final Map<String, Usuario> usuarios = new ConcurrentHashMap<>();
     private final Map<Long, Usuario> usuariosporId = new ConcurrentHashMap<>();
@@ -580,6 +610,6 @@ public class ControladorREST {
         usuarios.clear();
         usuariosporId.clear();
         idUsuarioSeq.set(1);
-    }
+    }*/
 }
 
