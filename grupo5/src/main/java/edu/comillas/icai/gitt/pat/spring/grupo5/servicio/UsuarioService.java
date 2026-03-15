@@ -4,6 +4,7 @@ import edu.comillas.icai.gitt.pat.spring.grupo5.entity.Usuario;
 import edu.comillas.icai.gitt.pat.spring.grupo5.repositorio.RepoUsuario;
 import org.springframework.beans.factory.annotation.Autowired;
 
+@Service
 public class UsuarioService {
     @Autowired
     RepoUsuario repoUsuario;
