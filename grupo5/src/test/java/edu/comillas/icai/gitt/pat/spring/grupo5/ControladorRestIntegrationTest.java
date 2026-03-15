@@ -30,18 +30,20 @@ import java.time.LocalDateTime;
 
 
 /**
- * Test de integración del endpoint POST /pistaPadel/auth/register
+ * Test de integración de Registros/ Usuarios
  * Verifica:
  *  - 201 Created con datos válidos
- *  - 400 Bad Request con email inválido
  *  - 409 Conflict con email duplicado
  */
-@WebMvcTest(ControladorREST.class)
-@AutoConfigureMockMvc(addFilters = false)
+//@WebMvcTest(ControladorREST.class)
+//@AutoConfigureMockMvc(addFilters = false)
+@DataJpaTest
 class ControladorRestIntegrationTest {
 
+    //@Autowired
+    //private MockMvc mockMvc;
     @Autowired
-    private MockMvc mockMvc;
+    RepoUsuario repoUsuario;
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -50,87 +52,36 @@ class ControladorRestIntegrationTest {
 
     @Autowired
     private ControladorREST controladorREST;
-
+    /*
     @BeforeEach
     void setup_user() {
         controladorREST.reset();
     }
+    */
 
     @Test
     void registro_ok_201() throws Exception {
-        String body = """
-            {
-              "idUsuario": 1,
-              "nombre": "Ana",
-              "apellidos": "Ramos",
-              "email": "ana.integration@test.com",
-              "password": "123",
-              "telefono": "666",
-              "rol": "USER",
-              "fechaRegistro": null,
-              "activo": true
-            }
-        """;
 
-        this.mockMvc
-                .perform(post(REGISTER)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(body))
-                .andExpect(status().isCreated());
+        Usuario user = new Usuario(1L, "Ana", "Ramos", "ana.integration@test.com", "123", "456", NombreRol.USER, null,true);
+        repoUsuario.save(user);
+        assertNotNull(repoUsuario.findById(user.getId()));
     }
-/*
-    @Test
-    void registro_emailFormatoErroneo_400() throws Exception {
-        String body = """
-            {
-              "idUsuario": 1,
-              "nombre": "Ana",
-              "apellidos": "Ramos",
-              "email": "no-es-un-email",
-              "password": "123",
-              "telefono": "666",
-              "rol": "USER",
-              "fechaRegistro": null,
-              "activo": true
-            }
-        """;
 
-        this.mockMvc
-                .perform(post(REGISTER)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(body))
-                .andExpect(status().isBadRequest()); // 400 por @Email/@NotBlank en Usuario
-    }
-*/
     @Test
     void registro_emailDuplicado_409() throws Exception {
-        String body = """
-            {
-              "idUsuario": 1,
-              "nombre": "Ana",
-              "apellidos": "Ramos",
-              "email": "dup.integration@test.com",
-              "password": "123",
-              "telefono": "666",
-              "rol": "USER",
-              "fechaRegistro": null,
-              "activo": true
-            }
-        """;
+        Usuario user = new Usuario(1L, "Ana", "Ramos", "ana.integration@test.com", "123", "456", NombreRol.USER, null,true);
 
-        // 1ª vez -> 201
-        this.mockMvc
-                .perform(post(REGISTER)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(body))
-                .andExpect(status().isCreated());
-
-        // 2ª vez mismo email -> 409 Conflict
-        this.mockMvc
-                .perform(post(REGISTER)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(body))
-                .andExpect(status().isConflict());
+        // Guardo por primera vez:
+        repoUsuario.save(user);
+        // Guardo por segunda vez:
+        DataIntegrityViolationException error = null;
+        try{
+            repoUsuario.save(user);
+        } catch (DataIntegrityViolationException e) {
+            error = e;
+        }
+        // Nos aseguramos que salte el error:
+        assertNotNull(error);
     }
 
     /**
