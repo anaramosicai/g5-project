@@ -12,33 +12,33 @@ import java.time.LocalDateTime;
 public class Usuario{
         @Id
         @GeneratedValue(strategy = GenerationType.IDENTITY)
-        public Long id;
+        private Long id;
 
         @Column(nullable = false)
-        public String nombre;
+        private String nombre;
 
         @Column
-        public String apellidos;
+        private String apellidos;
 
         @Email(message = "El formato del email es incorrecto")
         @Column(nullable = false, unique = true)
-        public String email;
+        private String email;
 
         @Column(nullable = false)
-        public String password;
+        private String password;
 
         @Column(nullable = false)
-        public String telefono;
+        private String telefono;
 
         @Column(nullable = false)
         @Enumerated(EnumType.STRING)
-        public NombreRol rol;
+        private NombreRol rol;
 
         @Column(nullable = false)
-        public LocalDateTime fechaRegistro;
+        private LocalDateTime fechaRegistro;
 
         @Column(nullable = false)
-        public Boolean activo;
+        private Boolean activo;
 
         public Usuario(Long id, String nombre, String apellidos, String email, String password, String telefono, NombreRol rol, LocalDateTime fechaRegistro, Boolean activo){
                 this.id = id;
@@ -51,6 +51,7 @@ public class Usuario{
                 this.fechaRegistro = fechaRegistro;
                 this.activo = activo;
         }
+        public Usuario() {}
 
         public void setId(Long id) {
                 this.id = id;
