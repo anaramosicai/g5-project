@@ -282,25 +282,7 @@ public class ControladorREST {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Formato de fecha inválido (use YYYY-MM-DD)");
         }
 
-        boolean disponible = false;
-
-        if (courtId != null) {
-            // A) Buscamos disponibilidad de UNA pista concreta
-            if (pistas.containsKey(courtId)) {
-                disponible = isPistaLibreEnFecha(courtId, fecha);
-            }
-        } else {
-            // B) Buscamos si hay ALGUNA pista libre
-            for (Long id : pistas.keySet()) {
-                if (isPistaLibreEnFecha(id, fecha)) {
-                    disponible = true;
-                    break;
-                }
-            }
-        }
-
-        String msg = disponible ? "Hay disponibilidad" : "Completo / No disponible";
-        return new DisponibilidadResponse(fecha, courtId, disponible, msg);
+        return disponibilidadService.consultarDisponibilidad(fecha, courtId);
     }
 
     @GetMapping("/pistaPadel/courts/{courtId}/availability")
@@ -315,13 +297,7 @@ public class ControladorREST {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Formato de fecha inválido");
         }
 
-        if (!pistas.containsKey(courtId)) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "La pista " + courtId + " no existe");
-        }
-
-        boolean disponible = isPistaLibreEnFecha(courtId, fecha);
-
-        return new DisponibilidadResponse(fecha, courtId, disponible, disponible ? "Libre" : "Ocupada");
+        return disponibilidadService.obtenerDisponibilidadPistaConcreta(fecha, courtId);
     }
 
     @GetMapping("/pistaPadel/reservations")
