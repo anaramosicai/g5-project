@@ -13,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
@@ -27,9 +28,6 @@ import java.util.stream.Collectors;
 
 @RestController
 public class ControladorREST {
-
-    @Autowired
-    UsuarioService usuarioService;
 
     @Autowired
     PistaService pistaService;
@@ -68,109 +66,15 @@ public class ControladorREST {
     public void borrar(@PathVariable long courtId) {
         pistaService.borrar(courtId);
     }
-//    private Map<Long, Pista> pistas = new ConcurrentHashMap<>();
-//    private long idPistaContador = 0;
-//    private static final int N = 1000;
-//
-//
-//    @PostMapping("/pistaPadel/courts")
-//    @ResponseStatus(HttpStatus.CREATED)
-//    @PreAuthorize("hasRole('ADMIN')")
-//    public Pista crea(@RequestBody Pista pista) {
-//
-//        boolean nombreDuplicado = pistas.values().stream()
-//                .anyMatch(p -> p.nombre().equalsIgnoreCase(pista.nombre()));
-//
-//        if (nombreDuplicado) {
-//            throw new ResponseStatusException(
-//                    HttpStatus.CONFLICT,
-//                    "Otra pista con igual nombre"
-//            );
-//        }
-//
-//        if (idPistaContador > N) {
-//            throw new ResponseStatusException(
-//                    HttpStatus.CONFLICT,
-//                    "idPista es mayor de N"
-//            );
-//        }
-//
-//        long idPista = idPistaContador++;
-//
-//        Pista pistaNuevo = new Pista(
-//                idPista,
-//                pista.nombre(),
-//                pista.ubicacion(),
-//                pista.precioHora(),
-//                pista.activa(),
-//                pista.fechaAlta()
-//        );
-//        pistas.put(idPista, pistaNuevo);
-//        return pistaNuevo;
-//    }
-//
-//    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
-//    @GetMapping("/pistaPadel/courts")
-//    public List<Pista> pistas() {
-//        ArrayList<Pista> pistaList = new ArrayList<>();
-//        for (Pista p : pistas.values()) {
-//            pistaList.add(p);
-//        }
-//        return pistaList;
-//    }
-//
-//    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
-//    @GetMapping("/pistaPadel/courts/{courtId}")
-//    public Pista obtenerDetalle(@PathVariable long courtId) {
-//        Pista pista = pistas.get(courtId);
-//        if (pista == null) {
-//            throw new ResponseStatusException(
-//                    HttpStatus.NOT_FOUND,
-//                    "No hay una pista con este id"
-//            );
-//        }
-//
-//        return pista;
-//    }
-//
-//    @PatchMapping("/pistaPadel/courts/{courtId}")
-//    @PreAuthorize("hasRole('ADMIN')")
-//    public Pista modificarPista(@PathVariable long courtId, @RequestBody Pista pistaMod) {
-//        Pista pista = pistas.get(courtId);
-//        if (pista == null) {
-//            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
-//        }
-//
-//        Pista pistaActualizada = new Pista(
-//                courtId,
-//                pistaMod.nombre(),
-//                pistaMod.ubicacion(),
-//                pistaMod.precioHora(),
-//                pistaMod.activa(),
-//                pistaMod.fechaAlta());
-//
-//        pistas.put(courtId, pistaActualizada);
-//        return pistaActualizada;
-//    }
-//
-//    @DeleteMapping("/pistaPadel/courts/{courtId}")
-//    @PreAuthorize("hasRole('ADMIN')")
-//    public void borrar(@PathVariable long courtId) {
-//        Pista pista = pistas.get(courtId);
-//        if (pista == null) {
-//            throw new ResponseStatusException(
-//                    HttpStatus.NOT_FOUND,
-//                    "No hay una pista con este id"
-//            );
-//        }
-//        pistas.remove(courtId);
-//    }
 
     // ============================
     // SECCIÓN: AUTENTICACIÓN
     // ============================
 
-    /*private Logger logger = LoggerFactory.getLogger(getClass());
+    @Autowired
+    UsuarioService usuarioService;
+
+    private Logger logger = LoggerFactory.getLogger(getClass());
 
     private final Map<String, Usuario> usuarios = new ConcurrentHashMap<>();
     private final Map<Long, Usuario> usuariosporId = new ConcurrentHashMap<>();
@@ -179,195 +83,125 @@ public class ControladorREST {
     private final Map<String, Long> tokenToUserId = new ConcurrentHashMap<>();
     private final Map<Long, String> userIdToToken = new ConcurrentHashMap<>();
 
-    @PostMapping("/pistaPadel/auth/register")
-    @ResponseStatus(HttpStatus.CREATED)
-    public Usuario registrarUsuario(@Valid @RequestBody Usuario usuarioNuevo, BindingResult bindingResult) {
-        logger.info("Intento de registro para email={}", usuarioNuevo.email());
-        logger.debug("Usuario recibido: nombre={}, apellidos={}, telefono={}",
-                usuarioNuevo.nombre(), usuarioNuevo.apellidos(), usuarioNuevo.telefono());
-        if (bindingResult.hasErrors()) {
-            logger.error("Datos inválidos");
-            throw new ExcepcionUsuarioIncorrecto(bindingResult);
-        }
-        if (usuarios.get(usuarioNuevo.email()) != null) {
-            logger.error("este email ya existe");
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "email ya existe");
+    /**
+     * POST /pistaPadel/auth/register
+     * 201 creado, 400 datos inválidos, 409 email ya existe
+     */
+    @PostMapping("/auth/register")
+    public ResponseEntity<UsuarioResponse> register(@Valid @RequestBody RegisterRequest request) {
+        if (request == null) throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+
+        // 409 si email duplicado
+        if (usuarioService.emailExists(request.getEmail())) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT);
         }
 
-        // Generar id en servidor
-        long id = idUsuarioSeq.getAndIncrement();
-
-        Usuario u = new Usuario(
-                id,
-                usuarioNuevo.nombre(),
-                usuarioNuevo.apellidos(),
-                usuarioNuevo.email(),
-                usuarioNuevo.password(),
-                usuarioNuevo.telefono(),
-                NombreRol.USER,
-                java.time.LocalDateTime.now(),
-                true
-        );
-
-        usuariosporId.put(id, u);
-        usuarios.put(u.email(), u);
-
-        logger.info("Usuario registrado correctamente id={} email={}", id, usuarioNuevo.email());
-        return u;
+        UsuarioResponse body = usuarioService.register(request);
+        if (body == null) {
+            // datos inválidos -> 400
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+        }
+        return ResponseEntity.status(HttpStatus.CREATED).body(body); // 201
     }
 
-    @PostMapping("/pistaPadel/auth/login")
-    public LoginResponse login(@Valid @RequestBody LoginRequest req) {
-        // 1) ¿Existe el usuario?
-        Usuario u = usuarios.get(req.email());
-        if (u == null) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "credenciales incorrectas");
+    /**
+     * POST /pistaPadel/auth/login
+     * 200 ok, 400 request inválida, 401 credenciales incorrectas
+     */
+    @PostMapping("/auth/login")
+    public ResponseEntity<LoginResponse> login(@Valid @RequestBody LoginRequest request) {
+        if (request == null) throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+
+        LoginResponse resp = usuarioService.login(request);
+        if (resp == null) {
+            // Diferencia 400 vs 401 de forma simple:
+            if (request.email() == null || request.email().isBlank()
+                    || request.password() == null || request.password().isBlank()) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+            }
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
         }
-
-        // 2) Comprobación password
-        boolean ok = req.password().equals(u.password());
-        if (!ok) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "credenciales incorrectas");
-        }
-
-        // 3) Generar token (UUID) y guardarlo en memoria
-        String tokenNuevo = UUID.randomUUID().toString();
-        String TokenViejo = userIdToToken.put(u.idUsuario(), tokenNuevo);
-        if (TokenViejo != null) tokenToUserId.remove(TokenViejo);
-        tokenToUserId.put(tokenNuevo, u.idUsuario());
-
-        return new LoginResponse(tokenNuevo);
+        return ResponseEntity.ok(resp); // 200
     }
 
-    @PostMapping("/pistaPadel/auth/logout")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void logout(@RequestHeader(name = "Authorization", required = false) String authHeader) {
-        String token = extractBearer(authHeader);
-        if (token == null || !tokenToUserId.containsKey(token)) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "no autenticado");
-        }
-
-        Long userId = tokenToUserId.remove(token);
-
-        if (userId != null) {
-            userIdToToken.computeIfPresent(userId, (k, v) -> v.equals(token) ? null : v);
-        }
+    /**
+     * POST /pistaPadel/auth/logout
+     * 204 ok, 401 no autenticado
+     */
+    @PostMapping("/auth/logout")
+    public ResponseEntity<Void> logout(@RequestHeader(name = "Authorization", required = false) String authHeader) {
+        boolean ok = usuarioService.logout(authHeader);
+        if (!ok) throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
+        return ResponseEntity.noContent().build(); // 204
     }
 
-    @GetMapping("/pistaPadel/auth/me")
-    public Usuario me(@RequestHeader(name = "Authorization", required = false) String authHeader) {
-        logger.debug("Authorization header recibido: {}", authHeader);
-        String token = extractBearer(authHeader);
-        logger.debug("Token extraído: {}", token);
-        if (token == null) throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "no autenticado");
-
-        Long userId = tokenToUserId.get(token);
-        logger.debug("userId buscado por token: {}", userId);
-        if (userId == null) throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "no autenticado");
-
-        Usuario u = usuariosporId.get(userId);
-        if (u == null) {
-            tokenToUserId.remove(token);
-            userIdToToken.computeIfPresent(userId, (k, v) -> v.equals(token) ? null : v);
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "no autenticado");
-        }
-        return u;
-    }
-
-    // Función para extraer "Bearer <token>"
-    private String extractBearer(String authHeader) {
-        if (authHeader == null) return null;
-        String prefix = "Bearer ";
-        return authHeader.startsWith(prefix) ? authHeader.substring(prefix.length()).trim() : null;
+    /**
+     * GET /pistaPadel/auth/me
+     * 200 ok, 401 no autenticado
+     */
+    @GetMapping("/auth/me")
+    public ResponseEntity<UsuarioResponse> me(@RequestHeader(name = "Authorization", required = false) String authHeader) {
+        UsuarioResponse me = usuarioService.me(authHeader);
+        if (me == null) throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
+        return ResponseEntity.ok(me); // 200
     }
 
     // ============================
     // SECCIÓN: USUARIOS
     // ============================
 
+    /**
+     * GET /pistaPadel/users/{userId}
+     * (ADMIN o dueño) 200, 401, 403, 404
+     */
+    @GetMapping("/users/{userId}")
+    public ResponseEntity<UsuarioResponse> getUserById(
+            @PathVariable Long userId,
+            @RequestHeader(name = "Authorization", required = false) String authHeader) {
+
+        // 401 si no autenticado
+        Usuario auth = usuarioService.getAuthenticatedUser(authHeader);
+        if (auth == null) throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
+
+        // 403 si no es admin ni dueño
+        boolean esAdmin = usuarioService.isAdmin(auth);
+        boolean esDueno = usuarioService.isOwner(auth, userId);
+        if (!esAdmin && !esDueno) throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+
+        // 404 si no existe el usuario solicitado
+        Usuario objetivo = usuarioService.getUsuarioById(userId);
+        if (objetivo == null) throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+
+        // 200 OK con DTO
+        UsuarioResponse body = new UsuarioResponse(
+                objetivo.getId(),
+                objetivo.getNombre(),
+                objetivo.getApellidos(),
+                objetivo.getEmail(),
+                objetivo.getTelefono(),
+                objetivo.getRol(),
+                objetivo.getFechaRegistro(),
+                objetivo.isActivo()
+        );
+        return ResponseEntity.ok(body);
+    }
+
     @GetMapping("/pistaPadel/users")
     @PreAuthorize("hasRole('ADMIN')")
-    public Collection<Usuario> listarUsuarios() {
-        logger.info("Devolucion lista de usuarios registrados");
-        return usuariosporId.values()
-                .stream()
-                .sorted(Comparator.comparing(Usuario::apellidos))
-                .toList();
+    public Collection<Usuario> listarUsuarios(){
+        return usuarioService.listarUsuarios();
     }
 
     @GetMapping("/pistaPadel/users/{userId}")
     @PreAuthorize("hasRole('ADMIN')")
     public Usuario obtenerUsuario(@PathVariable Long userId) {
-        if (usuariosporId.get(userId) == null) {
-            logger.info("Usuario no encontrado al hacer GET del userId");
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
-        }
-        return usuariosporId.get(userId);
+        return usuarioService.obtenerUsuario(userId);
     }
 
     @PatchMapping("/pistaPadel/users/{userId}")
     @PreAuthorize("hasRole('ADMIN')")
-    public Usuario actualizarUsuario(@PathVariable Long userId,
-                                     @RequestBody Map<String, Object> cambios) {
-
-        logger.info("PATCH /users/{} llamado con cambios: {}", userId, cambios);
-
-        Usuario user = usuariosporId.get(userId);
-        if (user == null) {
-            logger.info("Usuario no encontrado al hacer PATCH del userId");
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
-        }
-
-        String emailViejo = user.email();
-
-        // Valido email único
-        if (cambios.containsKey("email")) {
-            String nuevoEmail = (String) cambios.get("email");
-            boolean emailExiste = usuariosporId.values().stream()
-                    .anyMatch(u -> u.email().equalsIgnoreCase(nuevoEmail)
-                            && !u.idUsuario().equals(userId));
-            if (emailExiste) {
-                throw new ResponseStatusException(HttpStatus.CONFLICT, "Email ya registrado en app");
-            }
-        }
-
-        // Bloqueo aquellos campos que no quiera cambiar:
-        cambios.remove("idUsuario");
-        cambios.remove("rol");
-        cambios.remove("fechaRegistro");
-
-        // Creo el nuevo objeto con los cambios realizados:
-        Usuario actualizado;
-        try {
-            actualizado = new Usuario(
-                    user.idUsuario(),
-                    cambios.containsKey("nombre") ? (String) cambios.get("nombre") : user.nombre(),
-                    cambios.containsKey("apellidos") ? (String) cambios.get("apellidos") : user.apellidos(),
-                    cambios.containsKey("email") ? (String) cambios.get("email") : user.email(),
-                    cambios.containsKey("password") ? (String) cambios.get("password") : user.password(),
-                    cambios.containsKey("telefono") ? (String) cambios.get("telefono") : user.telefono(),
-                    user.rol(),
-                    user.fechaRegistro(),
-                    cambios.containsKey("activo") ? (Boolean) cambios.get("activo") : user.activo()
-            );
-
-        } catch (IllegalArgumentException e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                    "Campo inválido");
-        }
-        // Actualizo Map con userId
-        usuariosporId.put(userId, actualizado);
-        logger.info("Usuario actualizado correctamente: id={}, email={}", actualizado.idUsuario(), actualizado.email());
-
-        // Actualizo también Map con email por sincronización:
-        if (!emailViejo.equalsIgnoreCase(actualizado.email())) {
-            usuarios.remove(emailViejo);
-            usuarios.put(actualizado.email(), actualizado);
-        } else {
-            usuarios.put(actualizado.email(), actualizado);
-        }
-
-        return actualizado;
+    public Usuario actualizarUsuario(@PathVariable Long userId, @RequestBody Map<String, Object> cambios) {
+        return usuarioService.actualizarUsuario(userId, cambios);
     }
 
     // ============================
