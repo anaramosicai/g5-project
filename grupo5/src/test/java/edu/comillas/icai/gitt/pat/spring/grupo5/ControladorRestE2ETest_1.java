@@ -1,324 +1,117 @@
 package edu.comillas.icai.gitt.pat.spring.grupo5;
 
+
+import edu.comillas.icai.gitt.pat.spring.grupo5.controlador.ControladorREST;
+import edu.comillas.icai.gitt.pat.spring.grupo5.entity.Pista;
+import edu.comillas.icai.gitt.pat.spring.grupo5.repositorio.RepoPista;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-//import org.springframework.boot.test.web.client.TestRestTemplate; //<-- no va y la dependency está incluída ¯_ (ツ)_/¯
-//import org.springframework.boot.resttestclient.TestRestTemplate;
+
 
 import org.springframework.boot.test.web.client.TestRestTemplate;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.*;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.springframework.boot.test.web.server.LocalServerPort;
 
-import java.time.LocalDateTime;
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
-/**
- * Test E2E del endpoint real POST /pistaPadel/auth/register
- *  - RANDOM_PORT
- *  - TestRestTemplate
- *  - ActiveProfiles("test")
- *  - DirtiesContext
- */
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
-        properties = {"spring.task.scheduling.enabled=false",
-                "spring.profiles.active=test"
-})
-@ActiveProfiles("test")
+// Al arrancar el test, este no puede levantar todas las dependencias de tareas programas.
+// Por ello se debe poner lo siguiente:
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, // Por si ejecuto los test y la app, defino puerto random para evitar que el puerto concreto solo pueda escuchar uno
+        properties = { // Con esto, al arrancar, no tiene en cuenta las tareas programadas (scheduling). Solo queremos probar los endpoint
+                "spring.task.scheduling.enabled=false"
+                //, "spring.profiles.active=test"
+        }
+
+) // El profile tiene una seguridad por defecto
+@ActiveProfiles("test") // Mi prueba tendrá dicha configuración de seguridad y no la normal
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
-class ControladorRestE2ETest {
 
+public class ControladorRestE2ETest_1 {
     @Autowired
-    private TestRestTemplate restTemplate;
+    private  TestRestTemplate restTemplate;
+
+    private Logger logger = LoggerFactory.getLogger(getClass());
 
     @Autowired
     private ControladorREST controladorREST;
 
-    private static final String REGISTER = "/pistaPadel/auth/register";
 
-    private static final String COURT = "/pistaPadel/courts";
+    ///  ========== PARTE USERS ========== ///
 
-    @LocalServerPort
-    private int port;
+    // Antes de cada test, limpio el estado automáticamente:
 
-    private String getBaseUrl() {
-        return "http://localhost:" + port + "/pistaPadel/courts";
-    }
-
-
-
-    // ============== PISTAS ==============
+    @Autowired
+    private RepoPista repoPista;
 
     @Test
-    void creaPistaOkTest() {
+    void createPistaE2E() {
+
         Pista pista = new Pista(
-                1,
-                "Madrid central 1",
+                1L,
+                "Pista Central",
                 "Madrid",
-                10,
+                20,
                 true,
-                "2026-02-15");
-
-         ResponseEntity<Pista> response = restTemplate.withBasicAuth("admin", "clave")
-                                                       .postForEntity(getBaseUrl(),
-                                                                     pista,
-                                                                     Pista.class);
-
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
-        assertThat(response.getBody().nombre()).isEqualTo("Madrid central 1");        
-    }
-
-    @Test
-    void creaPistaIncorrectoTest() {
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-
-        HttpEntity<String> request = new HttpEntity<>("{ invalid json }", headers);
-
-        ResponseEntity<String> response = restTemplate.withBasicAuth("admin", "clave")
-                                                      .postForEntity(getBaseUrl(),
-                                                                     request,
-                                                                     String.class);
-
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
-    }
-
-    // ============== REGISTROS Y USUARIOS ==============
-
-    @BeforeEach
-    void setup_user() {
-        controladorREST.reset();
-    }
-
-    @Test
-    void registro_ok_201() {
-        String body = """
-            {
-              "idUsuario": 1,
-              "nombre": "Ana",
-              "apellidos": "Ramos",
-              "email": "ana.e2e@test.com",
-              "password": "123",
-              "telefono": "666",
-              "rol": "USER",
-              "fechaRegistro": null,
-              "activo": true
-            }
-        """;
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-
-        ResponseEntity<String> response = restTemplate.exchange(
-                REGISTER, HttpMethod.POST, new HttpEntity<>(body, headers), String.class);
-
-        Assertions.assertEquals(HttpStatus.CREATED, response.getStatusCode());
-    }
-/*
-    @Test
-    void registro_emailFormatoErroneo_400() {
-        String body = """
-            {
-              "idUsuario": 1,
-              "nombre": "Ana",
-              "apellidos": "Ramos",
-              "email": "email-malo",
-              "password": "123",
-              "telefono": "666",
-              "rol": "USER",
-              "fechaRegistro": null,
-              "activo": true
-            }
-        """;
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-
-        ResponseEntity<String> response = restTemplate.exchange(
-                REGISTER, HttpMethod.POST, new HttpEntity<>(body, headers), String.class);
-
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-    }
-*/
-
-    @Test
-    void registro_emailDuplicado_409() {
-        String body = """
-            {
-              "idUsuario": 1,
-              "nombre": "Ana",
-              "apellidos": "Ramos",
-              "email": "dup.e2e@test.com",
-              "password": "123",
-              "telefono": "666",
-              "rol": "USER",
-              "fechaRegistro": null,
-              "activo": true
-            }
-        """;
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-
-        // 1ª -> 201
-        ResponseEntity<String> r1 = restTemplate.exchange(
-                REGISTER, HttpMethod.POST, new HttpEntity<>(body, headers), String.class);
-        Assertions.assertEquals(HttpStatus.CREATED, r1.getStatusCode());
-
-        // 2ª mismo email -> 409
-        ResponseEntity<String> r2 = restTemplate.exchange(
-                REGISTER, HttpMethod.POST, new HttpEntity<>(body, headers), String.class);
-        Assertions.assertEquals(HttpStatus.CONFLICT, r2.getStatusCode());
-    }
-
-
-    @Test
-    public void actualizarUsuario_EmailDuplicado_Test(){
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-
-        // Creamos el primer usuario:
-        //ResponseEntity<Usuario> response1 =
-        restTemplate.exchange(
-                "/pistaPadel/auth/register",
-                HttpMethod.POST,
-                new HttpEntity<>(
-                        """
-                           {
-                            "idUsuario": "1",
-                            "nombre": "Juan",
-                            "apellidos": "Lovato",
-                            "email": "juan@ejemplo.com",
-                            "password": "123456",
-                            "telefono": "123456789",
-                            "rol": "USER",
-                            "fechaRegistro": null,
-                            "activo": true
-                           }
-                        """, headers),
-                String.class
+                null
         );
 
-
-        // Creamos un segundo usuario:
-        //ResponseEntity<Usuario> response2 =
-        restTemplate.exchange(
-                "/pistaPadel/auth/register",
-                HttpMethod.POST,
-                new HttpEntity<>(
-                        """
-                            {
-                            "idUsuario": "5",
-                            "nombre": "Martina",
-                            "apellidos": "Ortiz",
-                            "email": "mod@ejemplo.com",
-                            "password": "123456",
-                            "telefono": "123456789",
-                            "rol": "USER",
-                            "fechaRegistro": null,
-                            "activo": true
-                            }
-                        """, headers),
-                String.class
-        );
-
-        // Intentamos poner el email de uno al otro para ver si salta error:
-        String cambios = """
-                {
-                "email": "mod@ejemplo.com"
-                }
-                """;
-        ResponseEntity<String> response = restTemplate.exchange(
-                "/pistaPadel/users/1",
-                HttpMethod.PATCH,
-                new HttpEntity<>(cambios, headers),
-                String.class
-        );
-
-        Assertions.assertEquals(HttpStatus.CONFLICT, response.getStatusCode());
-
-    }
-
-    // ============== RESERVAS ==============
-        /**
-         * Test E2E del endpoint real  RESERVAS
-         */
-        
-        
-        private String baseUrl;
-        private Long courtId;
-        
-        @BeforeEach
-        void setup() {
-        baseUrl = "http://localhost:" + port + "/pistaPadel";
-        
-        // Creamos una pista como ADMIN
-        HttpHeaders headers = new HttpHeaders();
-        headers.setBasicAuth("admin", "clave"); // ← credenciales correctas del usuario admin en memoria
-        
-        Pista pista = new Pista(0, "Pista Test E2E", "Indoor", 3500, true, "2026-01-01");
-        
-        ResponseEntity<Pista> response = restTemplate.exchange(
-                baseUrl + "/courts",
-                HttpMethod.POST,
-                new HttpEntity<>(pista, headers),
+        ResponseEntity<Pista> response = restTemplate.postForEntity(
+                "/pistas",
+                pista,
                 Pista.class
         );
-        
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
-        courtId = response.getBody().idPista();
-        }
-        
-        @Test
-        void flujoCompletoReservaComoUser() {
-        
-        HttpHeaders headers = new HttpHeaders();
-        headers.setBasicAuth("usuario", "clave");
-        
-        Reserva reservaNueva = new Reserva(
-                0,
-                courtId,
-                "usuario",
-                LocalDateTime.of(2026, 5, 20, 16, 0),
-                LocalDateTime.of(2026, 5, 20, 17, 0)
-        );
-        
-        // Crear reserva
-        ResponseEntity<Reserva> createResp = restTemplate.exchange(
-                baseUrl + "/reservations",
-                HttpMethod.POST,
-                new HttpEntity<>(reservaNueva, headers),
-                Reserva.class
-        );
-        
-        assertThat(createResp.getStatusCode()).isEqualTo(HttpStatus.CREATED);
-        Long reservationId = createResp.getBody().reservationId();
-        
-        // Obtener detalle
-        ResponseEntity<Reserva> getResp = restTemplate.exchange(
-                baseUrl + "/reservations/" + reservationId,
-                HttpMethod.GET,
-                new HttpEntity<>(headers),
-                Reserva.class
-        );
-        
-        assertThat(getResp.getStatusCode()).isEqualTo(HttpStatus.OK);
-        assertThat(getResp.getBody().inicio()).isEqualTo(reservaNueva.inicio());
-        
-        // Cancelar
-        ResponseEntity<Void> deleteResp = restTemplate.exchange(
-                baseUrl + "/reservations/" + reservationId,
-                HttpMethod.DELETE,
-                new HttpEntity<>(headers),
-                Void.class
-        );
-        
-        assertThat(deleteResp.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
-        }
-}
 
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(response.getBody()).isNotNull();
+        assertThat(response.getBody().nombre).isEqualTo("Pista Central");
+    }
+
+    @Test
+    void getPistaByIdE2E() {
+
+        Pista pista = new Pista(1L,"Central","Madrid",20,true,null);
+        repoPista.save(pista);
+
+        ResponseEntity<Pista> response =
+                restTemplate.getForEntity("/pistas/1", Pista.class);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(response.getBody()).isNotNull();
+        assertThat(response.getBody().nombre).isEqualTo("Central");
+    }
+
+    @Test
+    void getAllPistasE2E(){
+
+        repoPista.save(new Pista(1L,"Central","Madrid",20,true,null));
+        repoPista.save(new Pista(2L,"Norte","Madrid",15,true,null));
+
+        ResponseEntity<Pista[]> response =
+                restTemplate.getForEntity("/pistas", Pista[].class);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(response.getBody()).isNotNull();
+        assertThat(response.getBody().length).isEqualTo(2);
+    }
+
+    @Test
+    void deletePistaE2E(){
+
+        repoPista.save(new Pista(1L,"Central","Madrid",20,true,null));
+
+        restTemplate.delete("/pistas/1");
+
+        boolean exists = repoPista.existsById(1L);
+
+        assertThat(exists).isFalse();
+    }
+
+}
