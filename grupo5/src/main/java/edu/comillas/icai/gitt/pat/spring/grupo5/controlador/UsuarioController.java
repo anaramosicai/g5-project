@@ -181,7 +181,7 @@ public class UsuarioController {
             }
         }
 
-        Usuario actualizado = usuarioService.actualizarParcial(userId, cambios);
+        Usuario actualizado = usuarioService.actualizarUsuario(userId, cambios);
         if (actualizado == null) throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
         return ResponseEntity.ok(actualizado);
     }
