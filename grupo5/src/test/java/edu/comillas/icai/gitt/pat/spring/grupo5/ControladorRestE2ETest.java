@@ -1,8 +1,5 @@
 package edu.comillas.icai.gitt.pat.spring.grupo5;
 
-import edu.comillas.icai.gitt.pat.spring.grupo5.controlador.ControladorREST;
-import edu.comillas.icai.gitt.pat.spring.grupo5.entity.Pista;
-import edu.comillas.icai.gitt.pat.spring.grupo5.entity.Reserva;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 //import org.springframework.boot.test.web.client.TestRestTemplate; //<-- no va y la dependency está incluída ¯_ (ツ)_/¯
@@ -43,8 +40,6 @@ class ControladorRestE2ETest {
     private ControladorREST controladorREST;
 
     private static final String REGISTER = "/pistaPadel/auth/register";
-
-    private static final String COURT = "/pistaPadel/courts";
 
     @LocalServerPort
     private int port;
@@ -93,11 +88,10 @@ class ControladorRestE2ETest {
 
     // ============== REGISTROS Y USUARIOS ==============
 
-    /*
     @BeforeEach
     void setup_user() {
         controladorREST.reset();
-    }*/
+    }
 
     @Test
     void registro_ok_201() {
