@@ -166,7 +166,9 @@ public class UsuarioController {
 
         Usuario auth = usuarioService.getAuthenticatedUser(authHeader);
         if (auth == null) throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
-        if (!usuarioService.isAdmin(auth)) throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+        boolean esAdmin = usuarioService.isAdmin(auth);
+        boolean esDueno = usuarioService.isOwner(auth, userId);
+        if (!esAdmin && !esDueno) throw new ResponseStatusException(HttpStatus.FORBIDDEN, "No tienes el rol requerido para esta accion");
 
         Usuario existente = usuarioService.getUsuarioById(userId);
         if (existente == null) throw new ResponseStatusException(HttpStatus.NOT_FOUND);
