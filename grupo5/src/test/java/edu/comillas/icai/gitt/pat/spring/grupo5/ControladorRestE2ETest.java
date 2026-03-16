@@ -93,10 +93,11 @@ class ControladorRestE2ETest {
 
     // ============== REGISTROS Y USUARIOS ==============
 
+    /*
     @BeforeEach
     void setup_user() {
         controladorREST.reset();
-    }
+    }*/
 
     @Test
     void registro_ok_201() {

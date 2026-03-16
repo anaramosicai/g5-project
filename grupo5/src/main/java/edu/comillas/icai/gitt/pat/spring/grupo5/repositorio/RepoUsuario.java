@@ -7,7 +7,8 @@ import java.util.Optional;
 
 public interface RepoUsuario extends CrudRepository<Usuario, Long> {
     Usuario findByEmail(String email);
-    boolean existsByEmail(String email);
+    // Crud tiene implícito: Iterable<Usuario> findAll();
     boolean existsByEmailAndIdNot(String email, Long id);
+    boolean existsByEmail(String email);
 
 }
