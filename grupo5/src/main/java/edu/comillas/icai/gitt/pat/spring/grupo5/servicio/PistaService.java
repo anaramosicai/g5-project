@@ -6,12 +6,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+
 @Service
 public class PistaService {
     @Autowired
@@ -23,8 +26,14 @@ public class PistaService {
     public Pista crea(Pista pistaNuevo){
         logger.info("ServicioPista: Trying to create a pista: " + pistaNuevo.id);
 
+        //409 conflict
         if(repoPista.existsByNombreIgnoreCase(pistaNuevo.nombre)){
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Another Pista with the same name");
+        }
+
+        //400 name is req
+        if (pistaNuevo.nombre == null || pistaNuevo.nombre.isBlank()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Name is required");
         }
 
         Pista pista = new Pista(
@@ -48,13 +57,19 @@ public class PistaService {
     public Pista lee(long id){
         logger.info("ServicioPista: Read pista with id " + id);
 
+        //404 not found
         return repoPista.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "couldn't find pista with this id"));
     }
 
     @Transactional
     public Pista cambiar(Pista pistaNuevo, long id){
+        //404 not found
         Pista pista = repoPista.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
+        //409 name duplicate
+        if(pista.nombre == pistaNuevo.nombre){
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Another Pista with the same name exists");
+        }
         Pista pistaActualizada = new Pista(
                 id,
                 pistaNuevo.nombre,
@@ -67,10 +82,11 @@ public class PistaService {
     }
 
     @Transactional
-    public void borrar(long id){
+    public ResponseEntity<Void> borrar(long id){
+        //404 not found
         Pista pista = repoPista.findById(id).orElseThrow(()-> new ResponseStatusException(HttpStatus.NOT_FOUND, "Couldn't find pista with this id"));
-
         repoPista.delete(pista);
+        return ResponseEntity.noContent().build();
     }
 
 

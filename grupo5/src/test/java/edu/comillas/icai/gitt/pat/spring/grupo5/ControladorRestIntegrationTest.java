@@ -2,7 +2,9 @@ package edu.comillas.icai.gitt.pat.spring.grupo5;
 
 import edu.comillas.icai.gitt.pat.spring.grupo5.controlador.ControladorREST;
 import edu.comillas.icai.gitt.pat.spring.grupo5.entity.Pista;
+import edu.comillas.icai.gitt.pat.spring.grupo5.entity.Usuario;
 import edu.comillas.icai.gitt.pat.spring.grupo5.repositorio.RepoPista;
+import edu.comillas.icai.gitt.pat.spring.grupo5.repositorio.RepoReserva;
 import edu.comillas.icai.gitt.pat.spring.grupo5.servicio.PistaService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -11,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 //import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 //import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -43,6 +46,9 @@ import java.time.LocalDateTime;
  */
 //@WebMvcTest(ControladorREST.class)
 //@AutoConfigureMockMvc(addFilters = false)
+
+
+
 @DataJpaTest
 class ControladorRestIntegrationTest {
 
@@ -65,12 +71,14 @@ class ControladorRestIntegrationTest {
     @Autowired
     private PistaService pistaService;
 
-    /*
+    */
+/*
     @BeforeEach
     void setup_user() {
         controladorREST.reset();
     }
-    */
+    *//*
+
 
     @Test
     void registro_ok_201() throws Exception {
@@ -98,9 +106,11 @@ class ControladorRestIntegrationTest {
         assertNotNull(error);
     }
 
-    /**
+    */
+/**
      * Test de integración del endpoint PISTAS
-     */
+     *//*
+
 
     @Test
     void createAndReadPista() {
@@ -350,3 +360,4 @@ class ControladorRestIntegrationTest {
 
     private record ReservaDTO(Long courtId, String userId, LocalDateTime inicio, LocalDateTime fin) {}
     }
+

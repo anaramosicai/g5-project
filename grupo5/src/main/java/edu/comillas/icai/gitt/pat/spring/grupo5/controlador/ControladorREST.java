@@ -208,6 +208,7 @@ public class ControladorREST {
     // SECCIÓN: RESERVAS
     // ============================
 
+    /*
     @PostMapping("/pistaPadel/reservations")
     @ResponseStatus(HttpStatus.CREATED)
     @PreAuthorize("hasRole('USER')")
@@ -348,6 +349,8 @@ public class ControladorREST {
         usuarios.clear();
         usuariosporId.clear();
         idUsuarioSeq.set(1);
-    }*/
+    }
+
+     */
 }
 
