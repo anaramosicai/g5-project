@@ -19,6 +19,7 @@ public class PistaService {
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
+    @Transactional
     public Pista crea(Pista pistaNuevo){
         logger.info("ServicioPista: Trying to create a pista: " + pistaNuevo.id);
 
