@@ -52,7 +52,7 @@ import java.time.LocalDateTime;
 
 
 @DataJpaTest
-class ControladorRestIntegrationTest {
+class IntegrationTest {
 
     //@Autowired
     //private MockMvc mockMvc;
