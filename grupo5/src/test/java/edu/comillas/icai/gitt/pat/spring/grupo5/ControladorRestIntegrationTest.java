@@ -2,6 +2,9 @@ package edu.comillas.icai.gitt.pat.spring.grupo5;
 
 import edu.comillas.icai.gitt.pat.spring.grupo5.controlador.ControladorREST;
 import edu.comillas.icai.gitt.pat.spring.grupo5.entity.Pista;
+import edu.comillas.icai.gitt.pat.spring.grupo5.repositorio.RepoPista;
+import edu.comillas.icai.gitt.pat.spring.grupo5.servicio.PistaService;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +14,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.test.web.servlet.MvcResult;
+
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -20,6 +25,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.web.server.ResponseStatusException;
 
 
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
@@ -43,7 +49,10 @@ class ControladorRestIntegrationTest {
     //@Autowired
     //private MockMvc mockMvc;
     @Autowired
-    RepoUsuario repoUsuario;
+    private MockMvc mockMvc;
+
+    @Autowired
+    private RepoReserva repoReserva;
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -52,6 +61,10 @@ class ControladorRestIntegrationTest {
 
     @Autowired
     private ControladorREST controladorREST;
+
+    @Autowired
+    private PistaService pistaService;
+
     /*
     @BeforeEach
     void setup_user() {
@@ -66,6 +79,7 @@ class ControladorRestIntegrationTest {
         repoUsuario.save(user);
         assertNotNull(repoUsuario.findById(user.getId()));
     }
+
 
     @Test
     void registro_emailDuplicado_409() throws Exception {
@@ -87,44 +101,38 @@ class ControladorRestIntegrationTest {
     /**
      * Test de integración del endpoint PISTAS
      */
-    @Test
-    void creaPistaOkTest() throws Exception{
-        Pista pista = new Pista(
-                        1,
-                        "Madrid central 1",
-                        "Madrid",
-                        10,
-                        true,
-                        "2026-02-15");
 
-        mockMvc.perform(post("/pistaPadel/courts")
-                        .contentType(String.valueOf(MediaType.APPLICATION_JSON))
-                        .content(objectMapper.writeValueAsString(pista)))
-                .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.nombre").value("Madrid central 1"));
+    @Test
+    void createAndReadPista() {
+
+        Pista pista = new Pista(
+                1L,
+                "Central",
+                "Madrid",
+                20,
+                true,
+                null
+        );
+
+        pistaService.crea(pista);
+
+        Pista encontrada = pistaService.lee(1L);
+
+        assertThat(encontrada).isNotNull();
+        assertThat(encontrada.nombre).isEqualTo("Central");
     }
 
     @Test
-    void creaPistaIncorrectoTest() throws Exception{
-        Pista pista = new Pista(
-                        1,
-                        "Madrid central 1",
-                        "Madrid",
-                        10,
-                        true,
-                        "2026-02-15");
+    void createPistaWithDuplicateNameShouldFail(){
 
-        mockMvc.perform(post("/pistaPadel/courts")
-                    .contentType(String.valueOf(MediaType.APPLICATION_JSON))
-                    .content(String.valueOf(pista)))
-                .andExpect(status().isBadRequest());
-    }
+        Pista pista1 = new Pista(1L,"Central","Madrid",20,true,null);
+        Pista pista2 = new Pista(2L,"central","Barcelona",25,true,null);
 
+        pistaService.crea(pista1);
 
-    /**
-     * Test de integración del endpoint RESERVAS
-     */
-
+        Assertions.assertThrows(ResponseStatusException.class, () -> {
+            pistaService.crea(pista2);
+        });
     
     // Metodo privado para crear una pista con rol de admin
     private Long crearPistaPrueba() throws Exception {
@@ -153,9 +161,10 @@ class ControladorRestIntegrationTest {
     
     @Test
     @WithMockUser(username = "user1", roles = "USER")
-    @DisplayName("Usuario normal crea reserva OK")
-    void crearReserva_OK() throws Exception {
+    @DisplayName("Crear reserva persiste en BD")
+    void crearReserva_persisteEnBD() throws Exception {
         Long courtId = crearPistaPrueba();
+        assertThat(repoReserva.count()).isEqualTo(0);
     
         var reserva = new ReservaDTO(
                 courtId,
@@ -164,16 +173,146 @@ class ControladorRestIntegrationTest {
                 LocalDateTime.of(2026, 9, 10, 17, 0)
         );
     
-        mockMvc.perform(post("/pistaPadel/reservations")
+        MvcResult result = mockMvc.perform(post("/pistaPadel/reservations")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(reserva))
                         .with(csrf()))
-                .andExpect(status().isCreated());
+                .andExpect(status().isCreated())
+                .andReturn();
+
+        // Verificar que la reserva está en la BD
+        assertThat(repoReserva.count()).isEqualTo(1);
+        
+        // Extraer el ID de la respuesta y verificar datos
+        String json = result.getResponse().getContentAsString();
+        Reserva reservaCreada = objectMapper.readValue(json, Reserva.class);
+        
+        Optional<Reserva> reservaEnBD = repoReserva.findById(reservaCreada.getReservationId());
+        assertThat(reservaEnBD).isPresent();
+        assertThat(reservaEnBD.get().getUserId()).isEqualTo("user1");
+        assertThat(reservaEnBD.get().getCourtId()).isEqualTo(courtId);
+        assertThat(reservaEnBD.get().getInicio()).isEqualTo(LocalDateTime.of(2026, 9, 10, 16, 0));
     }
     
     @Test
     @WithMockUser(username = "user1", roles = "USER")
-    @DisplayName("Solapamiento → 409 Conflict")
+    @DisplayName("Obtener reserva devuelve datos persistidos")
+    void obtenerReserva_devuelveDatosPersistidos() throws Exception {
+        Long courtId = crearPistaPrueba();
+        
+        // Crear una reserva
+        var reserva = new ReservaDTO(
+                courtId,
+                "user1",
+                LocalDateTime.of(2026, 8, 15, 10, 0),
+                LocalDateTime.of(2026, 8, 15, 11, 0)
+        );
+    
+        MvcResult createResult = mockMvc.perform(post("/pistaPadel/reservations")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(reserva))
+                        .with(csrf()))
+                .andExpect(status().isCreated())
+                .andReturn();
+        
+        String json = createResult.getResponse().getContentAsString();
+        Reserva reservaCreada = objectMapper.readValue(json, Reserva.class);
+        Long reservaId = reservaCreada.getReservationId();
+        
+        // Obtener la reserva y verificar que los datos se recuperan de la BD
+        mockMvc.perform(get("/pistaPadel/reservations/" + reservaId))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.userId").value("user1"))
+                .andExpect(jsonPath("$.courtId").value(courtId))
+                .andExpect(jsonPath("$.reservationId").value(reservaId));
+    }
+    
+    @Test
+    @WithMockUser(username = "user1", roles = "USER")
+    @DisplayName("Reprogramar reserva actualiza persistencia")
+    void reprogramarReserva_actualizaPersistencia() throws Exception {
+        Long courtId = crearPistaPrueba();
+        
+        // Crear reserva original
+        var reservaOriginal = new ReservaDTO(
+                courtId,
+                "user1",
+                LocalDateTime.of(2026, 7, 20, 14, 0),
+                LocalDateTime.of(2026, 7, 20, 15, 0)
+        );
+    
+        MvcResult createResult = mockMvc.perform(post("/pistaPadel/reservations")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(reservaOriginal))
+                        .with(csrf()))
+                .andExpect(status().isCreated())
+                .andReturn();
+        
+        String json = createResult.getResponse().getContentAsString();
+        Reserva reservaCreada = objectMapper.readValue(json, Reserva.class);
+        Long reservaId = reservaCreada.getReservationId();
+        
+        // Reprogramar la reserva
+        var reservaNueva = new ReservaDTO(
+                courtId,
+                "user1",
+                LocalDateTime.of(2026, 7, 20, 16, 0),
+                LocalDateTime.of(2026, 7, 20, 17, 0)
+        );
+        
+        mockMvc.perform(patch("/pistaPadel/reservations/" + reservaId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(reservaNueva))
+                        .with(csrf()))
+                .andExpect(status().isOk());
+        
+        // Verificar que la BD tiene los datos actualizados
+        Optional<Reserva> reservaActualizada = repoReserva.findById(reservaId);
+        assertThat(reservaActualizada).isPresent();
+        assertThat(reservaActualizada.get().getInicio()).isEqualTo(LocalDateTime.of(2026, 7, 20, 16, 0));
+        assertThat(reservaActualizada.get().getFin()).isEqualTo(LocalDateTime.of(2026, 7, 20, 17, 0));
+    }
+    
+    @Test
+    @WithMockUser(username = "user1", roles = "USER")
+    @DisplayName("Cancelar reserva elimina de persistencia")
+    void cancelarReserva_eliminaDePersistencia() throws Exception {
+        Long courtId = crearPistaPrueba();
+        
+        // Crear una reserva
+        var reserva = new ReservaDTO(
+                courtId,
+                "user1",
+                LocalDateTime.of(2026, 6, 10, 12, 0),
+                LocalDateTime.of(2026, 6, 10, 13, 0)
+        );
+    
+        MvcResult createResult = mockMvc.perform(post("/pistaPadel/reservations")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(reserva))
+                        .with(csrf()))
+                .andExpect(status().isCreated())
+                .andReturn();
+        
+        String json = createResult.getResponse().getContentAsString();
+        Reserva reservaCreada = objectMapper.readValue(json, Reserva.class);
+        Long reservaId = reservaCreada.getReservationId();
+        
+        // Verificar que existe en la BD
+        assertThat(repoReserva.findById(reservaId)).isPresent();
+        
+        // Cancelar la reserva
+        mockMvc.perform(delete("/pistaPadel/reservations/" + reservaId)
+                        .with(csrf()))
+                .andExpect(status().isNoContent());
+        
+        // Verificar que fue eliminada de la BD
+        assertThat(repoReserva.findById(reservaId)).isEmpty();
+    }
+    
+    @Test
+    @WithMockUser(username = "user1", roles = "USER")
+    @DisplayName("Solapamiento de reservas → 409 Conflict")
     void solapamiento_da_409() throws Exception {
         Long courtId = crearPistaPrueba();
     
@@ -183,6 +322,8 @@ class ControladorRestIntegrationTest {
                         .content(objectMapper.writeValueAsString(r1))
                         .with(csrf()))
                 .andExpect(status().isCreated());
+        
+        assertThat(repoReserva.count()).isEqualTo(1);
     
         var r2 = new ReservaDTO(courtId, "user2", LocalDateTime.of(2026, 10, 5, 10, 45), LocalDateTime.of(2026, 10, 5, 11, 45));
         mockMvc.perform(post("/pistaPadel/reservations")
@@ -190,18 +331,22 @@ class ControladorRestIntegrationTest {
                         .content(objectMapper.writeValueAsString(r2))
                         .with(csrf()))
                 .andExpect(status().isConflict());
+        
+        // La segunda no se guardó, sigue habiendo solo 1
+        assertThat(repoReserva.count()).isEqualTo(1);
     }
     
     @Test
     @WithMockUser(username = "admin-test", roles = "ADMIN")
-    @DisplayName("Admin lista todas las reservas")
-    void admin_lista_reservas() throws Exception {
+    @DisplayName("Admin lista todas las reservas persistidas")
+    void admin_lista_reservas_persistidas() throws Exception {
+        assertThat(repoReserva.count()).isEqualTo(0);
+        
         mockMvc.perform(get("/pistaPadel/admin/reservations"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$").isArray());
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$.length()").value(0));
     }
 
     private record ReservaDTO(Long courtId, String userId, LocalDateTime inicio, LocalDateTime fin) {}
     }
-
-

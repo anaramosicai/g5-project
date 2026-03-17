@@ -1,19 +1,20 @@
 package edu.comillas.icai.gitt.pat.spring.grupo5.entity;
 
 import edu.comillas.icai.gitt.pat.spring.grupo5.model.NombreRol;
-import jakarta.persistence.Entity;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 
 @Entity
-public record Rol(
+public class Rol{
+        @Id
+        @GeneratedValue(strategy = GenerationType.IDENTITY)
+        public Long id;
 
-        @NotNull
-        int idRol,
+        @Column(nullable = false)
+        @Enumerated(EnumType.STRING)
+        NombreRol nombreRol;
 
-        @NotNull
-        NombreRol nombreRol,
+        @Column(nullable = false)
+        String descripcion;
 
-        @NotNull
-        String descripcion)
-{
 }

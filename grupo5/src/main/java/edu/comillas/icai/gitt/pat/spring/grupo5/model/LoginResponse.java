@@ -1,7 +1,22 @@
 package edu.comillas.icai.gitt.pat.spring.grupo5.model;
 
-import edu.comillas.icai.gitt.pat.spring.grupo5.entity.Rol;
-import edu.comillas.icai.gitt.pat.spring.grupo5.entity.Usuario;
 
-public class LoginResponse(String token) {
+/**
+ * Respuesta de /auth/login.
+ * Mínimo exige devolver un token. Añadimos opcionales habituales por si te resultan útiles.
+ */
+public class LoginResponse {
+
+    private String token;
+
+    public LoginResponse() { }
+
+    public LoginResponse(String token) {
+        this.token = token;
+    }
+
+    // Getters y Setters
+    public String getToken() { return token; }
+    public void setToken(String token) { this.token = token; }
+
 }
