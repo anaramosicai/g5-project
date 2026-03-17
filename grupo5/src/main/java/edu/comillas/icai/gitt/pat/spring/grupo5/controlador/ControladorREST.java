@@ -1,6 +1,6 @@
 package edu.comillas.icai.gitt.pat.spring.grupo5.controlador;
 
-import edu.comillas.icai.gitt.pat.spring.grupo5.DisponibilidadService;
+import edu.comillas.icai.gitt.pat.spring.grupo5.servicio.DisponibilidadService;
 import edu.comillas.icai.gitt.pat.spring.grupo5.model.*;
 import edu.comillas.icai.gitt.pat.spring.grupo5.entity.Pista;
 import edu.comillas.icai.gitt.pat.spring.grupo5.entity.Reserva;
@@ -9,8 +9,6 @@ import edu.comillas.icai.gitt.pat.spring.grupo5.servicio.PistaService;
 import edu.comillas.icai.gitt.pat.spring.grupo5.servicio.ReservaService;
 import edu.comillas.icai.gitt.pat.spring.grupo5.servicio.UsuarioService;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,8 +41,6 @@ public class ControladorREST {
     @Autowired
     DisponibilidadService disponibilidadService;
 
-    @Autowired
-    PistaService pistaService;
 
     // ============================
     // SECCIÓN: PISTAS
@@ -85,9 +81,6 @@ public class ControladorREST {
     // SECCIÓN: AUTENTICACIÓN
     // ============================
 
-    @Autowired
-    UsuarioService usuarioService;
-
     private Logger logger = LoggerFactory.getLogger(getClass());
 
     private final Map<String, Usuario> usuarios = new ConcurrentHashMap<>();
@@ -97,107 +90,39 @@ public class ControladorREST {
     private final Map<String, Long> tokenToUserId = new ConcurrentHashMap<>();
     private final Map<Long, String> userIdToToken = new ConcurrentHashMap<>();
 
-    /**
-     * POST /pistaPadel/auth/register
-     * 201 creado, 400 datos inválidos, 409 email ya existe
-     */
     @PostMapping("/auth/register")
     public ResponseEntity<UsuarioResponse> register(@Valid @RequestBody RegisterRequest request) {
-        if (request == null) throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
-
-        // 409 si email duplicado
-        if (usuarioService.emailExists(request.getEmail())) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT);
-        }
-
-        UsuarioResponse body = usuarioService.register(request);
-        if (body == null) {
-            // datos inválidos -> 400
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
-        }
-        return ResponseEntity.status(HttpStatus.CREATED).body(body); // 201
+        return ResponseEntity.status(HttpStatus.CREATED).body(usuarioService.register(request));
     }
 
-    /**
-     * POST /pistaPadel/auth/login
-     * 200 ok, 400 request inválida, 401 credenciales incorrectas
-     */
     @PostMapping("/auth/login")
     public ResponseEntity<LoginResponse> login(@Valid @RequestBody LoginRequest request) {
-        if (request == null) throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
-
-        LoginResponse resp = usuarioService.login(request);
-        if (resp == null) {
-            // Diferencia 400 vs 401 de forma simple:
-            if (request.email() == null || request.email().isBlank()
-                    || request.password() == null || request.password().isBlank()) {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
-            }
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
-        }
-        return ResponseEntity.ok(resp); // 200
+        return ResponseEntity.ok(usuarioService.login(request));
     }
 
-    /**
-     * POST /pistaPadel/auth/logout
-     * 204 ok, 401 no autenticado
-     */
     @PostMapping("/auth/logout")
     public ResponseEntity<Void> logout(@RequestHeader(name = "Authorization", required = false) String authHeader) {
-        boolean ok = usuarioService.logout(authHeader);
-        if (!ok) throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
-        return ResponseEntity.noContent().build(); // 204
+        usuarioService.logout(authHeader);
+        return ResponseEntity.noContent().build();
     }
 
-    /**
-     * GET /pistaPadel/auth/me
-     * 200 ok, 401 no autenticado
-     */
     @GetMapping("/auth/me")
     public ResponseEntity<UsuarioResponse> me(@RequestHeader(name = "Authorization", required = false) String authHeader) {
-        UsuarioResponse me = usuarioService.me(authHeader);
-        if (me == null) throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
-        return ResponseEntity.ok(me); // 200
+        return ResponseEntity.ok(usuarioService.me(authHeader));
     }
 
     // ============================
     // SECCIÓN: USUARIOS
     // ============================
 
-    /**
-     * GET /pistaPadel/users/{userId}
-     * (ADMIN o dueño) 200, 401, 403, 404
-     */
-    @GetMapping("/users/{userId}")
+    // Sin @PreAuthorize("hasRole('ADMIN')") pues dice admin O DUEÑO, que entra con su userId
+    @GetMapping("/pistaPadel/users/{userId}")
     public ResponseEntity<UsuarioResponse> getUserById(
             @PathVariable Long userId,
             @RequestHeader(name = "Authorization", required = false) String authHeader) {
 
-        // 401 si no autenticado
-        Usuario auth = usuarioService.getAuthenticatedUser(authHeader);
-        if (auth == null) throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
-
-        // 403 si no es admin ni dueño
-        boolean esAdmin = usuarioService.isAdmin(auth);
-        boolean esDueno = usuarioService.isOwner(auth, userId);
-        if (!esAdmin && !esDueno) throw new ResponseStatusException(HttpStatus.FORBIDDEN);
-
-        // 404 si no existe el usuario solicitado
-        Usuario objetivo = usuarioService.getUsuarioById(userId);
-        if (objetivo == null) throw new ResponseStatusException(HttpStatus.NOT_FOUND);
-
-        // 200 OK con DTO
-        UsuarioResponse body = new UsuarioResponse(
-                objetivo.getId(),
-                objetivo.getNombre(),
-                objetivo.getApellidos(),
-                objetivo.getEmail(),
-                objetivo.getTelefono(),
-                objetivo.getRol(),
-                objetivo.getFechaRegistro(),
-                objetivo.isActivo()
-        );
-        return ResponseEntity.ok(body);
+        UsuarioResponse body = usuarioService.obtenerUsuarioPorIdAutorizado(userId, authHeader);
+        return ResponseEntity.ok(body); // 200
     }
 
     @GetMapping("/pistaPadel/users")
