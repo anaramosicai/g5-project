@@ -147,64 +147,91 @@ public class ControladorREST {
     // SECCIÓN: RESERVAS
     // ============================
 
-    @PostMapping("/pistaPadel/reservations")
+        private final Map<Long, Pista> pistas = new ConcurrentHashMap<>();
+    private long idPistaContador = 0;
+
+    @PostMapping("/reservations")
     @ResponseStatus(HttpStatus.CREATED)
     @PreAuthorize("hasRole('USER')")
-    public Reserva crearReserva(@RequestBody Reserva reservaNueva, BindingResult bindingResult) {
+    public Reserva crearReserva(@RequestBody @Valid Reserva reservaNueva,
+                                BindingResult bindingResult,
+                                @RequestHeader(name = "Authorization", required = false) String authHeader) {
 
         if (bindingResult.hasErrors()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
         }
 
-        //Verifica que la pista asignada existe
-        if (!pistaService.existePorId(reservaNueva.getCourtId())){
-            throw new ResponseStatusException(
-                    HttpStatus.NOT_FOUND,
-                    "Pista no existe"
-            );
+        // Validar que la pista existe
+        if (!pistas.containsKey(reservaNueva.courtId)) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Pista no existe");
         }
 
-        return reservaService.crearReserva(reservaNueva);
+        // Obtener usuario autenticado
+        Usuario usuarioAutenticado = usuarioService.getAuthenticatedUser(authHeader);
+
+        // Delegar a ReservaService (que valida autenticación y autorización)
+        return reservaService.crearReserva(reservaNueva, usuarioAutenticado);
     }
 
-    @PatchMapping("/pistaPadel/reservations/{reservationId}")
+    @PatchMapping("/reservations/{reservationId}")
     @PreAuthorize("hasAnyRole('USER','ADMIN')")
-    public Reserva reprogramar(@PathVariable Long reservationId, @RequestBody Reserva reservaNueva, BindingResult bindingResult) {
+    public Reserva reprogramar(@PathVariable long reservationId,
+                               @RequestBody @Valid Reserva reservaNueva,
+                               BindingResult bindingResult,
+                               @RequestHeader(name = "Authorization", required = false) String authHeader) {
 
         if (bindingResult.hasErrors()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
         }
 
-        //Verifica que la pista asignada existe
-        if (!pistaService.existePorId(reservaNueva.getCourtId())){
-            throw new ResponseStatusException(
-                    HttpStatus.NOT_FOUND,
-                    "Pista no existe"
-            );
+        // Validar que la pista existe
+        if (!pistas.containsKey(reservaNueva.courtId)) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Pista no existe");
         }
 
-        return reservaService.reprogramarReserva(reservationId, reservaNueva);
+        // Obtener usuario autenticado
+        Usuario usuarioAutenticado = usuarioService.getAuthenticatedUser(authHeader);
+
+        // Delegar a ReservaService (que valida autenticación y autorización)
+        return reservaService.reprogramarReserva(reservationId, reservaNueva, usuarioAutenticado);
     }
 
-    @GetMapping("/pistaPadel/reservations/{reservationId}")
+    @GetMapping("/reservations/{reservationId}")
     @PreAuthorize("hasAnyRole('USER','ADMIN')")
-    public Reserva obtenerReserva(@PathVariable Long reservationId) {
-        return reservaService.obtenerReserva(reservationId);
+    public Reserva obtenerReserva(@PathVariable long reservationId,
+                                  @RequestHeader(name = "Authorization", required = false) String authHeader) {
+
+        // Obtener usuario autenticado
+        Usuario usuarioAutenticado = usuarioService.getAuthenticatedUser(authHeader);
+
+        // Delegar a ReservaService (que valida autenticación y autorización)
+        return reservaService.obtenerReserva(reservationId, usuarioAutenticado);
     }
 
-    @GetMapping("/pistaPadel/admin/reservations")
+    @GetMapping("/admin/reservations")
     @PreAuthorize("hasRole('ADMIN')")
-    public List<Reserva> obtenerTodasReservas() {
-        return reservaService.obtenerTodasReservas();
+    public List<Reserva> obtenerTodasReservas(@RequestHeader(name = "Authorization", required = false) String authHeader) {
+
+        // Obtener usuario autenticado
+        Usuario usuarioAutenticado = usuarioService.getAuthenticatedUser(authHeader);
+
+        // Delegar a ReservaService (que valida que es ADMIN)
+        return reservaService.obtenerTodasReservas(usuarioAutenticado);
     }
 
-    @DeleteMapping("/pistaPadel/reservations/{reservationId}")
+    @DeleteMapping("/reservations/{reservationId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @PreAuthorize("hasAnyRole('USER','ADMIN')")
-    public void cancelar(@PathVariable Long reservationId) {
-        reservaService.cancelarReserva(reservationId);
-    }
+    public void cancelar(@PathVariable long reservationId,
+                         @RequestHeader(name = "Authorization", required = false) String authHeader) {
 
+        // Obtener usuario autenticado
+        Usuario usuarioAutenticado = usuarioService.getAuthenticatedUser(authHeader);
+
+        // Delegar a ReservaService (que valida autenticación y autorización)
+        reservaService.cancelarReserva(reservationId, usuarioAutenticado);
+    }
+    
     // ============================
     // SECCIÓN: DISPONIBILIDAD
     // ============================
