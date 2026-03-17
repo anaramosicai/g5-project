@@ -2,7 +2,11 @@ package edu.comillas.icai.gitt.pat.spring.grupo5;
 
 import edu.comillas.icai.gitt.pat.spring.grupo5.controlador.ControladorREST;
 import edu.comillas.icai.gitt.pat.spring.grupo5.entity.Pista;
+import edu.comillas.icai.gitt.pat.spring.grupo5.entity.Usuario;
+import edu.comillas.icai.gitt.pat.spring.grupo5.model.NombreRol;
 import edu.comillas.icai.gitt.pat.spring.grupo5.repositorio.RepoPista;
+import edu.comillas.icai.gitt.pat.spring.grupo5.repositorio.RepoReserva;
+import edu.comillas.icai.gitt.pat.spring.grupo5.repositorio.RepoUsuario;
 import edu.comillas.icai.gitt.pat.spring.grupo5.servicio.PistaService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -14,9 +18,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.test.web.servlet.MvcResult;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -27,8 +33,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.web.server.ResponseStatusException;
-
-
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 
@@ -57,6 +61,9 @@ class ControladorRestIntegrationTest {
 
     @Autowired
     private RepoReserva repoReserva;
+
+    @Autowired
+    private RepoUsuario repoUsuario;
 
     @Autowired
     private ObjectMapper objectMapper;
