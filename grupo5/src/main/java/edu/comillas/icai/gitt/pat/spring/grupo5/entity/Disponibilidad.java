@@ -1,86 +1,46 @@
-package edu.comillas.icai.gitt.pat.spring.grupo5;
+package edu.comillas.icai.gitt.pat.spring.grupo5.entity;
 
-import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
 import java.time.LocalDate;
+import java.time.LocalTime;
+import java.util.List;
 
-@Entity
-@Table(name = "disponibilidad")
 public class Disponibilidad {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
-    private Long id;
-
-    @NotNull
-    @Column(name = "fecha")
+    private Pista pista;
     private LocalDate fecha;
+    private LocalTime apertura;
+    private LocalTime cierre;
+    private List<FranjaDisponible> franjasLibres;
 
-    @NotNull
-    @Column(name = "court_id")
-    private Long courtId;
+    public Disponibilidad(Pista pista,
+                          LocalDate fecha,
+                          LocalTime apertura,
+                          LocalTime cierre,
+                          List<FranjaDisponible> franjasLibres) {
 
-    @NotNull
-    @Column(name = "disponible")
-    private boolean disponible;
-
-    @Column(name = "mensaje")
-    private String mensaje;
-
-    // Constructores
-    public Disponibilidad() {}
-
-    public Disponibilidad(LocalDate fecha, Long courtId, boolean disponible, String mensaje) {
+        this.pista = pista;
         this.fecha = fecha;
-        this.courtId = courtId;
-        this.disponible = disponible;
-        this.mensaje = mensaje;
+        this.apertura = apertura;
+        this.cierre = cierre;
+        this.franjasLibres = franjasLibres;
     }
 
-    // Getters y Setters
-    public Long getId() {
-        return id;
-    }
+    public Pista getPista() { return pista; }
+    public LocalDate getFecha() { return fecha; }
+    public LocalTime getApertura() { return apertura; }
+    public LocalTime getCierre() { return cierre; }
+    public List<FranjaDisponible> getFranjasLibres() { return franjasLibres; }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
+    public static class FranjaDisponible {
+        private LocalTime inicio;
+        private LocalTime fin;
 
-    public LocalDate getFecha() {
-        return fecha;
-    }
+        public FranjaDisponible(LocalTime inicio, LocalTime fin) {
+            this.inicio = inicio;
+            this.fin = fin;
+        }
 
-    public void setFecha(LocalDate fecha) {
-        this.fecha = fecha;
-    }
-
-    public Long getCourtId() {
-        return courtId;
-    }
-
-    public void setCourtId(Long courtId) {
-        this.courtId = courtId;
-    }
-
-    public boolean isDisponible() {
-        return disponible;
-    }
-
-    public void setDisponible(boolean disponible) {
-        this.disponible = disponible;
-    }
-
-    public String getMensaje() {
-        return mensaje;
-    }
-
-    public void setMensaje(String mensaje) {
-        this.mensaje = mensaje;
-    }
-
-    // Método para convertir a DisponibilidadResponse
-    public DisponibilidadResponse toResponse() {
-        return new DisponibilidadResponse(this.fecha, this.courtId, this.disponible, this.mensaje);
+        public LocalTime getInicio() { return inicio; }
+        public LocalTime getFin() { return fin; }
     }
 }
