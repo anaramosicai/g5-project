@@ -1,6 +1,9 @@
 package edu.comillas.icai.gitt.pat.spring.grupo5.controlador;
 
+<<<<<<< HEAD
 import edu.comillas.icai.gitt.pat.spring.grupo5.DisponibilidadService;
+=======
+>>>>>>> af8ab0684be3b2fe9083cdab7056f727984aab3a
 import edu.comillas.icai.gitt.pat.spring.grupo5.model.*;
 import edu.comillas.icai.gitt.pat.spring.grupo5.entity.Pista;
 import edu.comillas.icai.gitt.pat.spring.grupo5.entity.Reserva;
@@ -31,6 +34,7 @@ import java.util.stream.Collectors;
 @RestController
 public class ControladorREST {
 
+<<<<<<< HEAD
     @Autowired
     PistaService pistaService;
 
@@ -43,6 +47,8 @@ public class ControladorREST {
     @Autowired
     DisponibilidadService disponibilidadService;
 
+=======
+>>>>>>> af8ab0684be3b2fe9083cdab7056f727984aab3a
     // ============================
     // SECCIÓN: PISTAS
     // ============================
@@ -81,6 +87,9 @@ public class ControladorREST {
     // ============================
     // SECCIÓN: AUTENTICACIÓN
     // ============================
+
+    @Autowired
+    UsuarioService usuarioService;
 
     private Logger logger = LoggerFactory.getLogger(getClass());
 

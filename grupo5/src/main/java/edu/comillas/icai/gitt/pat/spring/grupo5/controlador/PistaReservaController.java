@@ -110,6 +110,7 @@ public class PistaReservaController {
     @ResponseStatus(HttpStatus.CREATED)
     @PreAuthorize("hasRole('USER')")
     public Reserva crearReserva(@RequestBody @Valid Reserva reservaNueva, BindingResult bindingResult) {
+<<<<<<< HEAD
 
         if (bindingResult.hasErrors()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
@@ -124,6 +125,35 @@ public class PistaReservaController {
         }
 
         return reservaService.crearReserva(reservaNueva);
+=======
+        if (bindingResult.hasErrors()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+        }
+        if (reservaNueva.inicio().isAfter(reservaNueva.fin())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Inicio posterior a fin");
+        }
+        if (!pistas.containsKey(reservaNueva.courtId())) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Pista no existe");
+        }
+        boolean solapa = reservas.values().stream()
+                .filter(r -> r.courtId() == reservaNueva.courtId())
+                .anyMatch(r ->
+                        reservaNueva.inicio().isBefore(r.fin()) &&
+                                reservaNueva.fin().isAfter(r.inicio()));
+        if (solapa) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Slot ocupado");
+        }
+        long reservationId = idReservaContador++;
+        Reserva reservaCreada = new Reserva(
+                reservationId,
+                reservaNueva.courtId(),
+                reservaNueva.userId(),
+                reservaNueva.inicio(),
+                reservaNueva.fin()
+        );
+        reservas.put(reservationId, reservaCreada);
+        return reservaCreada;
+>>>>>>> af8ab0684be3b2fe9083cdab7056f727984aab3a
     }
 
     @PatchMapping("/reservations/{reservationId}")
