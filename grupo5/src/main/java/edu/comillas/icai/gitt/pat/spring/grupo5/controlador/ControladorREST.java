@@ -146,8 +146,8 @@ public class ControladorREST {
     // ============================
     // SECCIÓN: RESERVAS
     // ============================
-
-        private final Map<Long, Pista> pistas = new ConcurrentHashMap<>();
+    
+    private final Map<Long, Pista> pistas = new ConcurrentHashMap<>();
     private long idPistaContador = 0;
 
     @PostMapping("/reservations")
