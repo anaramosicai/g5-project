@@ -74,7 +74,7 @@ class IntegrationTest {
     private ControladorREST controladorREST;
 
     @Autowired
-    private PistaService pistaService;
+    private RepoPista repoPista;
 
     /*
     @BeforeEach
@@ -116,7 +116,7 @@ class IntegrationTest {
      */
 
     @Test
-    void createAndReadPista() {
+    void createPista() {
 
         Pista pista = new Pista(
                 1L,
@@ -127,25 +127,30 @@ class IntegrationTest {
                 null
         );
 
-        pistaService.crea(pista);
+        repoPista.save(pista);
+        Pista encontrada = repoPista.findById(pista.id).orElse(null);
 
-        Pista encontrada = pistaService.lee(1L);
-
-        assertThat(encontrada).isNotNull();
+        assertNotNull(encontrada);
         assertThat(encontrada.nombre).isEqualTo("Central");
     }
 
     @Test
     void createPistaWithDuplicateNameShouldFail(){
-
         Pista pista1 = new Pista(1L,"Central","Madrid",20,true,null);
         Pista pista2 = new Pista(2L,"central","Barcelona",25,true,null);
 
-        pistaService.crea(pista1);
+        repoPista.save(pista1);
+        DataIntegrityViolationException error = null;
+        try {
+            repoPista.save(pista2);
+        } catch (DataIntegrityViolationException e) {
+            error = e;
+        }
+        assertNotNull(error);
+    }
 
-        Assertions.assertThrows(ResponseStatusException.class, () -> {
-            pistaService.crea(pista2);
-        });
+
+
     
     // Metodo privado para crear una pista con rol de admin
     private Long crearPistaPrueba() throws Exception {

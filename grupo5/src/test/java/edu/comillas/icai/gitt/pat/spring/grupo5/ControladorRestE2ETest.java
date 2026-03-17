@@ -56,6 +56,28 @@ class ControladorRestE2ETest {
 
 
     // ============== PISTAS ==============
+    @Test
+    void createPistaE2E() {
+
+        Pista pista = new Pista(
+                1L,
+                "Pista Central",
+                "Madrid",
+                20,
+                true,
+                null
+        );
+
+        ResponseEntity<Pista> response = restTemplate.postForEntity(
+                "/pistas",
+                pista,
+                Pista.class
+        );
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(response.getBody()).isNotNull();
+        assertThat(response.getBody().nombre).isEqualTo("Pista Central");
+    }
 
     @Test
     void creaPistaOkTest() {
@@ -73,7 +95,7 @@ class ControladorRestE2ETest {
                                                                      Pista.class);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
-        assertThat(response.getBody().nombre()).isEqualTo("Madrid central 1");        
+        assertThat(response.getBody().nombre).isEqualTo("Madrid central 1");
     }
 
     @Test
