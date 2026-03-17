@@ -276,7 +276,11 @@ public class UsuarioService {
 
     public Collection<Usuario> listarUsuarios() {
         logger.info("Devolucion lista de usuarios registrados");
-        List<Usuario> usuariosRegistrados = repoUsuario.findAll();
+        
+        Iterable<Usuario> iterable = repoUsuario.findAll();
+        List<Usuario> usuariosRegistrados = new ArrayList<>();
+        iterable.forEach(usuariosRegistrados::add);
+        
         if (usuariosRegistrados.isEmpty()) {
             logger.info("No hay usuarios registrados");
         }
