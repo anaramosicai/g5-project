@@ -209,58 +209,35 @@ public class ControladorREST {
     // SECCIÓN: DISPONIBILIDAD
     // ============================
 
-    @GetMapping("/pistaPadel/availability")
-    public DisponibilidadResponse consultarDisponibilidad(
-            @RequestParam(name = "date") String dateStr,
-            @RequestParam(name = "courtId", required = false) Long courtId
-    ) {
-        LocalDate fecha;
-        try {
-            fecha = LocalDate.parse(dateStr);
-        } catch (DateTimeParseException | NullPointerException e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Formato de fecha inválido (use YYYY-MM-DD)");
+    @GetMapping("/availability")
+        public ResponseEntity<List<Disponibilidad>> disponibilidadGeneral(
+                @RequestParam(name = "date") String dateStr,
+                @RequestParam(name = "courtId", required = false) Long courtId
+        ) {
+            LocalDate fecha = LocalDate.parse(dateStr);
+            return ResponseEntity.ok(disponibilidadService.disponibilidadGeneral(fecha, courtId));
         }
 
-        return disponibilidadService.consultarDisponibilidad(fecha, courtId);
-    }
-
-    @GetMapping("/pistaPadel/courts/{courtId}/availability")
-    public DisponibilidadResponse disponibilidadPistaConcreta(
-            @PathVariable Long courtId,
-            @RequestParam(name = "date") String dateStr
-    ) {
-        LocalDate fecha;
-        try {
-            fecha = LocalDate.parse(dateStr);
-        } catch (DateTimeParseException | NullPointerException e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Formato de fecha inválido");
+        @GetMapping("/courts/{courtId}/availability")
+        public ResponseEntity<Disponibilidad> disponibilidadPista(
+                @PathVariable Long courtId,
+                @RequestParam(name = "date") String dateStr
+        ) {
+            LocalDate fecha = LocalDate.parse(dateStr);
+            return ResponseEntity.ok(disponibilidadService.disponibilidadPista(courtId, fecha));
         }
 
-        return disponibilidadService.obtenerDisponibilidadPistaConcreta(fecha, courtId);
-    }
+        @GetMapping("/reservations")
+        public ResponseEntity<List<Reserva>> misReservas(
+                @RequestHeader(name = "X-User-Id", required = false) Long userId,
+                @RequestParam(required = false) String from,
+                @RequestParam(required = false) String to
+        ) {
+            LocalDate f = from != null ? LocalDate.parse(from) : null;
+            LocalDate t = to != null ? LocalDate.parse(to) : null;
 
-    @GetMapping("/pistaPadel/reservations")
-    public List<Reserva> listarMisReservas(
-            @RequestParam(required = false) String from,
-            @RequestParam(required = false) String to,
-            @RequestHeader(name = "X-User-Id", required = false) String userId
-    ) {
-        // 1. Validar Auth (401)
-        if (userId == null || userId.isBlank()) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Usuario no identificado");
+            return ResponseEntity.ok(disponibilidadService.reservasPorUsuario(userId, f, t));
         }
-
-        // 2. Parsear filtros opcionales
-        LocalDate fromDate = (from != null) ? LocalDate.parse(from) : null;
-        LocalDate toDate = (to != null) ? LocalDate.parse(to) : null;
-
-        // 3. Filtrar reservas
-        return reservas.values().stream()
-                .filter(r -> r.userId().equals(userId))
-                .filter(r -> fromDate == null || !r.inicio().toLocalDate().isBefore(fromDate))
-                .filter(r -> toDate == null || !r.inicio().toLocalDate().isAfter(toDate))
-                .collect(Collectors.toList());
-    }
 
     // ============================
     // SECCIÓN: HEALTH
@@ -269,16 +246,6 @@ public class ControladorREST {
     @GetMapping("/pistaPadel/health")
     public Map<String, String> health() {
         return Map.of("status", "ok");
-    }
-
-    // ============================
-    // MÉTODOS HELPER
-    // ============================
-
-    private boolean isPistaLibreEnFecha(Long courtId, LocalDate fecha) {
-        return reservas.values().stream()
-                .filter(r -> r.courtId() == courtId)
-                .noneMatch(r -> r.inicio().toLocalDate().equals(fecha));
     }
 
     //  DE UTILIDAD PARA TESTS:
