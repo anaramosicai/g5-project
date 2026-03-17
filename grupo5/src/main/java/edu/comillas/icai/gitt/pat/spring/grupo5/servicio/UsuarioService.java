@@ -130,21 +130,25 @@ public class UsuarioService {
     // =========================
 
     /**
-     * Registro: crea usuario con rol USER y password hash.
-     * Devuelve UsuarioResponse si OK; null si datos inválidos.
-     * (El controlador resolverá 400 o 409 según corresponda).
+     * /auth/register
+     * 201 creado, 400 datos inválidos, 409 email ya existe
      */
     @Transactional
     public UsuarioResponse register(@Valid RegisterRequest request) {
-        if (request == null
-                || isBlank(request.getEmail())
-                || isBlank(request.getPassword())
-                || isBlank(request.getNombre())
-                || isBlank(request.getTelefono())) {
-            return null; // datos inválidos -> 400 en el controlador
+
+        if (request == null ||
+                request.getEmail() == null || request.getEmail().isBlank() ||
+                request.getPassword() == null || request.getPassword().isBlank() ||
+                request.getNombre() == null || request.getNombre().isBlank() ||
+                request.getTelefono() == null || request.getTelefono().isBlank()) {
+
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Datos inválidos");
         }
 
-        // (La verificación de duplicado la hará el controlador con emailExists)
+        if (repoUsuario.existsByEmail(request.getEmail())) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Email ya existe");
+        }
+
         Usuario u = new Usuario(
                 null,
                 request.getNombre(),
@@ -156,52 +160,114 @@ public class UsuarioService {
                 LocalDateTime.now(),
                 true
         );
-        Usuario saved = repoUsuario.save(u);
-        return toResponse(saved);
+
+        return toResponse(repoUsuario.save(u));
     }
 
     /**
-     * Login: valida credenciales. Devuelve LoginResponse (con token) o null.
-     * El controlador mapeará null a 400/401.
+     * /pistaPadel/auth/login
+     * 200 ok, 400 request inválida, 401 credenciales incorrectas
      */
     @Transactional(readOnly = true)
     public LoginResponse login(@Valid LoginRequest request) {
-        if (request == null || isBlank(request.email()) || isBlank(request.password())) {
-            return null; // 400
+
+        if (request == null ||
+                request.email() == null || request.email().isBlank() ||
+                request.password() == null || request.password().isBlank()) {
+
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Request inválida");
         }
-        Usuario user = repoUsuario.findByEmail(request.email()); // puede ser null
+
+        Usuario user = repoUsuario.findByEmail(request.email());
+
         if (user == null || !Boolean.TRUE.equals(user.isActivo())) {
-            return null; // 401
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Credenciales incorrectas");
         }
+
         if (!passwordEncoder.matches(request.password(), user.getPassword())) {
-            return null; // 401
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Credenciales incorrectas");
         }
+
         String token = issueToken(user);
-        LoginResponse resp = new LoginResponse(); // clase con campo público 'token'
-        resp.token = token;
-        return resp; // 200
+
+        LoginResponse resp = new LoginResponse();
+        resp.setToken(token);
+        return resp;
     }
 
     /**
-     * Logout: true si invalida; false si no autenticado (401).
+     * /pistaPadel/auth/logout
+     * 204 ok, 401 no autenticado
+     *
+     * @return
      */
     @Transactional
     public boolean logout(String rawAuthHeader) {
+
         String token = extractToken(rawAuthHeader);
         Long userId = verifyAndGetUserId(token);
-        if (userId == null) return false;  // 401
+
+        if (userId == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "No autenticado");
+        }
+
         invalidateToken(token);
-        return true; // 204
+        return false;
     }
 
     /**
-     * /auth/me: UsuarioResponse si autenticado; null si 401 o si no existe (404 a criterio del controlador).
+     * /pistaPadel/auth/me
+     * 200 ok, 401 no autenticado
      */
     @Transactional(readOnly = true)
     public UsuarioResponse me(String rawAuthHeader) {
+
         Usuario u = getAuthenticatedUser(rawAuthHeader);
-        if (u == null) return null;
+
+        if (u == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "No autenticado");
+        }
+
         return toResponse(u);
+    }
+
+    /**
+     * /pistaPadel/users/{userId}
+     * (ADMIN o dueño) 200, 401, 403, 404
+     */
+    @Transactional(readOnly = true)
+    public UsuarioResponse obtenerUsuarioPorIdAutorizado(Long userId, String rawAuthHeader) {
+
+        // 1) Autenticación → 401
+        Usuario auth = getAuthenticatedUser(rawAuthHeader);
+        if (auth == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "No autenticado");
+        }
+
+        // 2) Autorización → 403
+        boolean esAdmin = isAdmin(auth);
+        boolean esDueno = isOwner(auth, userId);
+        if (!esAdmin && !esDueno) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "No autorizado");
+        }
+
+        // 3) Usuario destino existe → 404
+        Usuario objetivo = repoUsuario.findById(userId).orElse(null);
+        if (objetivo == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuario no existe");
+        }
+
+        // 4) OK → 200
+        return new UsuarioResponse(
+                objetivo.getId(),
+                objetivo.getNombre(),
+                objetivo.getApellidos(),
+                objetivo.getEmail(),
+                objetivo.getTelefono(),
+                objetivo.getRol(),
+                objetivo.getFechaRegistro(),
+                objetivo.isActivo()
+        );
     }
 
     /* Parte de martina */
