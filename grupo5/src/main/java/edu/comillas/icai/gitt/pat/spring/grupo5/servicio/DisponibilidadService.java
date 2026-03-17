@@ -1,91 +1,113 @@
 package edu.comillas.icai.gitt.pat.spring.grupo5.servicio;
 
-import edu.comillas.icai.gitt.pat.spring.grupo5.Disponibilidad;
-import edu.comillas.icai.gitt.pat.spring.grupo5.DisponibilidadRepository;
-import edu.comillas.icai.gitt.pat.spring.grupo5.model.DisponibilidadResponse;
+import edu.comillas.icai.gitt.pat.spring.grupo5.entity.Disponibilidad;
+import edu.comillas.icai.gitt.pat.spring.grupo5.entity.Pista;
+import edu.comillas.icai.gitt.pat.spring.grupo5.entity.Reserva;
+import edu.comillas.icai.gitt.pat.spring.grupo5.entity.Usuario;
+import edu.comillas.icai.gitt.pat.spring.grupo5.repositorio.RepoPista;
+import edu.comillas.icai.gitt.pat.spring.grupo5.repositorio.RepoReserva;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class DisponibilidadService {
 
-    @Autowired
-    DisponibilidadRepository disponibilidadRepository;
+    private static final LocalTime APERTURA = LocalTime.of(8, 0);
+    private static final LocalTime CIERRE = LocalTime.of(22, 0);
+    private static final int DURACION_BLOQUE_MIN = 60;
 
-    /**
-     * Consulta disponibilidad para una fecha y courtId (opcional)
-     * Si courtId es null, busca si hay alguna pista disponible
-     */
-    public DisponibilidadResponse consultarDisponibilidad(LocalDate fecha, Long courtId) {
-        boolean disponible = false;
-        String mensaje;
+    @Autowired RepoPista repoPista;
+    @Autowired RepoReserva repoReserva;
+
+    // ===============================
+    // GET /availability
+    // ===============================
+    public List<Disponibilidad> disponibilidadGeneral(LocalDate fecha, Long courtId) {
+
+        if (fecha == null)
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Fecha requerida");
+
+        List<Pista> pistas = new ArrayList<>();
 
         if (courtId != null) {
-            // Buscamos disponibilidad de UNA pista concreta
-            Optional<Disponibilidad> disp = disponibilidadRepository.findByFechaAndCourtId(fecha, courtId);
-            if (disp.isPresent()) {
-                disponible = disp.get().isDisponible();
-                mensaje = disponible ? "Hay disponibilidad" : "Completo / No disponible";
-                return disp.get().toResponse();
-            } else {
-                // Si no existe registro, crear uno nuevo
-                Disponibilidad nuevaDisp = new Disponibilidad(fecha, courtId, true, "Libre");
-                Disponibilidad guardada = disponibilidadRepository.save(nuevaDisp);
-                return guardada.toResponse();
+            Pista pista = repoPista.findById(courtId)
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Pista no existe"));
+            pistas.add(pista);
+        } else {
+            repoPista.findAll().forEach(pistas::add);
+        }
+
+        return pistas.stream()
+                .map(p -> calcularDisponibilidad(p, fecha))
+                .toList();
+    }
+
+    // ===============================
+    // GET /courts/{id}/availability
+    // ===============================
+    public Disponibilidad disponibilidadPista(Long courtId, LocalDate fecha) {
+
+        if (fecha == null)
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Fecha requerida");
+
+        Pista pista = repoPista.findById(courtId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Pista no existe"));
+
+        return calcularDisponibilidad(pista, fecha);
+    }
+
+    // ===============================
+    // GET /reservations
+    // ===============================
+    public List<Reserva> reservasPorUsuario(Long userId, LocalDate from, LocalDate to) {
+
+        if (userId == null)
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Usuario no identificado");
+
+        Usuario u = new Usuario();
+        u.setId(userId);
+
+        List<Reserva> lista = repoReserva.findByUsuario(u);
+
+        return lista.stream()
+                .filter(r -> from == null || !r.getInicio().toLocalDate().isBefore(from))
+                .filter(r -> to == null || !r.getInicio().toLocalDate().isAfter(to))
+                .toList();
+    }
+
+    // ===============================
+    // LÓGICA CENTRAL DEL CÁLCULO
+    // ===============================
+    private Disponibilidad calcularDisponibilidad(Pista pista, LocalDate fecha) {
+
+        List<Reserva> reservas = repoReserva.findByPista(pista);
+
+        List<Disponibilidad.FranjaDisponible> libres = new ArrayList<>();
+
+        for (LocalTime t = APERTURA; t.isBefore(CIERRE); t = t.plusMinutes(DURACION_BLOQUE_MIN)) {
+
+            LocalTime fin = t.plusMinutes(DURACION_BLOQUE_MIN);
+            LocalDateTime inicioDT = fecha.atTime(t);
+            LocalDateTime finDT = fecha.atTime(fin);
+
+            boolean ocupado = reservas.stream().anyMatch(r ->
+                    r.getInicio().isBefore(finDT) &&
+                            r.getFin().isAfter(inicioDT)
+            );
+
+            if (!ocupado) {
+                libres.add(new Disponibilidad.FranjaDisponible(t, fin));
             }
-        } else {
-            // Buscamos si hay ALGUNA pista libre en esa fecha
-            List<Disponibilidad> disponiblesEnFecha = disponibilidadRepository.findByFecha(fecha);
-            disponible = disponiblesEnFecha.stream().anyMatch(Disponibilidad::isDisponible);
-            mensaje = disponible ? "Hay disponibilidad" : "Completo / No disponible";
-            return new DisponibilidadResponse(fecha, null, disponible, mensaje);
         }
-    }
 
-    /**
-     * Obtiene la disponibilidad de una pista en una fecha específica
-     */
-    public DisponibilidadResponse obtenerDisponibilidadPistaConcreta(LocalDate fecha, Long courtId) {
-        Optional<Disponibilidad> disp = disponibilidadRepository.findByFechaAndCourtId(fecha, courtId);
-        
-        if (disp.isPresent()) {
-            return disp.get().toResponse();
-        } else {
-            // Si no existe, crear registro por defecto (disponible)
-            Disponibilidad nuevaDisp = new Disponibilidad(fecha, courtId, true, "Libre");
-            Disponibilidad guardada = disponibilidadRepository.save(nuevaDisp);
-            return guardada.toResponse();
-        }
-    }
-
-    /**
-     * Actualiza la disponibilidad de una pista en una fecha
-     */
-    public DisponibilidadResponse actualizarDisponibilidad(LocalDate fecha, Long courtId, boolean disponible, String mensaje) {
-        Optional<Disponibilidad> disp = disponibilidadRepository.findByFechaAndCourtId(fecha, courtId);
-        
-        Disponibilidad disponibilidadActualizada;
-        if (disp.isPresent()) {
-            Disponibilidad d = disp.get();
-            d.setDisponible(disponible);
-            d.setMensaje(mensaje);
-            disponibilidadActualizada = disponibilidadRepository.save(d);
-        } else {
-            Disponibilidad nuevaDisp = new Disponibilidad(fecha, courtId, disponible, mensaje);
-            disponibilidadActualizada = disponibilidadRepository.save(nuevaDisp);
-        }
-        
-        return disponibilidadActualizada.toResponse();
-    }
-
-    /**
-     * Obtiene todas las disponibilidades de una pista en un rango de fechas
-     */
-    public List<Disponibilidad> obtenerDisponibilidadesFecha(Long courtId, LocalDate fechaInicio, LocalDate fechaFin) {
-        return disponibilidadRepository.findByCourtIdAndFechaBetween(courtId, fechaInicio, fechaFin);
+        return new Disponibilidad(pista, fecha, APERTURA, CIERRE, libres);
     }
 }
