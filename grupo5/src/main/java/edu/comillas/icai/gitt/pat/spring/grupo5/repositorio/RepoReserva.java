@@ -8,8 +8,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Repository
-public interface RepoReserva extends JpaRepository<Reserva, Long> {
-    List<Reserva> findByCourtId(Long courtId);
-    List<Reserva> findByUserId(String userId);
-    List<Reserva> findByCourtIdAndInicioBeforeAndFinAfter(Long courtId, LocalDateTime fin, LocalDateTime inicio);
+public interface RepoReserva extends CrudRepository<Reserva, Long> {
+    List<Reserva> findByPista_Id(Long pistaId);
+    List<Reserva> findByUsuario_Id(Long usuarioId);
+    List<Reserva> findByPista_IdAndInicioBeforeAndFinAfter(Long pistaId, LocalDateTime fin, LocalDateTime inicio);
 }
