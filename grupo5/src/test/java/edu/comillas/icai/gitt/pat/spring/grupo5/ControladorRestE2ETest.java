@@ -60,7 +60,7 @@ class ControladorRestE2ETest {
     @Test
     void creaPistaOkTest() {
         Pista pista = new Pista(
-                1,
+                1L,
                 "Madrid central 1",
                 "Madrid",
                 10,
@@ -265,7 +265,7 @@ class ControladorRestE2ETest {
         HttpHeaders headers = new HttpHeaders();
         headers.setBasicAuth("admin", "clave"); // ← credenciales correctas del usuario admin en memoria
         
-        Pista pista = new Pista(0, "Pista Test E2E", "Indoor", 3500, true, "2026-01-01");
+        Pista pista = new Pista(0L, "Pista Test E2E", "Indoor", 3500, true, "2026-01-01");
         
         ResponseEntity<Pista> response = restTemplate.exchange(
                 baseUrl + "/courts",
@@ -285,7 +285,7 @@ class ControladorRestE2ETest {
         headers.setBasicAuth("usuario", "clave");
         
         Reserva reservaNueva = new Reserva(
-                0,
+                0L,
                 courtId,
                 "usuario",
                 LocalDateTime.of(2026, 5, 20, 16, 0),
