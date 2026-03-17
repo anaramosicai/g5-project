@@ -1,6 +1,9 @@
 package edu.comillas.icai.gitt.pat.spring.grupo5.servicio;
 
+import edu.comillas.icai.gitt.pat.spring.grupo5.entity.EstadoReserva;
+import edu.comillas.icai.gitt.pat.spring.grupo5.entity.Pista;
 import edu.comillas.icai.gitt.pat.spring.grupo5.entity.Reserva;
+import edu.comillas.icai.gitt.pat.spring.grupo5.entity.Usuario;
 import edu.comillas.icai.gitt.pat.spring.grupo5.repositorio.RepoReserva;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -18,79 +21,201 @@ public class ReservaService {
     @Autowired
     private RepoReserva repoReserva;
 
+    @Autowired
+    private UsuarioService usuarioService;
 
-    public Reserva crearReserva(Reserva reservaNueva) {
-        // Validar que inicio no sea posterior a fin
+    // ========================================
+    // MÉTODOS PÚBLICOS CON AUTORIZACIÓN
+    // ========================================
+
+    /**
+     * Crea una nueva reserva asociada al usuario autenticado
+     */
+    public Reserva crearReserva(Reserva reservaNueva, Usuario usuarioAutenticado) {
+        if (usuarioAutenticado == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Usuario no autenticado");
+        }
+
         if (reservaNueva.inicio.isAfter(reservaNueva.fin)) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Inicio posterior a fin");
         }
 
-        // Detectar solapes en la pista
-        boolean solapa = tieneConflicto(reservaNueva.courtId, reservaNueva.inicio, reservaNueva.fin, null);
+        // Validar que no hay conflictos de horarios
+        Long pistaId = reservaNueva.pista != null ? reservaNueva.pista.idPista() : null;
+        if (pistaId == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Pista es requerida");
+        }
 
+        boolean solapa = tieneConflicto(pistaId, reservaNueva.inicio, reservaNueva.fin, null);
         if (solapa) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Slot ocupado");
         }
+
+        // Asignar usuario autenticado y establecer valores por defecto
+        reservaNueva.usuario = usuarioAutenticado;
+        if (reservaNueva.fechaCreacion == null) {
+            reservaNueva.fechaCreacion = LocalDateTime.now();
+        }
+        if (reservaNueva.fechaReservada == null) {
+            reservaNueva.fechaReservada = LocalDateTime.now();
+        }
+        if (reservaNueva.duracionMinutos == null) {
+            reservaNueva.duracionMinutos = (int) java.time.temporal.ChronoUnit.MINUTES.between(reservaNueva.inicio, reservaNueva.fin);
+        }
+        if (reservaNueva.estado == null) {
+            reservaNueva.estado = EstadoReserva.ACTIVA;
+        }
+
         return repoReserva.save(reservaNueva);
     }
 
+    /**
+     * Obtiene una reserva si el usuario es propietario o es ADMIN
+     */
+    public Reserva obtenerReserva(Long reservationId, Usuario usuarioAutenticado) {
+        if (usuarioAutenticado == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Usuario no autenticado");
+        }
 
-    public Reserva obtenerReserva(Long reservationId) {
         Optional<Reserva> reserva = repoReserva.findById(reservationId);
         if (reserva.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "no hay ninguna reserva con este id");
         }
-        return reserva.get();
+
+        Reserva reservaObtenida = reserva.get();
+        verificarPermisoLectura(reservaObtenida, usuarioAutenticado);
+
+        return reservaObtenida;
     }
 
+    /**
+     * Obtiene todas las reservas (solo ADMIN)
+     */
+    public List<Reserva> obtenerTodasReservas(Usuario usuarioAutenticado) {
+        if (usuarioAutenticado == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Usuario no autenticado");
+        }
 
-    public List<Reserva> obtenerTodasReservas() {
+        if (!usuarioService.isAdmin(usuarioAutenticado)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Solo ADMIN puede ver todas las reservas");
+        }
+
         return repoReserva.findAll();
     }
 
+    /**
+     * Obtiene las reservas del usuario autenticado en un rango de fechas
+     */
+    public List<Reserva> obtenerMisReservas(Usuario usuarioAutenticado, LocalDate fromDate, LocalDate toDate) {
+        if (usuarioAutenticado == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Usuario no autenticado");
+        }
 
-    public List<Reserva> obtenerMisReservas(String userId, LocalDate fromDate, LocalDate toDate) {
-        List<Reserva> reservasUsuario = repoReserva.findByUserId(userId);
+        List<Reserva> reservasUsuario = repoReserva.findByUsuario_Id(usuarioAutenticado.getId());
 
-        // Filtrar por rango de fechas si se proporciona
         return reservasUsuario.stream()
                 .filter(r -> fromDate == null || !r.inicio.toLocalDate().isBefore(fromDate))
                 .filter(r -> toDate == null || !r.inicio.toLocalDate().isAfter(toDate))
                 .toList();
     }
 
-    public Reserva reprogramarReserva(Long reservationId, Reserva reservaNueva) {
-        Reserva actual = obtenerReserva(reservationId); // Esto lanza NOT_FOUND si no existe
+    /**
+     * Reprograma (modifica horario) de una reserva si el usuario es propietario o es ADMIN
+     */
+    public Reserva reprogramarReserva(Long reservationId, Reserva reservaNueva, Usuario usuarioAutenticado) {
+        if (usuarioAutenticado == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Usuario no autenticado");
+        }
 
-        boolean solapa = tieneConflicto(reservaNueva.courtId, reservaNueva.inicio, reservaNueva.fin, reservationId);
+        Optional<Reserva> optionalReserva = repoReserva.findById(reservationId);
+        if (optionalReserva.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Reserva no encontrada");
+        }
 
+        Reserva actual = optionalReserva.get();
+        verificarPermisoModificacion(actual, usuarioAutenticado);
+
+        if (reservaNueva.inicio.isAfter(reservaNueva.fin)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Inicio posterior a fin");
+        }
+
+        // Validar que no hay conflictos con el nuevo horario
+        Long pistaId = actual.pista.idPista();
+        boolean solapa = tieneConflicto(pistaId, reservaNueva.inicio, reservaNueva.fin, reservationId);
         if (solapa) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Slot ocupado");
         }
 
-        Reserva actualizada = new Reserva(
-                reservationId,
-                actual.courtId,
-                actual.userId,
-                reservaNueva.inicio,
-                reservaNueva.fin
-        );
+        // Actualizar solo los campos modificables
+        actual.inicio = reservaNueva.inicio;
+        actual.fin = reservaNueva.fin;
+        actual.duracionMinutos = (int) java.time.temporal.ChronoUnit.MINUTES.between(reservaNueva.inicio, reservaNueva.fin);
+        actual.fechaReservada = LocalDateTime.now();
 
-        return repoReserva.save(actualizada);
+        return repoReserva.save(actual);
     }
 
+    /**
+     * Cancela una reserva si el usuario es propietario o es ADMIN
+     */
+    public void cancelarReserva(Long reservationId, Usuario usuarioAutenticado) {
+        if (usuarioAutenticado == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Usuario no autenticado");
+        }
 
-    public void cancelarReserva(Long reservationId) {
-        Reserva reserva = obtenerReserva(reservationId); // Esto lanza NOT_FOUND si no existe
+        Optional<Reserva> optionalReserva = repoReserva.findById(reservationId);
+        if (optionalReserva.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Reserva no encontrada");
+        }
+
+        Reserva reserva = optionalReserva.get();
+        verificarPermisoModificacion(reserva, usuarioAutenticado);
+
         repoReserva.deleteById(reservationId);
     }
 
-    private boolean tieneConflicto(Long courtId, LocalDateTime inicio, LocalDateTime fin, Long idExcluido) {
-        List<Reserva> conflictivas = repoReserva.findByCourtIdAndInicioBeforeAndFinAfter(
-                courtId, fin, inicio
+    // ========================================
+    // MÉTODOS PRIVADOS DE AUTORIZACIÓN
+    // ========================================
+
+    /**
+     * Verifica si el usuario tiene permiso para leer una reserva (es propietario o ADMIN)
+     */
+    private void verificarPermisoLectura(Reserva reserva, Usuario usuarioAutenticado) {
+        boolean esAdmin = usuarioService.isAdmin(usuarioAutenticado);
+        boolean esPropia = reserva.usuario.getId().equals(usuarioAutenticado.getId());
+
+        if (!esAdmin && !esPropia) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, 
+                    "No tienes permiso para ver esta reserva");
+        }
+    }
+
+    /**
+     * Verifica si el usuario tiene permiso para modificar una reserva (es propietario o ADMIN)
+     */
+    private void verificarPermisoModificacion(Reserva reserva, Usuario usuarioAutenticado) {
+        boolean esAdmin = usuarioService.isAdmin(usuarioAutenticado);
+        boolean esPropia = reserva.usuario.getId().equals(usuarioAutenticado.getId());
+
+        if (!esAdmin && !esPropia) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, 
+                    "No tienes permiso para modificar esta reserva");
+        }
+    }
+
+    // ========================================
+    // MÉTODOS PRIVADOS DE UTILIDAD
+    // ========================================
+
+    /**
+     * Verifica si hay conflictos de horario para una pista en un rango de tiempo
+     */
+    private boolean tieneConflicto(Long pistaId, LocalDateTime inicio, LocalDateTime fin, Long idExcluido) {
+        List<Reserva> conflictivas = repoReserva.findByPista_IdAndInicioBeforeAndFinAfter(
+                pistaId, fin, inicio
         );
 
-        // Si exluimos una reserva específica (durante actualización), la filtramos
         if (idExcluido != null) {
             conflictivas = conflictivas.stream()
                     .filter(r -> !r.reservationId.equals(idExcluido))
