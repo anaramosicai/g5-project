@@ -110,6 +110,22 @@ public class PistaReservaController {
     @ResponseStatus(HttpStatus.CREATED)
     @PreAuthorize("hasRole('USER')")
     public Reserva crearReserva(@RequestBody @Valid Reserva reservaNueva, BindingResult bindingResult) {
+<<<<<<< HEAD
+
+        if (bindingResult.hasErrors()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+        }
+
+        //Verifica que la pista asignada existe
+        if (!pistas.containsKey(reservaNueva.courtId)) {
+            throw new ResponseStatusException(
+                    HttpStatus.NOT_FOUND,
+                    "Pista no existe"
+            );
+        }
+
+        return reservaService.crearReserva(reservaNueva);
+=======
         if (bindingResult.hasErrors()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
         }
@@ -137,6 +153,7 @@ public class PistaReservaController {
         );
         reservas.put(reservationId, reservaCreada);
         return reservaCreada;
+>>>>>>> af8ab0684be3b2fe9083cdab7056f727984aab3a
     }
 
     @PatchMapping("/reservations/{reservationId}")

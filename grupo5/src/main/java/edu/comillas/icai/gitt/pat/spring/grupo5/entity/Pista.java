@@ -6,7 +6,8 @@ import jakarta.validation.constraints.NotNull;
 import java.util.List;
 
 @Entity
-public class Pista {
+public class
+Pista {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     public Long id;

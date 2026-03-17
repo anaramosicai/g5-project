@@ -1,10 +1,18 @@
 package edu.comillas.icai.gitt.pat.spring.grupo5.controlador;
 
+<<<<<<< HEAD
+import edu.comillas.icai.gitt.pat.spring.grupo5.DisponibilidadService;
+=======
+>>>>>>> af8ab0684be3b2fe9083cdab7056f727984aab3a
 import edu.comillas.icai.gitt.pat.spring.grupo5.model.*;
 import edu.comillas.icai.gitt.pat.spring.grupo5.entity.Pista;
 import edu.comillas.icai.gitt.pat.spring.grupo5.entity.Reserva;
 import edu.comillas.icai.gitt.pat.spring.grupo5.entity.Usuario;
 import edu.comillas.icai.gitt.pat.spring.grupo5.servicio.PistaService;
+<<<<<<< martina_branch
+import edu.comillas.icai.gitt.pat.spring.grupo5.servicio.ReservaService;
+=======
+>>>>>>> main
 import edu.comillas.icai.gitt.pat.spring.grupo5.servicio.UsuarioService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
@@ -29,9 +37,27 @@ import java.util.stream.Collectors;
 @RestController
 public class ControladorREST {
 
+<<<<<<< martina_branch
+<<<<<<< HEAD
     @Autowired
     PistaService pistaService;
 
+    @Autowired
+    UsuarioService usuarioService;
+
+    @Autowired
+    ReservaService reservaService;
+
+    @Autowired
+    DisponibilidadService disponibilidadService;
+
+=======
+>>>>>>> af8ab0684be3b2fe9083cdab7056f727984aab3a
+=======
+    @Autowired
+    PistaService pistaService;
+
+>>>>>>> main
     // ============================
     // SECCIÓN: PISTAS
     // ============================
@@ -208,7 +234,10 @@ public class ControladorREST {
     // SECCIÓN: RESERVAS
     // ============================
 
+<<<<<<< martina_branch
+=======
     /*
+>>>>>>> main
     @PostMapping("/pistaPadel/reservations")
     @ResponseStatus(HttpStatus.CREATED)
     @PreAuthorize("hasRole('USER')")
@@ -219,7 +248,11 @@ public class ControladorREST {
         }
 
         //Verifica que la pista asignada existe
+<<<<<<< martina_branch
+        if (!pistaService.existePorId(reservaNueva.getCourtId())){
+=======
         if (!pistas.containsKey(reservaNueva.courtId)) {
+>>>>>>> main
             throw new ResponseStatusException(
                     HttpStatus.NOT_FOUND,
                     "Pista no existe"
@@ -238,7 +271,11 @@ public class ControladorREST {
         }
 
         //Verifica que la pista asignada existe
+<<<<<<< martina_branch
+        if (!pistaService.existePorId(reservaNueva.getCourtId())){
+=======
         if (!pistas.containsKey(reservaNueva.courtId)) {
+>>>>>>> main
             throw new ResponseStatusException(
                     HttpStatus.NOT_FOUND,
                     "Pista no existe"
@@ -344,13 +381,17 @@ public class ControladorREST {
     }
 
     //  DE UTILIDAD PARA TESTS:
-
+    /*
     void reset() {
         usuarios.clear();
         usuariosporId.clear();
         idUsuarioSeq.set(1);
+<<<<<<< martina_branch
+    }*/
+=======
     }
 
      */
+>>>>>>> main
 }
 

@@ -1,5 +1,8 @@
-package edu.comillas.icai.gitt.pat.spring.grupo5;
+package edu.comillas.icai.gitt.pat.spring.grupo5.servicio;
 
+import edu.comillas.icai.gitt.pat.spring.grupo5.Disponibilidad;
+import edu.comillas.icai.gitt.pat.spring.grupo5.DisponibilidadRepository;
+import edu.comillas.icai.gitt.pat.spring.grupo5.model.DisponibilidadResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -11,7 +14,7 @@ import java.util.Optional;
 public class DisponibilidadService {
 
     @Autowired
-    private DisponibilidadRepository disponibilidadRepository;
+    DisponibilidadRepository disponibilidadRepository;
 
     /**
      * Consulta disponibilidad para una fecha y courtId (opcional)
