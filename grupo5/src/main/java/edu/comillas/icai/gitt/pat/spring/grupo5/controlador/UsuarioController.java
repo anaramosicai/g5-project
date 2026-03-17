@@ -166,6 +166,7 @@ public class UsuarioController {
 
         Usuario auth = usuarioService.getAuthenticatedUser(authHeader);
         if (auth == null) throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
+<<<<<<< martina_branch
 <<<<<<< HEAD
         boolean esAdmin = usuarioService.isAdmin(auth);
         boolean esDueno = usuarioService.isOwner(auth, userId);
@@ -173,6 +174,11 @@ public class UsuarioController {
 =======
         if (!usuarioService.isAdmin(auth)) throw new ResponseStatusException(HttpStatus.FORBIDDEN);
 >>>>>>> af8ab0684be3b2fe9083cdab7056f727984aab3a
+=======
+        boolean esAdmin = usuarioService.isAdmin(auth);
+        boolean esDueno = usuarioService.isOwner(auth, userId);
+        if (!esAdmin && !esDueno) throw new ResponseStatusException(HttpStatus.FORBIDDEN, "No tienes el rol requerido para esta accion");
+>>>>>>> main
 
         Usuario existente = usuarioService.getUsuarioById(userId);
         if (existente == null) throw new ResponseStatusException(HttpStatus.NOT_FOUND);
@@ -187,11 +193,15 @@ public class UsuarioController {
             }
         }
 
+<<<<<<< martina_branch
 <<<<<<< HEAD
         Usuario actualizado = usuarioService.actualizarUsuario(userId, cambios);
 =======
         Usuario actualizado = usuarioService.actualizarParcial(userId, cambios);
 >>>>>>> af8ab0684be3b2fe9083cdab7056f727984aab3a
+=======
+        Usuario actualizado = usuarioService.actualizarUsuario(userId, cambios);
+>>>>>>> main
         if (actualizado == null) throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
         return ResponseEntity.ok(actualizado);
     }

@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 package edu.comillas.icai.gitt.pat.spring.grupo5;
 
 
@@ -116,6 +115,7 @@ public class ControladorRestE2ETest_1 {
     }
 
 }
+<<<<<<< martina_branch
 =======
 package edu.comillas.icai.gitt.pat.spring.grupo5;
 
@@ -442,3 +442,5 @@ class ControladorRestE2ETest {
 }
 
 >>>>>>> af8ab0684be3b2fe9083cdab7056f727984aab3a
+=======
+>>>>>>> main

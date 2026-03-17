@@ -6,12 +6,21 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+<<<<<<< martina_branch
+=======
+import org.springframework.http.ResponseEntity;
+>>>>>>> main
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
 import java.util.List;
+<<<<<<< martina_branch
+=======
+import java.util.Optional;
+
+>>>>>>> main
 @Service
 public class PistaService {
     @Autowired
@@ -19,13 +28,29 @@ public class PistaService {
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
+<<<<<<< martina_branch
     public Pista crea(Pista pistaNuevo){
         logger.info("ServicioPista: Trying to create a pista: " + pistaNuevo.id);
 
+=======
+    @Transactional
+    public Pista crea(Pista pistaNuevo){
+        logger.info("ServicioPista: Trying to create a pista: " + pistaNuevo.id);
+
+        //409 conflict
+>>>>>>> main
         if(repoPista.existsByNombreIgnoreCase(pistaNuevo.nombre)){
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Another Pista with the same name");
         }
 
+<<<<<<< martina_branch
+=======
+        //400 name is req
+        if (pistaNuevo.nombre == null || pistaNuevo.nombre.isBlank()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Name is required");
+        }
+
+>>>>>>> main
         Pista pista = new Pista(
                 pistaNuevo.id,
                 pistaNuevo.nombre,
@@ -47,13 +72,27 @@ public class PistaService {
     public Pista lee(long id){
         logger.info("ServicioPista: Read pista with id " + id);
 
+<<<<<<< martina_branch
+=======
+        //404 not found
+>>>>>>> main
         return repoPista.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "couldn't find pista with this id"));
     }
 
     @Transactional
     public Pista cambiar(Pista pistaNuevo, long id){
+<<<<<<< martina_branch
         Pista pista = repoPista.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
+=======
+        //404 not found
+        Pista pista = repoPista.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+
+        //409 name duplicate
+        if(pista.nombre == pistaNuevo.nombre){
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Another Pista with the same name exists");
+        }
+>>>>>>> main
         Pista pistaActualizada = new Pista(
                 id,
                 pistaNuevo.nombre,
@@ -66,6 +105,7 @@ public class PistaService {
     }
 
     @Transactional
+<<<<<<< martina_branch
     public void borrar(long id){
         Pista pista = repoPista.findById(id).orElseThrow(()-> new ResponseStatusException(HttpStatus.NOT_FOUND, "Couldn't find pista with this id"));
 
@@ -75,5 +115,14 @@ public class PistaService {
     public boolean existePorId(Long id) {
         return repoPista.existsById(id);
     }
+=======
+    public ResponseEntity<Void> borrar(long id){
+        //404 not found
+        Pista pista = repoPista.findById(id).orElseThrow(()-> new ResponseStatusException(HttpStatus.NOT_FOUND, "Couldn't find pista with this id"));
+        repoPista.delete(pista);
+        return ResponseEntity.noContent().build();
+    }
+
+>>>>>>> main
 
 }

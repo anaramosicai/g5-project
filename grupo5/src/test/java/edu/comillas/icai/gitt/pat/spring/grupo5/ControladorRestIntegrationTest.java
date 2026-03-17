@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 //import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 //import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -43,6 +44,9 @@ import java.time.LocalDateTime;
  */
 //@WebMvcTest(ControladorREST.class)
 //@AutoConfigureMockMvc(addFilters = false)
+
+
+
 @DataJpaTest
 class ControladorRestIntegrationTest {
 
@@ -72,6 +76,7 @@ class ControladorRestIntegrationTest {
     }
     */
 
+
     @Test
     void registro_ok_201() throws Exception {
 
@@ -98,7 +103,8 @@ class ControladorRestIntegrationTest {
         assertNotNull(error);
     }
 
-    /**
+   
+/*
      * Test de integración del endpoint PISTAS
      */
 
@@ -192,6 +198,85 @@ class ControladorRestIntegrationTest {
         assertThat(reservaEnBD.get().getUserId()).isEqualTo("user1");
         assertThat(reservaEnBD.get().getCourtId()).isEqualTo(courtId);
         assertThat(reservaEnBD.get().getInicio()).isEqualTo(LocalDateTime.of(2026, 9, 10, 16, 0));
+    }
+    
+    @Test
+    @WithMockUser(username = "user1", roles = "USER")
+    @DisplayName("Obtener reserva devuelve datos persistidos")
+    void obtenerReserva_devuelveDatosPersistidos() throws Exception {
+        Long courtId = crearPistaPrueba();
+        
+        // Crear una reserva
+        var reserva = new ReservaDTO(
+                courtId,
+                "user1",
+                LocalDateTime.of(2026, 8, 15, 10, 0),
+                LocalDateTime.of(2026, 8, 15, 11, 0)
+        );
+    
+        MvcResult createResult = mockMvc.perform(post("/pistaPadel/reservations")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(reserva))
+                        .with(csrf()))
+                .andExpect(status().isCreated())
+                .andReturn();
+        
+        String json = createResult.getResponse().getContentAsString();
+        Reserva reservaCreada = objectMapper.readValue(json, Reserva.class);
+        Long reservaId = reservaCreada.getReservationId();
+        
+        // Obtener la reserva y verificar que los datos se recuperan de la BD
+        mockMvc.perform(get("/pistaPadel/reservations/" + reservaId))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.userId").value("user1"))
+                .andExpect(jsonPath("$.courtId").value(courtId))
+                .andExpect(jsonPath("$.reservationId").value(reservaId));
+    }
+    
+    @Test
+    @WithMockUser(username = "user1", roles = "USER")
+    @DisplayName("Reprogramar reserva actualiza persistencia")
+    void reprogramarReserva_actualizaPersistencia() throws Exception {
+        Long courtId = crearPistaPrueba();
+        
+        // Crear reserva original
+        var reservaOriginal = new ReservaDTO(
+                courtId,
+                "user1",
+                LocalDateTime.of(2026, 7, 20, 14, 0),
+                LocalDateTime.of(2026, 7, 20, 15, 0)
+        );
+    
+        MvcResult createResult = mockMvc.perform(post("/pistaPadel/reservations")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(reservaOriginal))
+                        .with(csrf()))
+                .andExpect(status().isCreated())
+                .andReturn();
+        
+        String json = createResult.getResponse().getContentAsString();
+        Reserva reservaCreada = objectMapper.readValue(json, Reserva.class);
+        Long reservaId = reservaCreada.getReservationId();
+        
+        // Reprogramar la reserva
+        var reservaNueva = new ReservaDTO(
+                courtId,
+                "user1",
+                LocalDateTime.of(2026, 7, 20, 16, 0),
+                LocalDateTime.of(2026, 7, 20, 17, 0)
+        );
+        
+        mockMvc.perform(patch("/pistaPadel/reservations/" + reservaId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(reservaNueva))
+                        .with(csrf()))
+                .andExpect(status().isOk());
+        
+        // Verificar que la BD tiene los datos actualizados
+        Optional<Reserva> reservaActualizada = repoReserva.findById(reservaId);
+        assertThat(reservaActualizada).isPresent();
+        assertThat(reservaActualizada.get().getInicio()).isEqualTo(LocalDateTime.of(2026, 7, 20, 16, 0));
+        assertThat(reservaActualizada.get().getFin()).isEqualTo(LocalDateTime.of(2026, 7, 20, 17, 0));
     }
     
     @Test
