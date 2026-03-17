@@ -1,68 +1,18 @@
-package edu.comillas.icai.gitt.pat.spring.grupo5;
+package edu.comillas.icai.gitt.pat.spring.grupo5.repositorio;
 
-import org.springframework.data.jpa.repository.JpaRepository;
+import edu.comillas.icai.gitt.pat.spring.grupo5.entity.Disponibilidad;
+import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
-import java.time.LocalDate;
-import java.util.List;
-import java.util.Optional;
-
-<<<<<<< martina_branch
+/**
+ * Este repositorio NO persiste en base de datos.
+ * Solo existe para cumplir la estructura solicitada, ya que
+ * Disponibilidad se calcula dinámicamente y no se almacena.
+ */
 @Repository
-public interface RepoDisponibilidad extends <JpaRepository<edu.comillas.icai.gitt.pat.spring.grupo5.>Disponibilidad, Long> {
+public interface RepoDisponibilidad extends CrudRepository<Disponibilidad, Long> {
 
-    /**
-     * Busca disponibilidades por fecha y courtId
-     */
-    Optional<Disponibilidad> findByFechaAndCourtId(LocalDate fecha, Long courtId);
+    // No tiene métodos: Disponibilidad NO debe guardarse.
+    // La disponibilidad se calcula en DisponibilidadService.
 
-    /**
-     * Busca todas las disponibilidades de una pista en un rango de fechas
-     */
-    List<Disponibilidad> findByCourtIdAndFechaBetween(Long courtId, LocalDate fechaInicio, LocalDate fechaFin);
-
-    /**
-     * Busca todas las disponibilidades en una fecha determinada
-     */
-    List<Disponibilidad> findByFecha(LocalDate fecha);
-
-    /**
-     * Verifica si hay disponibilidad para una pista en una fecha específica
-     */
-    List<Disponibilidad> findByFechaAndCourtIdAndDisponible(LocalDate fecha, Long courtId, boolean disponible);
 }
-=======
-
-@Repository
-public interface DisponibilidadRepository extends JpaRepository<Disponibilidad, Long> {
-
-    */
-/**
-     * Busca disponibilidades por fecha y courtId
-     *//*
-
-    Optional<Disponibilidad> findByFechaAndCourtId(LocalDate fecha, Long courtId);
-
-    */
-/**
-     * Busca todas las disponibilidades de una pista en un rango de fechas
-     *//*
-
-    List<Disponibilidad> findByCourtIdAndFechaBetween(Long courtId, LocalDate fechaInicio, LocalDate fechaFin);
-
-    */
-/**
-     * Busca todas las disponibilidades en una fecha determinada
-     *//*
-
-    List<Disponibilidad> findByFecha(LocalDate fecha);
-
-    */
-/**
-     * Verifica si hay disponibilidad para una pista en una fecha específica
-     *//*
-
-    List<Disponibilidad> findByFechaAndCourtIdAndDisponible(LocalDate fecha, Long courtId, boolean disponible);
-}
-
->>>>>>> main
