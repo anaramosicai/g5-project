@@ -32,8 +32,9 @@ public class Reserva {
     @Column(nullable = false)
     public Integer duracionMinutos;
 
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    public String estado;
+    public EstadoReserva estado;
 
     @Column(nullable = false)
     public LocalDateTime fechaCreacion;
@@ -42,7 +43,7 @@ public class Reserva {
     }
 
     public Reserva(Long reservationId, Usuario usuario, Pista pista, LocalDateTime inicio, LocalDateTime fin, 
-                   LocalDateTime fechaReservada, Integer duracionMinutos, String estado, LocalDateTime fechaCreacion) {
+                   LocalDateTime fechaReservada, Integer duracionMinutos, EstadoReserva estado, LocalDateTime fechaCreacion) {
         this.reservationId = reservationId;
         this.usuario = usuario;
         this.pista = pista;
@@ -110,11 +111,11 @@ public class Reserva {
         this.duracionMinutos = duracionMinutos;
     }
 
-    public String getEstado() {
+    public EstadoReserva getEstado() {
         return estado;
     }
 
-    public void setEstado(String estado) {
+    public void setEstado(EstadoReserva estado) {
         this.estado = estado;
     }
 
