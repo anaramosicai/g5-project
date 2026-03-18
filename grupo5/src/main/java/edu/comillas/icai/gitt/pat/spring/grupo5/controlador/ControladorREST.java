@@ -45,10 +45,15 @@ public class ControladorREST {
     @ResponseStatus(HttpStatus.CREATED)
     @PreAuthorize("hasRole('ADMIN')")
     public Pista crea(@RequestBody Pista pista) {
-        return pistaService.crea(pista);
+        try {
+            return pistaService.crea(pista);
+        } catch (Exception e) {
+            e.printStackTrace();  // ← MOSTRARÁ EL ORIGEN AUTÉNTICO DEL 500
+            throw e;
+        }
     }
 
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+        @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @GetMapping("/pistaPadel/courts")
     public List<Pista> pistas() {
         return pistaService.leeTodas();
@@ -126,11 +131,6 @@ public class ControladorREST {
         return usuarioService.listarUsuarios();
     }
 
-  //  @GetMapping("/pistaPadel/users/{userId}")
-   // @PreAuthorize("hasRole('ADMIN')")
-    //public Usuario obtenerUsuario(@PathVariable Long userId) {
-      //  return usuarioService.obtenerUsuario(userId);
-    //}
 
     @PatchMapping("/pistaPadel/users/{userId}")
     @PreAuthorize("hasRole('ADMIN')")
