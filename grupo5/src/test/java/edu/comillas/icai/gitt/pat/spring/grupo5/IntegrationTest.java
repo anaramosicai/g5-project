@@ -73,7 +73,7 @@ class IntegrationTest {
     @Test
     void registro_ok_201() throws Exception {
 
-        Usuario user = new Usuario(1L, "Ana", "Ramos", "ana.integration@test.com", "123", "456", NombreRol.USER, null,true);
+        Usuario user = new Usuario(null, "Ana", "Ramos", "ana.integration@test.com", "123", "456", NombreRol.USER, LocalDateTime.now(),true);
         repoUsuario.save(user);
         assertNotNull(repoUsuario.findById(user.getId()));
     }
@@ -81,14 +81,15 @@ class IntegrationTest {
 
     @Test
     void registro_emailDuplicado_409() throws Exception {
-        Usuario user = new Usuario(1L, "Ana", "Ramos", "ana.integration@test.com", "123", "456", NombreRol.USER, null,true);
+        Usuario user1 = new Usuario(null, "Ana", "Ramos", "ana.integration@test.com", "123", "456", NombreRol.USER, LocalDateTime.now(),true);
+        Usuario user2 = new Usuario(null, "Martina", "Ortiz", "ana.integration@test.com", "789", "030", NombreRol.USER, LocalDateTime.now(),true);
 
         // Guardo por primera vez:
-        repoUsuario.save(user);
+        repoUsuario.save(user1);
         // Guardo por segunda vez:
         DataIntegrityViolationException error = null;
         try{
-            repoUsuario.save(user);
+            repoUsuario.save(user2);
         } catch (DataIntegrityViolationException e) {
             error = e;
         }
@@ -96,8 +97,25 @@ class IntegrationTest {
         assertNotNull(error);
     }
 
+    @Test
+    void borrado_registros() throws Exception{
+        // Creo dos registros cualquiera para llenar mi repo:
+        Usuario user1 = new Usuario(null, "Ana", "Ramos", "ana.integration@test.com", "123", "456", NombreRol.USER, LocalDateTime.now(),true);
+        Usuario user2 = new Usuario(null, "Martina", "Ortiz", "skinny_legend.integration@test.com", "789", "030", NombreRol.USER, LocalDateTime.now(),true);
+        repoUsuario.save(user1);
+        repoUsuario.save(user2);
+
+        // Probamos que los datos están en el repo:
+        Assertions.assertTrue(repoUsuario.count() > 0);
+
+
+        // Probamos a borrar toda la tabla:
+        repoUsuario.deleteAll();
+        // Pruebo que está vacío el repo:
+        Assertions.assertEquals(0, repoUsuario.count());
+    }
    
-/*
+     /*
      * Test de integración del endpoint PISTAS
      */
 
