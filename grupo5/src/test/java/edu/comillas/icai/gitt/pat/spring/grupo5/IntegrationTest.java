@@ -9,23 +9,13 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.test.web.servlet.MvcResult;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-import org.springframework.http.MediaType;
-import org.springframework.test.web.servlet.MockMvc;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.jupiter.api.DisplayName;
-import org.springframework.security.test.context.support.WithMockUser;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 
 import java.time.LocalDateTime;
-import java.util.Optional;
 
 
 
@@ -35,16 +25,10 @@ import java.util.Optional;
  *  - 201 Created con datos válidos
  *  - 409 Conflict con email duplicado
  */
-//@WebMvcTest(ControladorREST.class)
-//@AutoConfigureMockMvc(addFilters = false)
-
-
 
 @DataJpaTest
 class IntegrationTest {
 
-    @Autowired
-    private MockMvc mockMvc;
 
     @Autowired
     private RepoReserva repoReserva;
