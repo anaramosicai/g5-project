@@ -36,7 +36,7 @@ public class PistaService {
         }
 
         Pista pista = new Pista(
-                pistaNuevo.id,
+
                 pistaNuevo.nombre,
                 pistaNuevo.ubicacion,
                 pistaNuevo.precioHora,
@@ -70,7 +70,7 @@ public class PistaService {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Another Pista with the same name exists");
         }
         Pista pistaActualizada = new Pista(
-                id,
+
                 pistaNuevo.nombre,
                 pistaNuevo.ubicacion,
                 pistaNuevo.precioHora,

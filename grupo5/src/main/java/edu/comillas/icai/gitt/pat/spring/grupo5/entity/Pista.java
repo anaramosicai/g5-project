@@ -29,8 +29,8 @@ Pista {
 
     public Pista() {}
 
-    public Pista(Long id, String nombre, String ubicacion, long precioHora, boolean activa, String fechaAlta){
-        this.id = id;
+    public Pista(String nombre, String ubicacion, long precioHora, boolean activa, String fechaAlta){
+        //this.id = id;
         this.nombre = nombre;
         this.ubicacion = ubicacion;
         this.precioHora = precioHora;

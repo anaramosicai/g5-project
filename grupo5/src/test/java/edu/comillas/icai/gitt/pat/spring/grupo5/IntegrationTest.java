@@ -23,6 +23,7 @@ import org.springframework.security.test.context.support.WithMockUser;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
@@ -42,8 +43,8 @@ import java.util.Optional;
 @DataJpaTest
 class IntegrationTest {
 
-    @Autowired
-    private MockMvc mockMvc;
+    //@Autowired
+    //private MockMvc mockMvc;
 
     @Autowired
     private RepoReserva repoReserva;
@@ -51,13 +52,8 @@ class IntegrationTest {
     @Autowired
     private RepoUsuario repoUsuario;
 
-    @Autowired
-    private ObjectMapper objectMapper;
-
     private static final String REGISTER = "/pistaPadel/auth/register";
 
-    @Autowired
-    private ControladorREST controladorREST;
 
     @Autowired
     private RepoPista repoPista;
@@ -73,7 +69,7 @@ class IntegrationTest {
     @Test
     void registro_ok_201() throws Exception {
 
-        Usuario user = new Usuario(1L, "Ana", "Ramos", "ana.integration@test.com", "123", "456", NombreRol.USER, null,true);
+        Usuario user = new Usuario(1L, "Ana", "Ramos", "ana.integration@test.com", "123", "456", NombreRol.USER, null, true);
         repoUsuario.save(user);
         assertNotNull(repoUsuario.findById(user.getId()));
     }
@@ -81,13 +77,13 @@ class IntegrationTest {
 
     @Test
     void registro_emailDuplicado_409() throws Exception {
-        Usuario user = new Usuario(1L, "Ana", "Ramos", "ana.integration@test.com", "123", "456", NombreRol.USER, null,true);
+        Usuario user = new Usuario(1L, "Ana", "Ramos", "ana.integration@test.com", "123", "456", NombreRol.USER, null, true);
 
         // Guardo por primera vez:
         repoUsuario.save(user);
         // Guardo por segunda vez:
         DataIntegrityViolationException error = null;
-        try{
+        try {
             repoUsuario.save(user);
         } catch (DataIntegrityViolationException e) {
             error = e;
@@ -96,8 +92,8 @@ class IntegrationTest {
         assertNotNull(error);
     }
 
-   
-/*
+
+    /*
      * Test de integración del endpoint PISTAS
      */
 
@@ -105,12 +101,11 @@ class IntegrationTest {
     void createPista() {
 
         Pista pista = new Pista(
-                1L,
                 "Central",
                 "Madrid",
                 20,
                 true,
-                null
+                "2026-03-08"
         );
 
         repoPista.save(pista);
@@ -121,9 +116,9 @@ class IntegrationTest {
     }
 
     @Test
-    void createPistaWithDuplicateNameShouldFail(){
-        Pista pista1 = new Pista(1L,"Central","Madrid",20,true,null);
-        Pista pista2 = new Pista(2L,"central","Barcelona",25,true,null);
+    void createPistaWithDuplicateNameShouldFail() {
+        Pista pista1 = new Pista("Central", "Madrid", 20, true, "2026-03-08");
+        Pista pista2 = new Pista("central", "Barcelona", 25, true, "2026-03-09");
 
         repoPista.save(pista1);
         DataIntegrityViolationException error = null;
@@ -141,7 +136,7 @@ class IntegrationTest {
     // Metodo privado para crear una pista con rol de admin
     private Long crearPistaPrueba() throws Exception {
         Pista nuevaPista = new Pista(
-                0L,
+
                 "Pista-Test-" + System.currentTimeMillis(),
                 "Test Location",
                 2800L,
@@ -163,9 +158,9 @@ class IntegrationTest {
         return creada.id;
     }
     
-/*
+*//*
      * Test de integración del endpoint RESERVAS
-     */
+     *//*
     
     @Test
     @DisplayName("Crear reserva persiste en BD")
