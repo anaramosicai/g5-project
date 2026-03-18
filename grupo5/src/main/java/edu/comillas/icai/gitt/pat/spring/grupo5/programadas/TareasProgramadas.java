@@ -30,12 +30,16 @@ public class TareasProgramadas {
 
     @Scheduled(cron = "0 0 0 1 * *") // Se ejecutará justo al empezar el día 1
     public void showDisponibilidad() {
-        logger.info("Me ejecuto el día 1 de cada mes");
+        logger.info("Tarea Programada → Ejecuto informe de disponibilidad mensual");
 
-        /* Mandar correo a todos los usuarios con las pistas y los horarios disponibles */
-
-        //servicioPista.enviarDisponibilidadMensual(); // Esta clase debemos implementarla en Servicio
+        try {
+            servicioPista.enviarDisponibilidadMensual();
+            logger.info("Disponibilidad mensual enviada correctamente a todos los usuarios.");
+        } catch (Exception e) {
+            logger.error("Error al enviar disponibilidad mensual: {}", e.getMessage());
+        }
     }
+
 
 }
 
