@@ -1,7 +1,7 @@
 package edu.comillas.icai.gitt.pat.spring.grupo5.repositorio;
 
 import edu.comillas.icai.gitt.pat.spring.grupo5.entity.Reserva;
-import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
