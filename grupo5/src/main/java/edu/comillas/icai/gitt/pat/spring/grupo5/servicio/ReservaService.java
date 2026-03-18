@@ -25,6 +25,41 @@ public class ReservaService {
     @Autowired
     private UsuarioService usuarioService;
 
+    @Autowired
+    private EmailService emailService;
+
+    // ========================================
+    // PARA TAREAS PROGRAMADAS
+    // ========================================
+
+
+    public void enviarRecordatorioDia(){
+        LocalDate hoy_programadas = LocalDate.now();
+        LocalDateTime inicioDia_programado = hoy_programadas.atStartOfDay();
+        LocalDateTime finDia_programado = hoy_programadas.atTime(23,59,59);
+
+        List<Reserva> reservasHoy = repoReserva.findByInicioBetween(inicioDia_programado, finDia_programado);
+
+        for (Reserva reserva : reservasHoy){
+            Usuario usuario = reserva.getUsuario();
+            Pista pista = reserva.getPista();
+
+            // Enviamos el correo:
+            System.out.println("Enviando recordatorio a: "+ usuario.getEmail()
+            + " para la pista: " + pista.nombre
+            + " a las: " + reserva.getInicio());
+
+            String email = usuario.getEmail();
+            String asunto = "Recordatorio de tu reserva";
+            String mensaje = "Hola " + usuario.getNombre() + ",\n\n" +
+                    "Te recordamos que hoy tienes una reserva:\n" +
+                    "- Pista: " + pista.nombre + "\n" +
+                    "- Hora: " + reserva.getInicio() + "\n\n" +
+                    "¡Gracias!";
+            emailService.enviarEmail(email, asunto, mensaje);
+        }
+    }
+
     // ========================================
     // MÉTODOS PÚBLICOS CON AUTORIZACIÓN
     // ========================================
