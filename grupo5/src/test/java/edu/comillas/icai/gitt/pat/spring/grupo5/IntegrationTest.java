@@ -156,32 +156,8 @@ class IntegrationTest {
 
 
     
-    // Metodo privado para crear una pista con rol de admin
-    private Long crearPistaPrueba() throws Exception {
-        Pista nuevaPista = new Pista(
-                0L,
-                "Pista-Test-" + System.currentTimeMillis(),
-                "Test Location",
-                2800L,
-                true,
-                "2025-02-01"
-        );
-    
-        MvcResult result = mockMvc.perform(post("/pistaPadel/courts")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(nuevaPista))
-                        .with(user("admin-temp").roles("ADMIN"))
-                        .with(csrf()))
-                .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.idPista").isNumber())
-                .andReturn();
-    
-        String json = result.getResponse().getContentAsString();
-        Pista creada = objectMapper.readValue(json, Pista.class);
-        return creada.id;
-    }
-    
-/*
+
+    /*
      * Test de integración del endpoint RESERVAS
      */
     
