@@ -12,4 +12,5 @@ public interface RepoReserva extends CrudRepository<Reserva, Long> {
     List<Reserva> findByPista_Id(Long pistaId);
     List<Reserva> findByUsuario_Id(Long usuarioId);
     List<Reserva> findByPista_IdAndInicioBeforeAndFinAfter(Long pistaId, LocalDateTime fin, LocalDateTime inicio);
+    List<Reserva> findByInicioBetween(LocalDateTime inicio, LocalDateTime fin);
 }
