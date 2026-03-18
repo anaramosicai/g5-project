@@ -166,54 +166,53 @@ class ControladorRestE2ETest {
 
 
     @Test
-    public void actualizarUsuario_EmailDuplicado_Test(){
+    public void actualizarUsuario_EmailDuplicado_Test() throws Exception{
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
 
         // Creamos el primer usuario:
-        //ResponseEntity<Usuario> response1 =
+        ResponseEntity<String> response1 =
         restTemplate.exchange(
-                "/pistaPadel/auth/register",
+                "/auth/register",
                 HttpMethod.POST,
                 new HttpEntity<>(
                         """
                            {
-                            "idUsuario": "1",
                             "nombre": "Juan",
                             "apellidos": "Lovato",
                             "email": "juan@ejemplo.com",
                             "password": "123456",
-                            "telefono": "123456789",
-                            "rol": "USER",
-                            "fechaRegistro": null,
-                            "activo": true
+                            "telefono": "123456789"
                            }
                         """, headers),
                 String.class
         );
 
+        Assertions.assertEquals(HttpStatus.CREATED, response1.getStatusCode());
+        // Extraer ID del JSON devuelto
+        ObjectMapper mapper = new ObjectMapper();
+        long idUser1 = mapper.readTree(response1.getBody()).get("id").asLong();
 
         // Creamos un segundo usuario:
-        //ResponseEntity<Usuario> response2 =
+        ResponseEntity<String> response2 =
         restTemplate.exchange(
-                "/pistaPadel/auth/register",
+                "/auth/register",
                 HttpMethod.POST,
                 new HttpEntity<>(
                         """
                             {
-                            "idUsuario": "5",
                             "nombre": "Martina",
                             "apellidos": "Ortiz",
                             "email": "mod@ejemplo.com",
                             "password": "123456",
-                            "telefono": "123456789",
-                            "rol": "USER",
-                            "fechaRegistro": null,
-                            "activo": true
+                            "telefono": "123456789"
                             }
                         """, headers),
                 String.class
         );
+
+        Assertions.assertEquals(HttpStatus.CREATED, response2.getStatusCode());
+        long idUser2 = mapper.readTree(response2.getBody()).get("id").asLong();
 
         // Intentamos poner el email de uno al otro para ver si salta error:
         String cambios = """
@@ -222,12 +221,11 @@ class ControladorRestE2ETest {
                 }
                 """;
         ResponseEntity<String> response = restTemplate.exchange(
-                "/pistaPadel/users/1",
+                "/pistaPadel/users/"+idUser1,
                 HttpMethod.PATCH,
                 new HttpEntity<>(cambios, headers),
                 String.class
         );
-
         Assertions.assertEquals(HttpStatus.CONFLICT, response.getStatusCode());
 
     }
