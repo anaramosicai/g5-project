@@ -171,17 +171,13 @@ class ControladorRestE2ETest {
     @Test
     void registro_emailDuplicado_409() {
         String body = """
-            {
-              "idUsuario": 1,
-              "nombre": "Ana",
-              "apellidos": "Ramos",
-              "email": "dup.e2e@test.com",
-              "password": "123",
-              "telefono": "666",
-              "rol": "USER",
-              "fechaRegistro": null,
-              "activo": true
-            }
+        {
+          "nombre": "Ana",
+          "apellidos": "Ramos",
+          "email": "ana.e2e@test.com",
+          "password": "123456",
+          "telefono": "666"
+        }
         """;
 
         HttpHeaders headers = new HttpHeaders();
