@@ -41,7 +41,7 @@ public class ReservaService {
         }
 
         // Validar que no hay conflictos de horarios
-        Long pistaId = reservaNueva.pista != null ? reservaNueva.pista.idPista() : null;
+        Long pistaId = reservaNueva.pista != null ? reservaNueva.pista.id : null;
         if (pistaId == null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Pista es requerida");
         }
@@ -100,7 +100,10 @@ public class ReservaService {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Solo ADMIN puede ver todas las reservas");
         }
 
-        return repoReserva.findAll();
+        Iterable<Reserva> iterable = repoReserva.findAll();
+        List<Reserva> reservas = new ArrayList<>();
+        iterable.forEach(reservas::add);
+        return reservas;
     }
 
     /**
