@@ -94,6 +94,24 @@ class IntegrationTest {
         assertNotNull(error);
     }
 
+    @Test
+    void borrado_registros() throws Exception{
+        // Creo dos registros cualquiera para llenar mi repo:
+        Usuario user1 = new Usuario(null, "Ana", "Ramos", "ana.integration@test.com", "123", "456", NombreRol.USER, LocalDateTime.now(),true);
+        Usuario user2 = new Usuario(null, "Martina", "Ortiz", "skinny_legend.integration@test.com", "789", "030", NombreRol.USER, LocalDateTime.now(),true);
+        repoUsuario.save(user1);
+        repoUsuario.save(user2);
+
+        // Probamos que los datos están en el repo:
+        Assertions.assertTrue(repoUsuario.count() > 0);
+
+
+        // Probamos a borrar toda la tabla:
+        repoUsuario.deleteAll();
+        // Pruebo que está vacío el repo:
+        Assertions.assertEquals(0, repoUsuario.count());
+    }
+
 
     /*
      * Test de integración del endpoint PISTAS
