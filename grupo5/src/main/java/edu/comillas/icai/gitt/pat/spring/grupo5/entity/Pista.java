@@ -27,6 +27,8 @@ Pista {
     @Column(nullable = false)
     public String fechaAlta;
 
+    public Pista() {}
+
     public Pista(Long id, String nombre, String ubicacion, long precioHora, boolean activa, String fechaAlta){
         this.id = id;
         this.nombre = nombre;
