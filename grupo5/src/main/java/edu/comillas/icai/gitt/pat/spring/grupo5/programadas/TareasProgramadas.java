@@ -1,7 +1,6 @@
 package edu.comillas.icai.gitt.pat.spring.grupo5.programadas;
 
-import edu.comillas.icai.gitt.pat.spring.grupo5.servicio.PistaService;
-import edu.comillas.icai.gitt.pat.spring.grupo5.servicio.ReservaService;
+import edu.comillas.icai.gitt.pat.spring.grupo5.servicio.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,7 +25,7 @@ public class TareasProgramadas {
 
         /* Mandar correo a usuarios que tienen pista reservada para ese día */
 
-        //servicioReserva.enviarRecordatorioDia(); // Esta clase debemos implementarla en Servicio
+        servicioReserva.enviarRecordatorioDia(); // Esta clase debemos implementarla en Servicio
     }
 
     @Scheduled(cron = "0 0 0 1 * *") // Se ejecutará justo al empezar el día 1
