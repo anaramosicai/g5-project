@@ -162,7 +162,7 @@ public class ControladorREST {
         }
 
         // Validar que la pista existe
-        if (!pistas.containsKey(reservaNueva.courtId)) {
+        if (!pistas.containsKey(reservaNueva.getPista().id)) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Pista no existe");
         }
 
@@ -185,7 +185,7 @@ public class ControladorREST {
         }
 
         // Validar que la pista existe
-        if (!pistas.containsKey(reservaNueva.courtId)) {
+        if (!pistas.containsKey(reservaNueva.getPista().id)) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Pista no existe");
         }
 
