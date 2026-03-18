@@ -333,4 +333,7 @@ public class UsuarioService {
 
         return actualizado;
     }
+    public List<Usuario> obtenerTodosUsuarios() {
+        return (List<Usuario>) repoUsuario.findAll();
     }
+}

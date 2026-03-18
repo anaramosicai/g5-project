@@ -7,17 +7,29 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class EmailService {
-    @Autowired
-    JavaMailSender mailSender;
 
-    public void enviarEmail(String to, String subject, String text){
+    @Autowired(required = false)
+    private JavaMailSender mailSender;
+
+    public void enviarEmail(String to, String subject, String text) {
+
+        // Caso: tests E2E → mailSender no existe
+        if (mailSender == null) {
+            System.out.println("INFO: EmailService → mailSender es null (modo test). "
+                    + "Simulando envío de email a: " + to);
+            return;
+        }
+
+        // Caso: producción → enviar email real
         SimpleMailMessage mensaje = new SimpleMailMessage();
         mensaje.setTo(to);
         mensaje.setSubject(subject);
         mensaje.setText(text);
+
         mailSender.send(mensaje);
     }
 }
+
 
 /*
 * Añadir en pom la siguiente dependencia:

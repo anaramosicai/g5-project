@@ -126,11 +126,11 @@ public class ControladorREST {
         return usuarioService.listarUsuarios();
     }
 
-    @GetMapping("/pistaPadel/users/{userId}")
-    @PreAuthorize("hasRole('ADMIN')")
-    public Usuario obtenerUsuario(@PathVariable Long userId) {
-        return usuarioService.obtenerUsuario(userId);
-    }
+  //  @GetMapping("/pistaPadel/users/{userId}")
+   // @PreAuthorize("hasRole('ADMIN')")
+    //public Usuario obtenerUsuario(@PathVariable Long userId) {
+      //  return usuarioService.obtenerUsuario(userId);
+    //}
 
     @PatchMapping("/pistaPadel/users/{userId}")
     @PreAuthorize("hasRole('ADMIN')")

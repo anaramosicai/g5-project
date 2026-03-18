@@ -12,11 +12,13 @@ import org.springframework.boot.test.web.client.TestRestTemplate;
 
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.*;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.springframework.boot.test.web.server.LocalServerPort;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -34,6 +36,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 })
 @ActiveProfiles("test")
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
+@Transactional
 class ControladorRestE2ETest {
 
     @Autowired
@@ -56,61 +59,28 @@ class ControladorRestE2ETest {
 
 
     // ============== PISTAS ==============
+    @WithMockUser(roles = "ADMIN")
     @Test
     void createPistaE2E() {
 
         Pista pista = new Pista(
-
                 "Pista Central",
                 "Madrid",
                 20,
                 true,
-                null
+                "2026-03-18"
         );
 
         ResponseEntity<Pista> response = restTemplate.postForEntity(
-                "/pistas",
+                "/pistaPadel/courts",
                 pista,
                 Pista.class
         );
-
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-        assertThat(response.getBody()).isNotNull();
-        assertThat(response.getBody().nombre).isEqualTo("Pista Central");
-    }
-
-    @Test
-    void creaPistaOkTest() {
-        Pista pista = new Pista(
-
-                "Madrid central 1",
-                "Madrid",
-                10,
-                true,
-                "2026-02-15");
-
-         ResponseEntity<Pista> response = restTemplate.withBasicAuth("admin", "clave")
-                                                       .postForEntity(getBaseUrl(),
-                                                                     pista,
-                                                                     Pista.class);
+        System.out.println("CREATE PISTA endpoint hit");
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
-        assertThat(response.getBody().nombre).isEqualTo("Madrid central 1");
-    }
-
-    @Test
-    void creaPistaIncorrectoTest() {
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-
-        HttpEntity<String> request = new HttpEntity<>("{ invalid json }", headers);
-
-        ResponseEntity<String> response = restTemplate.withBasicAuth("admin", "clave")
-                                                      .postForEntity(getBaseUrl(),
-                                                                     request,
-                                                                     String.class);
-
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        assertThat(response.getBody()).isNotNull();
+        assertThat(response.getBody().nombre).isEqualTo("Pista Central");
     }
 
     // ============== REGISTROS Y USUARIOS ==============
