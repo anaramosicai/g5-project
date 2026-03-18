@@ -1,8 +1,7 @@
 package edu.comillas.icai.gitt.pat.spring.grupo5;
 
 import edu.comillas.icai.gitt.pat.spring.grupo5.controlador.ControladorREST;
-import edu.comillas.icai.gitt.pat.spring.grupo5.entity.Pista;
-import edu.comillas.icai.gitt.pat.spring.grupo5.entity.Usuario;
+import edu.comillas.icai.gitt.pat.spring.grupo5.entity.*;
 import edu.comillas.icai.gitt.pat.spring.grupo5.model.NombreRol;
 import edu.comillas.icai.gitt.pat.spring.grupo5.repositorio.RepoPista;
 import edu.comillas.icai.gitt.pat.spring.grupo5.repositorio.RepoReserva;
@@ -11,6 +10,7 @@ import edu.comillas.icai.gitt.pat.spring.grupo5.servicio.PistaService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 
 //import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
@@ -37,6 +37,7 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 
 
@@ -174,7 +175,7 @@ class IntegrationTest {
     
         String json = result.getResponse().getContentAsString();
         Pista creada = objectMapper.readValue(json, Pista.class);
-        return creada.idPista();
+        return creada.id;
     }
     
     @Test
