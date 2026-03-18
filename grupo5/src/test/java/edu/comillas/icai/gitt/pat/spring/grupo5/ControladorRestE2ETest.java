@@ -42,7 +42,7 @@ class ControladorRestE2ETest {
     @Autowired
     private ControladorREST controladorREST;
 
-    private static final String REGISTER = "/pistaPadel/auth/register";
+    private static final String REGISTER = "/auth/register";
 
     private static final String COURT = "/pistaPadel/courts";
 
@@ -124,17 +124,13 @@ class ControladorRestE2ETest {
     @Test
     void registro_ok_201() {
         String body = """
-            {
-              "idUsuario": 1,
-              "nombre": "Ana",
-              "apellidos": "Ramos",
-              "email": "ana.e2e@test.com",
-              "password": "123",
-              "telefono": "666",
-              "rol": "USER",
-              "fechaRegistro": null,
-              "activo": true
-            }
+        {
+          "nombre": "Ana",
+          "apellidos": "Ramos",
+          "email": "ana.e2e@test.com",
+          "password": "123456",
+          "telefono": "666"
+        }
         """;
 
         HttpHeaders headers = new HttpHeaders();
@@ -278,28 +274,25 @@ class ControladorRestE2ETest {
         
         private String baseUrl;
         private Long courtId;
-        
+
         @BeforeEach
         void setup() {
-        baseUrl = "http://localhost:" + port + "/pistaPadel";
-        
-        // Creamos una pista como ADMIN
-        HttpHeaders headers = new HttpHeaders();
-        headers.setBasicAuth("admin", "clave"); // ← credenciales correctas del usuario admin en memoria
-        
-        Pista pista = new Pista(0L, "Pista Test E2E", "Indoor", 3500, true, "2026-01-01");
-        
-        ResponseEntity<Pista> response = restTemplate.exchange(
-                baseUrl + "/courts",
-                HttpMethod.POST,
-                new HttpEntity<>(pista, headers),
-                Pista.class
-        );
-        
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
-        courtId = response.getBody().id;
+            HttpHeaders headers = new HttpHeaders();
+            headers.setBasicAuth("admin", "clave");
+
+            Pista pista = new Pista(null, "Pista Test E2E", "Indoor", 3500, true, "2026-01-01");
+
+            ResponseEntity<Pista> response = restTemplate.exchange(
+                    "/pistaPadel/courts",
+                    HttpMethod.POST,
+                    new HttpEntity<>(pista, headers),
+                    Pista.class
+            );
+
+            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
+            courtId = response.getBody().id;
         }
-        
+
         @Test
         void flujoCompletoReservaComoUser() {
         

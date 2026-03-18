@@ -38,13 +38,18 @@ public class PistaService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Name is required");
         }
 
+        String fecha = pistaNuevo.fechaAlta;
+        if (fecha == null) {
+            fecha = LocalDate.now().toString();   // o la fecha que sea por defecto
+        }
+
         Pista pista = new Pista(
                 pistaNuevo.id,
                 pistaNuevo.nombre,
                 pistaNuevo.ubicacion,
                 pistaNuevo.precioHora,
                 pistaNuevo.activa,
-                pistaNuevo.fechaAlta
+                fecha
         );
 
         return repoPista.save(pista);

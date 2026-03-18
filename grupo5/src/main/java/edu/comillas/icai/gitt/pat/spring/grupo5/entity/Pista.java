@@ -6,8 +6,7 @@ import jakarta.validation.constraints.NotNull;
 import java.util.List;
 
 @Entity
-public class
-Pista {
+public class Pista {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     public Long id;
@@ -24,7 +23,7 @@ Pista {
     @Column(nullable = false)
     public boolean activa;
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     public String fechaAlta;
 
     public Pista() {}
