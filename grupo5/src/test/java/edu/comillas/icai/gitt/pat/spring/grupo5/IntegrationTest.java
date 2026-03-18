@@ -4,6 +4,7 @@ import edu.comillas.icai.gitt.pat.spring.grupo5.controlador.ControladorREST;
 import edu.comillas.icai.gitt.pat.spring.grupo5.entity.*;
 import edu.comillas.icai.gitt.pat.spring.grupo5.model.*;
 import edu.comillas.icai.gitt.pat.spring.grupo5.repositorio.*;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
