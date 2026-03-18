@@ -12,6 +12,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -143,7 +144,7 @@ public class ReservaService {
         }
 
         // Validar que no hay conflictos con el nuevo horario
-        Long pistaId = actual.pista.idPista();
+        Long pistaId = actual.pista.id;
         boolean solapa = tieneConflicto(pistaId, reservaNueva.inicio, reservaNueva.fin, reservationId);
         if (solapa) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Slot ocupado");
