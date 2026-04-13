@@ -308,3 +308,14 @@ body {
     text-align: center;   
 }
 
+.pista-box {
+    width: 350px;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    padding: 16px;
+    margin: 20px;
+    background-color: rgba(205, 232, 243);
+    color:  rgba(46, 114, 157);
+  }
+
+
