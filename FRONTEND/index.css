@@ -319,3 +319,117 @@ body {
   }
 
 
+/* --- RESERVA.HTML --- */
+
+.main-reservas {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 40px 5%;
+}
+
+.reserva-section {
+    background-color: var(--azul-claro);
+    padding: 30px;
+    border-radius: 15px;
+    margin-bottom: 30px;
+}
+
+.reserva-section h2 {
+    color: var(--azul-oscuro);
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.filtro-fechas {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 20px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.filtro-fechas label,
+.filtro-fechas input {
+    padding: 8px 12px;
+    border: 2px solid var(--azul-medio-oscuro);
+    border-radius: 8px;
+}
+
+.filtro-fechas input:focus {
+    border-color: var(--verde-lima);
+    box-shadow: 0 0 5px var(--verde-lima);
+    outline: none;
+}
+
+.tabla-reservas table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    border-radius: 10px;
+}
+
+.tabla-reservas thead {
+    background-color: var(--azul-oscuro);
+    color: white;
+}
+
+.tabla-reservas th,
+.tabla-reservas td {
+    padding: 12px 15px;
+    text-align: left;
+}
+
+.tabla-reservas tbody tr:hover {
+    background-color: var(--amarillo);
+}
+
+.estado-activa { background-color: var(--verde-claro); color: var(--verde-oscuro); }
+.estado-cancelada { background-color: var(--naranja); color: white; }
+.estado-completada { background-color: var(--azul-medio-oscuro); color: white; }
+
+.estado-activa,
+.estado-cancelada,
+.estado-completada {
+    padding: 5px 10px;
+    border-radius: 5px;
+    font-weight: bold;
+    display: inline-block;
+}
+
+.btn-filtro,
+.btn-editar,
+.btn-cancelar,
+.btn-cerrar {
+    padding: 8px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: 0.2s;
+}
+
+.btn-filtro {
+    background-color: var(--verde-lima);
+    color: var(--azul-oscuro);
+}
+
+.btn-editar,
+.btn-cerrar {
+    background-color: var(--azul);
+    color: white;
+}
+
+.btn-cancelar {
+    background-color: var(--naranja);
+    color: white;
+}
+
+.btn-filtro:hover,
+.btn-editar:hover,
+.btn-cancelar:hover,
+.btn-cerrar:hover {
+    transform: scale(1.05);
+    filter: brightness(0.9);
+}
+
+
