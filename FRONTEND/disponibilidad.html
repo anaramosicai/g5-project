@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Disponibilidad - ChisPadel</title>
+    <link rel="stylesheet" href="index.css">
+</head>
+
+<body>
+
+    <header class="navbar">
+        <div class="logo">
+            <a href="index.html">
+                <img src="Logo dinámico de ChisPadel con detalles.png" alt="Logo ChisPadel">
+            </a>
+        </div>
+        <nav>
+            <ul>
+                <li><a href="index.html">Inicio</a></li>
+                <li><a href="reserva.html">Reservas</a></li>
+                <li><a href="disponibilidad.html">Disponibilidad</a></li>
+                <li><a href="registro.html">Registro</a></li>
+                <li><a href="#">Contacto</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <section class="hero">
+        <div class="hero-overlay">
+            <div class="hero-content">
+                <h1>Disponibilidad de Pistas</h1>
+                <p>Consulta los horarios libres y planifica tu partido con antelación.</p>
+            </div>
+        </div>
+    </section>
+
+    <main class="main-reservas">
+
+        <!-- CONSULTAR DISPONIBILIDAD -->
+        <section class="reserva-section">
+            <h2>Consultar Disponibilidad</h2>
+            <div class="filtro-fechas">
+                <label for="fechaConsulta">Fecha:</label>
+                <input type="date" id="fechaConsulta" name="fechaConsulta">
+
+                <label for="pistaConsulta">Pista (opcional):</label>
+                <select id="pistaConsulta" class="filtro-select">
+                    <option value="">Todas las pistas</option>
+                    <option value="1">Pista 1 - Cristal</option>
+                    <option value="2">Pista 2 - Cristal</option>
+                    <option value="3">Pista 3 - Cemento</option>
+                    <option value="4">Pista 4 - Cemento</option>
+                </select>
+
+                <button class="btn btn-filtro" onclick="mostrarResultados()">Consultar</button>
+            </div>
+        </section>
+
+        <!-- RESULTADOS: TODAS LAS PISTAS -->
+        <!-- Se puede ver quitando el style="display: none;" -->
+        <section class="reserva-section" id="seccionTodasPistas" style="display: none;">
+            <h2>Disponibilidad del día seleccionado</h2>
+            <div class="disponibilidad-grid">
+
+                <div class="disponibilidad-card">
+                    <div class="disp-card-header">
+                        <h3>Pista 1 - Cristal</h3>
+                        <span class="disp-estado disp-disponible">Disponible</span>
+                    </div>
+                    <div class="disp-horario">
+                        <span>Apertura: <strong>08:00</strong></span>
+                        <span>Cierre: <strong>22:00</strong></span>
+                    </div>
+                    <div class="disp-franjas">
+                        <p class="franjas-titulo">Franjas libres:</p>
+                        <span class="franja-tag">08:00 – 10:00</span>
+                        <span class="franja-tag">12:00 – 14:00</span>
+                        <span class="franja-tag">17:00 – 19:00</span>
+                    </div>
+                    <button class="btn btn-filtro disp-btn-detalle" onclick="mostrarDetalle(1)">Ver detalle</button>
+                </div>
+
+                <div class="disponibilidad-card">
+                    <div class="disp-card-header">
+                        <h3>Pista 2 - Cristal</h3>
+                        <span class="disp-estado disp-disponible">Disponible</span>
+                    </div>
+                    <div class="disp-horario">
+                        <span>Apertura: <strong>08:00</strong></span>
+                        <span>Cierre: <strong>22:00</strong></span>
+                    </div>
+                    <div class="disp-franjas">
+                        <p class="franjas-titulo">Franjas libres:</p>
+                        <span class="franja-tag">09:00 – 11:00</span>
+                        <span class="franja-tag">15:00 – 17:00</span>
+                    </div>
+                    <button class="btn btn-filtro disp-btn-detalle" onclick="mostrarDetalle(2)">Ver detalle</button>
+                </div>
+
+                <div class="disponibilidad-card">
+                    <div class="disp-card-header">
+                        <h3>Pista 3 - Cemento</h3>
+                        <span class="disp-estado disp-ocupada">Ocupada</span>
+                    </div>
+                    <div class="disp-horario">
+                        <span>Apertura: <strong>08:00</strong></span>
+                        <span>Cierre: <strong>22:00</strong></span>
+                    </div>
+                    <div class="disp-franjas">
+                        <p class="franjas-titulo">Franjas libres:</p>
+                        <span class="sin-franjas">Sin franjas libres</span>
+                    </div>
+                    <button class="btn btn-filtro disp-btn-detalle" onclick="mostrarDetalle(3)">Ver detalle</button>
+                </div>
+
+                <div class="disponibilidad-card">
+                    <div class="disp-card-header">
+                        <h3>Pista 4 - Cemento</h3>
+                        <span class="disp-estado disp-disponible">Disponible</span>
+                    </div>
+                    <div class="disp-horario">
+                        <span>Apertura: <strong>08:00</strong></span>
+                        <span>Cierre: <strong>22:00</strong></span>
+                    </div>
+                    <div class="disp-franjas">
+                        <p class="franjas-titulo">Franjas libres:</p>
+                        <span class="franja-tag">10:00 – 12:00</span>
+                        <span class="franja-tag">20:00 – 22:00</span>
+                    </div>
+                    <button class="btn btn-filtro disp-btn-detalle" onclick="mostrarDetalle(4)">Ver detalle</button>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- DETALLE DE PISTA ESPECÍFICA -->
+        <!-- Se puede ver quitando el style="display: none;" -->
+        <section class="reserva-section" id="seccionDetalle" style="display: none;">
+            <h2 id="tituloDetalle">Detalle de Pista</h2>
+            <div class="disp-detalle-info">
+                <div class="disp-detalle-meta" id="metaDetalle">
+                    <!-- Rellena el JavaScript -->
+                </div>
+            </div>
+            <div class="tabla-reservas" style="margin-top: 15px;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Hora de inicio</th>
+                            <th>Hora de fin</th>
+                            <th>Estado</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tablaDetalle">
+                        <!-- Rellena el JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+            <div style="text-align: center; margin-top: 20px;">
+                <button class="btn btn-cerrar" onclick="cerrarDetalle()">Cerrar detalle</button>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="footer">
+        <p>© 2026 ChisPadel - Pasión por el deporte</p>
+    </footer>
+
+    <script>
+        // Datos de ejemplo (se sustituirán por llamadas a la API cuando el backend esté listo)
+        const datosPistas = {
+            1: { nombre: 'Pista 1 - Cristal',  apertura: '08:00', cierre: '22:00', franjas: [{ inicio: '08:00', fin: '10:00' }, { inicio: '12:00', fin: '14:00' }, { inicio: '17:00', fin: '19:00' }] },
+            2: { nombre: 'Pista 2 - Cristal',  apertura: '08:00', cierre: '22:00', franjas: [{ inicio: '09:00', fin: '11:00' }, { inicio: '15:00', fin: '17:00' }] },
+            3: { nombre: 'Pista 3 - Cemento',  apertura: '08:00', cierre: '22:00', franjas: [] },
+            4: { nombre: 'Pista 4 - Cemento',  apertura: '08:00', cierre: '22:00', franjas: [{ inicio: '10:00', fin: '12:00' }, { inicio: '20:00', fin: '22:00' }] }
+        };
+
+        function mostrarResultados() {
+            document.getElementById('seccionTodasPistas').style.display = 'block';
+            document.getElementById('seccionDetalle').style.display = 'none';
+            document.getElementById('seccionTodasPistas').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        function mostrarDetalle(pistaId) {
+            const pista = datosPistas[pistaId];
+            const tieneFranjas = pista.franjas.length > 0;
+
+            document.getElementById('tituloDetalle').textContent = 'Detalle · ' + pista.nombre;
+
+            document.getElementById('metaDetalle').innerHTML = `
+                <span>Apertura: <strong>${pista.apertura}</strong></span>
+                <span>Cierre: <strong>${pista.cierre}</strong></span>
+                <span class="disp-estado ${tieneFranjas ? 'disp-disponible' : 'disp-ocupada'}">
+                    ${tieneFranjas ? 'Disponible' : 'Sin franjas libres'}
+                </span>
+            `;
+
+            const tbody = document.getElementById('tablaDetalle');
+            if (tieneFranjas) {
+                tbody.innerHTML = pista.franjas.map(f => `
+                    <tr>
+                        <td>${f.inicio}</td>
+                        <td>${f.fin}</td>
+                        <td><span class="estado-activa">Libre</span></td>
+                    </tr>
+                `).join('');
+            } else {
+                tbody.innerHTML = '<tr><td colspan="3" style="text-align:center; font-style:italic; color: var(--naranja);">No hay franjas libres para este día</td></tr>';
+            }
+
+            document.getElementById('seccionDetalle').style.display = 'block';
+            document.getElementById('seccionDetalle').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        function cerrarDetalle() {
+            document.getElementById('seccionDetalle').style.display = 'none';
+        }
+    </script>
+
+</body>
+</html>
