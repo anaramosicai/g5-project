@@ -587,3 +587,299 @@ body {
 }
 
 
+/* --- RESERVA.HTML --- */
+
+.main-reservas {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 40px 5%;
+}
+
+.reserva-section {
+    background-color: var(--azul-claro);
+    padding: 30px;
+    border-radius: 15px;
+    margin-bottom: 30px;
+}
+
+.reserva-section h2 {
+    color: var(--azul-oscuro);
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.filtro-fechas {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 20px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.filtro-fechas label,
+.filtro-fechas input {
+    padding: 8px 12px;
+    border: 2px solid var(--azul-medio-oscuro);
+    border-radius: 8px;
+}
+
+.filtro-fechas input:focus {
+    border-color: var(--verde-lima);
+    box-shadow: 0 0 5px var(--verde-lima);
+    outline: none;
+}
+
+.tabla-reservas table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    border-radius: 10px;
+}
+
+.tabla-reservas thead {
+    background-color: var(--azul-oscuro);
+    color: white;
+}
+
+.tabla-reservas th,
+.tabla-reservas td {
+    padding: 12px 15px;
+    text-align: left;
+}
+
+.tabla-reservas tbody tr:hover {
+    background-color: var(--amarillo);
+}
+
+.estado-activa { background-color: var(--verde-claro); color: var(--verde-oscuro); }
+.estado-cancelada { background-color: var(--naranja); color: white; }
+.estado-completada { background-color: var(--azul-medio-oscuro); color: white; }
+
+.estado-activa,
+.estado-cancelada,
+.estado-completada {
+    padding: 5px 10px;
+    border-radius: 5px;
+    font-weight: bold;
+    display: inline-block;
+}
+
+.btn-filtro,
+.btn-editar,
+.btn-cancelar,
+.btn-cerrar {
+    padding: 8px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: 0.2s;
+}
+
+.btn-filtro {
+    background-color: var(--verde-lima);
+    color: var(--azul-oscuro);
+}
+
+.btn-editar,
+.btn-cerrar {
+    background-color: var(--azul);
+    color: white;
+}
+
+.btn-cancelar {
+    background-color: var(--naranja);
+    color: white;
+}
+
+.btn-filtro:hover,
+.btn-editar:hover,
+.btn-cancelar:hover,
+.btn-cerrar:hover {
+    transform: scale(1.05);
+    filter: brightness(0.9);
+}
+
+
+/* --- DISPONIBILIDAD.HTML --- */
+
+.filtro-select {
+    padding: 8px 12px;
+    border: 2px solid var(--azul-medio-oscuro);
+    border-radius: 8px;
+    font-family: 'Poppins', sans-serif;
+    font-size: 0.95rem;
+    background-color: white;
+    color: var(--azul-oscuro);
+    cursor: pointer;
+}
+
+.filtro-select:focus {
+    border-color: var(--verde-lima);
+    box-shadow: 0 0 5px var(--verde-lima);
+    outline: none;
+}
+
+.mensaje-disponibilidad {
+    text-align: center;
+    padding: 12px 20px;
+    border-radius: 8px;
+    margin-top: 15px;
+    font-weight: 600;
+}
+
+.mensaje-info {
+    background-color: var(--azul-claro);
+    color: var(--azul-oscuro);
+}
+
+.mensaje-error {
+    background-color: var(--naranja);
+    color: white;
+}
+
+.disponibilidad-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 20px;
+    margin-top: 10px;
+}
+
+.disponibilidad-card {
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    border-left: 5px solid var(--azul);
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.disp-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.disp-card-header h3 {
+    color: var(--azul-oscuro);
+    font-size: 1.1rem;
+    margin: 0;
+}
+
+.disp-estado {
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.78rem;
+    font-weight: bold;
+    white-space: nowrap;
+    display: inline-block;
+}
+
+.disp-disponible {
+    background-color: var(--verde-claro);
+    color: var(--verde-oscuro);
+}
+
+.disp-ocupada {
+    background-color: var(--naranja);
+    color: white;
+}
+
+.disp-horario {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    font-size: 0.88rem;
+    color: var(--azul-medio-oscuro);
+}
+
+.disp-franjas {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+}
+
+.franjas-titulo {
+    width: 100%;
+    font-weight: 600;
+    color: var(--azul-oscuro);
+    font-size: 0.85rem;
+    margin: 0;
+}
+
+.franja-tag {
+    background-color: var(--verde-claro);
+    color: var(--verde-oscuro);
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.82rem;
+    font-weight: bold;
+}
+
+.sin-franjas {
+    color: var(--naranja);
+    font-style: italic;
+    font-size: 0.85rem;
+}
+
+.sin-resultados {
+    text-align: center;
+    color: var(--azul-medio-oscuro);
+    font-style: italic;
+    padding: 20px;
+    grid-column: 1 / -1;
+}
+
+.disp-btn-detalle {
+    margin-top: auto;
+    width: 100%;
+    text-align: center;
+}
+
+.disp-detalle-info {
+    margin-bottom: 10px;
+}
+
+.disp-detalle-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    align-items: center;
+    font-size: 0.95rem;
+    color: var(--azul-oscuro);
+}
+
+
+
+.pista-item input {
+    width: 100%; /* ocupan todo el ancho del cuadro */
+    padding: 10px 12px;
+    font-size: 1rem;
+    border: 2px solid var(--azul-medio-oscuro);
+    border-radius: 8px;
+}
+
+.pista-item input:focus { /*Cuando selecciono una entrada a rellenar*/
+    border-color: var(--verde-lima);
+    box-shadow: 0 0 5px var(--verde-lima);
+    outline: none;
+}
+
+.pista-button {
+    width: 100%;
+    font-size: 1.1rem;
+    font-weight: bold;
+    background-color: var(--verde-lima);
+    border: none;
+    border-radius: 10px;
+    color: var(--azul-oscuro);
+    cursor: pointer;    
+    padding: 12px 20px;
+    margin: 10px auto;
+    display: block;
+}
