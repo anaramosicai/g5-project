@@ -22,8 +22,11 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  ci:
+    uses: ./.github/workflows/ci.yml
   # Single deploy job since we're just deploying
   deploy:
+    needs: [ci]
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
