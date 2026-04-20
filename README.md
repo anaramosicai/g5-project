@@ -1,5 +1,5 @@
 # g5-project
-Final Project of PAT by group 5
+Final Project of PAT by group 5: Felicia Huynh, Antonio Lafont, Yago Méndez, Martina Ortiz y Ana Mei Li Ramos
 
 ---
 
