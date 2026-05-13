@@ -1,0 +1,103 @@
+<!-- Perfil del usuario: ver datos y editar -->
+
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <title>Mi Perfil - ChisPadel</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="index.css">
+  </head>
+  <body>
+
+    <header class="navbar">
+        <div class="logo">
+            <a href="index.html">
+                <img src="Logo dinámico de ChisPadel con detalles.png" alt="Logo ChisPadel">
+            </a>
+        </div>
+        <nav>
+            <ul>
+                <li><a href="index.html">Inicio</a></li>
+                <li><a href="reserva.html">Reservas</a></li>
+                <li><a href="disponibilidad.html">Disponibilidad</a></li>
+                <li><a href="#" onclick="cerrarSesion(); return false;">Cerrar sesión</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <section class="hero">
+        <div class="hero-overlay">
+            <div class="hero-content">
+                <h1>Mi Perfil</h1>
+                <p>Consulta y edita tus datos personales</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Datos del usuario -->
+    <div class="perfil-container">
+
+        <div class="perfil-card">
+            <h2 id="bienvenida">Cargando...</h2>
+            <div class="perfil-info">
+                <p><strong>Email:</strong> <span id="email">—</span></p>
+                <p><strong>Teléfono:</strong> <span id="perfil-telefono">—</span></p>
+                <p><strong>Rol:</strong> <span id="perfil-rol">—</span></p>
+                <p><strong>Miembro desde:</strong> <span id="perfil-fecha">—</span></p>
+            </div>
+        </div>
+
+        <!-- Formulario de edición -->
+        <form id="formEditar" class="register">
+            <h2 style="text-align:center; color:var(--azul-oscuro); margin-bottom:15px;">
+                Editar perfil
+            </h2>
+            <fieldset style="border:none;">
+                <div class="register">
+                    <label for="edit-nombre">Nombre:</label>
+                    <input type="text" id="edit-nombre" />
+                </div>
+                <div class="register">
+                    <label for="edit-apellidos">Apellidos:</label>
+                    <input type="text" id="edit-apellidos" />
+                </div>
+                <div class="register">
+                    <label for="edit-email">Email:</label>
+                    <input type="email" id="edit-email" />
+                </div>
+                <div class="register">
+                    <label for="edit-telefono">Teléfono:</label>
+                    <input type="tel" id="edit-telefono" />
+                </div>
+                <div class="register">
+                    <label for="edit-password">Nueva contraseña (dejar vacío para no cambiar):</label>
+                    <input type="password" id="edit-password" />
+                </div>
+                <div class="register">
+                    <label for="edit-confirmar">Confirmar nueva contraseña:</label>
+                    <input type="password" id="edit-confirmar" />
+                </div>
+            </fieldset>
+            <div class="register">
+                <button type="submit">Guardar cambios</button>
+            </div>
+        </form>
+
+        <!-- Mensaje de feedback -->
+        <div id="mensaje" style="display:none; text-align:center; margin:10px 0; font-weight:bold;"></div>
+
+        <!-- Botón de cerrar sesión -->
+        <div class="perfil-acciones">
+            <button class="btn-cancelar" onclick="cerrarSesion()">Cerrar sesión</button>
+        </div>
+
+    </div>
+
+    <footer class="footer">
+        <p>© 2026 ChisPadel- Pasión por el deporte</p>
+    </footer>
+
+    <script src="usuario.js"></script>
+  </body>
+</html>

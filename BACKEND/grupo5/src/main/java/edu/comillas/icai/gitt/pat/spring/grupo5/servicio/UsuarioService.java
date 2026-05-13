@@ -198,11 +198,8 @@ public class UsuarioService {
     /**
      * /pistaPadel/auth/logout
      * 204 ok, 401 no autenticado
-     *
-     * @return
      */
-    @Transactional
-    public boolean logout(String rawAuthHeader) {
+    public void logout(String rawAuthHeader) {
 
         String token = extractToken(rawAuthHeader);
         Long userId = verifyAndGetUserId(token);
@@ -212,7 +209,6 @@ public class UsuarioService {
         }
 
         invalidateToken(token);
-        return false;
     }
 
     /**

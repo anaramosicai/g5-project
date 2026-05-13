@@ -878,8 +878,59 @@ body {
     border: none;
     border-radius: 10px;
     color: var(--azul-oscuro);
-    cursor: pointer;    
+    cursor: pointer;
     padding: 12px 20px;
     margin: 10px auto;
     display: block;
+}
+
+
+/* --- PERFIL.HTML --- */
+
+.perfil-container {
+    max-width: 650px;
+    margin: 30px auto;
+    padding: 0 5%;
+}
+
+.perfil-card {
+    background-color: var(--azul-claro);
+    border-radius: 15px;
+    padding: 30px;
+    margin-bottom: 30px;
+}
+
+.perfil-card h2 {
+    color: var(--azul-oscuro);
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.perfil-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+}
+
+.perfil-info p {
+    font-size: 1rem;
+    color: var(--azul-oscuro);
+    padding: 10px 0;
+    border-bottom: 1px solid var(--azul);
+}
+
+.perfil-info p:last-child {
+    border-bottom: none;
+}
+
+.perfil-info strong {
+    color: var(--azul-medio-oscuro);
+    display: inline-block;
+    min-width: 130px;
+}
+
+.perfil-acciones {
+    display: flex;
+    justify-content: center;
+    margin: 10px 0 30px;
 }
