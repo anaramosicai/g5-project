@@ -1,7 +1,10 @@
 package edu.comillas.icai.gitt.pat.spring.grupo5.model;
 
+import edu.comillas.icai.gitt.pat.spring.grupo5.servicio.UsuarioService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.context.annotation.Profile;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -12,6 +15,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
@@ -25,9 +29,14 @@ import java.util.List;
 @Profile("!test") // Para que no sea del profile test y haya discodancia
 public class ConfigSeguridad {
 
+    @Autowired
+    @Lazy
+    private UsuarioService usuarioService;
+
    @Bean
     public SecurityFilterChain configuracion(HttpSecurity http) throws Exception {
         http
+                .addFilterBefore(new BearerTokenFilter(usuarioService), UsernamePasswordAuthenticationFilter.class)
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(csrf -> csrf.disable())
                 .headers(headers -> headers.frameOptions(frame -> frame.disable()))
@@ -38,6 +47,7 @@ public class ConfigSeguridad {
                                 "/pistaPadel/auth/login",
                                 "/pistaPadel/auth/me",
                                 "/pistaPadel/auth/logout",
+                                "/pistaPadel/users",
                                 "/pistaPadel/users/{userId}",
                                 "/pistaPadel/reservations",
                                 "/pistaPadel/reservations/{reservationId}",

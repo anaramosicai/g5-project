@@ -934,3 +934,121 @@ body {
     justify-content: center;
     margin: 10px 0 30px;
 }
+
+
+/* =========================
+   PANEL ADMIN - TABLA
+========================= */
+
+.admin-panel {
+    margin-top: 20px;
+    overflow-x: auto;
+}
+
+#contenidoAccion {
+    overflow-x: auto;
+}
+
+.tabla-admin {
+    width: 100%;
+    border-collapse: collapse;
+    border-radius: 12px;
+    overflow: hidden;
+    background-color: white;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+}
+
+
+.tabla-admin thead {
+    background: linear-gradient(
+        90deg,
+        var(--azul-oscuro),
+        var(--azul-medio-oscuro)
+    );
+    color: white;
+}
+
+.tabla-admin th {
+    padding: 14px;
+    text-align: left;
+    font-size: 0.95rem;
+    letter-spacing: 0.5px;
+}
+
+.tabla-admin td {
+    padding: 14px;
+    border-bottom: 1px solid rgba(0,0,0,0.08);
+    color: var(--azul-oscuro);
+    font-size: 0.95rem;
+}
+
+.tabla-admin tbody tr:hover {
+    background-color: var(--azul-claro);
+    transition: 0.2s;
+}
+
+.btn-admin {
+    background-color: var(--verde-lima);
+    color: var(--azul-oscuro);
+    border: none;
+    padding: 8px 14px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: 0.2s;
+    width: 100%;
+}
+
+.btn-admin:hover {
+    background-color: var(--verde-oscuro);
+    color: white;
+    transform: scale(1.03);
+}
+
+@media (max-width: 700px) {
+    .tabla-admin th,
+    .tabla-admin td {
+        font-size: 0.85rem;
+        padding: 10px;
+    }
+
+    .btn-admin {
+        font-size: 0.85rem;
+        padding: 6px 10px;
+    }
+}
+
+/* --- BUSCAR USUARIO (ADMIN) --- */
+
+.admin-search-bar {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.admin-search-bar input {
+    flex: 1;
+    padding: 10px 14px;
+    font-size: 1rem;
+    border: 2px solid var(--azul-medio-oscuro);
+    border-radius: 8px;
+    font-family: 'Poppins', sans-serif;
+}
+
+.admin-search-bar input:focus {
+    border-color: var(--verde-lima);
+    box-shadow: 0 0 5px var(--verde-lima);
+    outline: none;
+}
+
+.admin-search-bar .btn-admin {
+    width: auto;
+    white-space: nowrap;
+}
+
+.admin-error {
+    color: red;
+    font-weight: bold;
+    margin-top: 10px;
+}

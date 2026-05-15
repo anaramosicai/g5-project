@@ -1,0 +1,210 @@
+<!-- Perfil del administrador: acceso a funciones -->
+
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <title>Perfil Administrador - ChisPadel</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="index.css">
+  </head>
+  <body>
+
+    <header class="navbar">
+        <div class="logo">
+            <a href="index.html">
+                <img src="Logo dinámico de ChisPadel con detalles.png" alt="Logo ChisPadel">
+            </a>
+        </div>
+        <nav>
+            <ul>
+                <li><a href="index.html">Inicio</a></li>
+                <li><a href="reserva.html">Reservas</a></li>
+                <li><a href="disponibilidad.html">Disponibilidad</a></li>
+                <li><a href="#" onclick="cerrarSesion(); return false;">Cerrar sesión</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <section class="hero">
+        <div class="hero-overlay">
+            <div class="hero-content">
+                <h1>Perfil Administrador - Barra de tareas</h1>
+                <p>Elige qué función desempeñar</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Datos del usuario -->
+    <div class="perfil-container">
+
+        <div class="perfil-card">
+            <h2 id="bienvenida">Cargando...</h2>
+            <div class="perfil-info">
+                <p><strong>Email:</strong> <span id="email">—</span></p>
+                <p><strong>Teléfono:</strong> <span id="perfil-telefono">—</span></p>
+                <p><strong>Rol:</strong> <span id="perfil-rol">—</span></p>
+                <p><strong>Miembro desde:</strong> <span id="perfil-fecha">—</span></p>
+            </div>
+        </div>
+    
+
+    <!-- Panel de administración -->
+    <div id = "panelAcciones" class="perfil-card admin-panel">
+    <h2 style="color: var(--azul-oscuro); margin-bottom:20px;">
+        Panel de Administración
+    </h2>
+
+    <table class="tabla-admin">
+        <thead>
+            <tr>
+                <th>Función</th>
+                <th>Descripción</th>
+                <th>Acceso</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            <tr>
+                <td><b>Cargar usuarios</b></td>
+                <td>Obtener listado completo de usuarios</td>
+                <td>
+                    <button class="btn-admin" onclick="abrirPanel('usuarios-cargar')">
+                        Ejecutar
+                    </button>
+                </td>
+            </tr>
+
+            <tr>
+                <td><b>Cargar usuario por ID</b></td>
+                <td>Buscar un usuario específico</td>
+                <td>
+                    <button class="btn-admin" onclick="buscarUsuarioPorId()">
+                        Ejecutar
+                    </button>
+                </td>
+            </tr>
+
+            <tr>
+                <td><b>Editar usuario por ID</b></td>
+                <td>Modificar datos de un usuario</td>
+                <td>
+                    <button class="btn-admin" onclick="editarUsuarioAdmin()">
+                        Ejecutar
+                    </button>
+                </td>
+            </tr>
+
+            <tr>
+                <td><b>Crear pista</b></td>
+                <td>Registrar una nueva pista</td>
+                <td>
+                    <button class="btn-admin" onclick="crearPista()">
+                        Ejecutar
+                    </button>
+                </td>
+            </tr>
+
+            <tr>
+                <td><b>Editar pista por ID</b></td>
+                <td>Modificar pista</td>
+                <td>
+                    <button class="btn-admin" onclick="editarPista()">
+                        Ejecutar
+                    </button>
+                </td>
+            </tr>
+
+            <tr>
+                <td><b>Eliminar pista por ID</b></td>
+                <td>Eliminar pista del sistema</td>
+                <td>
+                    <button class="btn-admin" onclick="eliminarPista()">
+                        Ejecutar
+                    </button>
+                </td>
+            </tr>
+
+            <tr>
+                <td><b>Ver reservas</b></td>
+                <td>Consultar reservas realizadas</td>
+                <td>
+                    <button class="btn-admin" onclick="cargarReservas()">
+                        Ejecutar
+                    </button>
+                </td>
+            </tr>
+
+            <tr>
+                <td><b>Ver reserva por ID</b></td>
+                <td>Consultar reserva concreta realizada</td>
+                <td>
+                    <button class="btn-admin" onclick="cargarReservaId()">
+                        Ejecutar
+                    </button>
+                </td>
+            </tr>
+
+            <tr>
+                <td><b>Borrar reserva por ID</b></td>
+                <td>Borrar reserva concreta realizada</td>
+                <td>
+                    <button class="btn-admin" onclick="borrarReservaId()">
+                        Ejecutar
+                    </button>
+                </td>
+            </tr>
+
+            <tr>
+                <td><b>Editar reserva por ID</b></td>
+                <td>Editar reserva concreta realizada</td>
+                <td>
+                    <button class="btn-admin" onclick="editarReservaId()">
+                        Ejecutar
+                    </button>
+                </td>
+            </tr>
+            
+
+        </tbody>
+    </table>
+    </div>
+
+    <!-- Panel que sustituirá la tabla de posibles acciones del ADMIN cuando se decida ejecutar una de ellas: -->
+    <div id="panelAccion" class="perfil-card admin-panel" style="display:none;">
+        <h2 id="tituloAccion">Acción</h2>
+        <div id="contenidoAccion"></div>
+        <div style="display:flex; gap:10px; margin-top:20px;">
+            
+        <button class="btn-cancelar" onclick="volverAtras()">
+            Volver atrás
+        </button>
+
+        <button class="btn-admin" onclick="ejecutarAccion()">
+            Guardar / Ejecutar / Mostrar
+        </button>
+    </div>
+
+    <!-- Cada acción se agrupará en tres paneles: Listado (getters), Formulario (crear/editar), Confirmación (eliminar) -->
+
+
+    </div>
+        
+    <!-- Mensaje de feedback -->
+    <div id="mensaje" style="display:none; text-align:center; margin:10px 0; font-weight:bold;"></div>
+
+    <!-- Botón de cerrar sesión -->
+    <div class="perfil-acciones">
+        <button class="btn-cancelar" onclick="cerrarSesion()">Cerrar sesión</button>
+    </div>
+
+    </div>
+
+    <footer class="footer">
+        <p>© 2026 ChisPadel- Pasión por el deporte</p>
+    </footer>
+
+    <script src="usuario.js"></script>
+    <script src="admin.js"></script>
+  </body>
+</html>
