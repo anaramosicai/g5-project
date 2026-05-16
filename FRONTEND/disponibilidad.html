@@ -169,56 +169,7 @@
         <p>© 2026 ChisPadel - Pasión por el deporte</p>
     </footer>
 
-    <script>
-        // Datos de ejemplo (se sustituirán por llamadas a la API cuando el backend esté listo)
-        const datosPistas = {
-            1: { nombre: 'Pista 1 - Cristal',  apertura: '08:00', cierre: '22:00', franjas: [{ inicio: '08:00', fin: '10:00' }, { inicio: '12:00', fin: '14:00' }, { inicio: '17:00', fin: '19:00' }] },
-            2: { nombre: 'Pista 2 - Cristal',  apertura: '08:00', cierre: '22:00', franjas: [{ inicio: '09:00', fin: '11:00' }, { inicio: '15:00', fin: '17:00' }] },
-            3: { nombre: 'Pista 3 - Cemento',  apertura: '08:00', cierre: '22:00', franjas: [] },
-            4: { nombre: 'Pista 4 - Cemento',  apertura: '08:00', cierre: '22:00', franjas: [{ inicio: '10:00', fin: '12:00' }, { inicio: '20:00', fin: '22:00' }] }
-        };
-
-        function mostrarResultados() {
-            document.getElementById('seccionTodasPistas').style.display = 'block';
-            document.getElementById('seccionDetalle').style.display = 'none';
-            document.getElementById('seccionTodasPistas').scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }
-
-        function mostrarDetalle(pistaId) {
-            const pista = datosPistas[pistaId];
-            const tieneFranjas = pista.franjas.length > 0;
-
-            document.getElementById('tituloDetalle').textContent = 'Detalle · ' + pista.nombre;
-
-            document.getElementById('metaDetalle').innerHTML = `
-                <span>Apertura: <strong>${pista.apertura}</strong></span>
-                <span>Cierre: <strong>${pista.cierre}</strong></span>
-                <span class="disp-estado ${tieneFranjas ? 'disp-disponible' : 'disp-ocupada'}">
-                    ${tieneFranjas ? 'Disponible' : 'Sin franjas libres'}
-                </span>
-            `;
-
-            const tbody = document.getElementById('tablaDetalle');
-            if (tieneFranjas) {
-                tbody.innerHTML = pista.franjas.map(f => `
-                    <tr>
-                        <td>${f.inicio}</td>
-                        <td>${f.fin}</td>
-                        <td><span class="estado-activa">Libre</span></td>
-                    </tr>
-                `).join('');
-            } else {
-                tbody.innerHTML = '<tr><td colspan="3" style="text-align:center; font-style:italic; color: var(--naranja);">No hay franjas libres para este día</td></tr>';
-            }
-
-            document.getElementById('seccionDetalle').style.display = 'block';
-            document.getElementById('seccionDetalle').scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }
-
-        function cerrarDetalle() {
-            document.getElementById('seccionDetalle').style.display = 'none';
-        }
-    </script>
+    <script src="disponibilidad.js"></script>
 
 </body>
 </html>

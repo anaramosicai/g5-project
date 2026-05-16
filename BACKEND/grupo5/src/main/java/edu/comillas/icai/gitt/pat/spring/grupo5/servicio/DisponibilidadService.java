@@ -92,6 +92,9 @@ public class DisponibilidadService {
     }
 
     public Disponibilidad crearDisponibilidad(Disponibilidad disponibilidad) {
-        return repoDisponibilidad.save(disponibilidad);
+    if (disponibilidad.getFranjasLibres() != null) {
+        disponibilidad.getFranjasLibres().forEach(f -> f.setDisponibilidad(disponibilidad));
+    }
+    return repoDisponibilidad.save(disponibilidad);
     }
 }

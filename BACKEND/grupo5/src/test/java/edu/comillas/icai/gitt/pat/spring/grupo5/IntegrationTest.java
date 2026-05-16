@@ -432,4 +432,69 @@ void disponibilidad_reservas_usuario_test() {
     assertThat(misReservas.size()).isEqualTo(1);
     assertThat(misReservas.get(0).usuario.getEmail()).isEqualTo("pepe@test.com");
 }
+@Test
+@DisplayName("Disponibilidad: Crear disponibilidad persiste en BD")
+void crearDisponibilidad_persisteEnBD() {
+    Long pistId = crearPistaPrueba();
+    Pista pista = repoPista.findById(pistId).get();
+    LocalDate fecha = LocalDate.of(2026, 6, 1);
+
+    Disponibilidad disp = new Disponibilidad(
+            pista, fecha,
+            LocalTime.of(8, 0), LocalTime.of(22, 0), null
+    );
+
+    repoDisponibilidad.save(disp);
+
+    Optional<Disponibilidad> encontrada = repoDisponibilidad.findById(disp.getId());
+    assertThat(encontrada.isPresent()).isTrue();
+    assertThat(encontrada.get().getFecha()).isEqualTo(fecha);
+}
+
+@Test
+@DisplayName("Disponibilidad: Buscar por pista y fecha devuelve resultado correcto")
+void disponibilidad_buscarPorPistaYFecha_ok() {
+    Long pistaId = crearPistaPrueba();
+    Pista pista = repoPista.findById(pistaId).get();
+    LocalDate fecha = LocalDate.of(2026, 6, 15);
+
+    repoDisponibilidad.save(new Disponibilidad(
+            pista, fecha,
+            LocalTime.of(8, 0), LocalTime.of(22, 0), null
+    ));
+
+    Optional<Disponibilidad> resultado = repoDisponibilidad.findByPista_IdAndFecha(pistaId, fecha);
+
+    assertThat(resultado.isPresent()).isTrue();
+    assertThat(resultado.get().getFecha()).isEqualTo(fecha);
+}
+
+@Test
+@DisplayName("Disponibilidad: Buscar por fecha inexistente devuelve lista vacía")
+void disponibilidad_buscarFechaInexistente_listaVacia() {
+    LocalDate fechaSinDatos = LocalDate.of(2099, 1, 1);
+
+    List<Disponibilidad> lista = repoDisponibilidad.findByFecha(fechaSinDatos);
+
+    assertThat(lista.size()).isEqualTo(0);
+}
+
+@Test
+@DisplayName("Disponibilidad: Borrar disponibilidad elimina de BD")
+void borrarDisponibilidad_eliminaDeBD() {
+    Long pistaId = crearPistaPrueba();
+    Pista pista = repoPista.findById(pistaId).get();
+
+    Disponibilidad disp = new Disponibilidad(
+            pista, LocalDate.of(2026, 7, 1),
+            LocalTime.of(8, 0), LocalTime.of(22, 0), null
+    );
+
+    repoDisponibilidad.save(disp);
+    Long id = disp.getId();
+
+    repoDisponibilidad.deleteById(id);
+
+    assertThat(repoDisponibilidad.findById(id).isPresent()).isFalse();
+}
 }
