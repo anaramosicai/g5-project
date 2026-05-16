@@ -20,19 +20,19 @@ window.onload = () => {
 
   if (!token) {
     alert("Please log in first");
-    document.body.innerHTML = "<h2>No user logged in</h2>";
+    window.location.href = "login.html";
     return;
   }
 
   if (userRol !== "ADMIN") {
     alert("Access denied: Admin only");
-    document.body.innerHTML = "<h2>No access</h2>";
+    window.location.href = "index.html";
     return;
   }
 
   loadCourts();
   setupEvents();
-};
+}; 
 // --------------------
 // EVENT LISTENERS
 // --------------------
@@ -41,6 +41,7 @@ function setupEvents() {
   document.querySelector(".pista-button").addEventListener("click", saveCourt);
 }
 let selectedCourtId = null;
+let courtsData = [];
 // --------------------
 // LOAD COURTS INTO DROPDOWN
 // --------------------
@@ -57,14 +58,16 @@ async function loadCourts() {
     }
 
     const courts = await res.json();
+    courtsData = courts;
 
     const select = document.getElementById("ID");
 
-    select.innerHTML = `<option value="">Selecciona una pista</option>`;
+    select.innerHTML = `<option value="">Selecciona una pista</option>
+    <option value="new"> Crear nueva pista</option>`;
 
     courts.forEach(court => {
       const option = document.createElement("option");
-      option.value = court.idPista;
+      option.value = court.id;
       option.textContent = `${court.nombre} - ${court.ubicacion}`;
       select.appendChild(option);
     });
@@ -77,43 +80,108 @@ async function loadCourts() {
 // WHEN USER SELECTS A COURT
 // --------------------
 async function onCourtSelect(e) {
+
   const id = e.target.value;
 
-  if (!id) {
-    clearForm();
+  console.log("SELECTED ID:", id);
+
+  // --------------------
+  // CREATE NEW COURT MODE
+  // --------------------
+  if (id === "new") {
     selectedCourtId = null;
+    clearForm();
+    return;
+  }
+
+  // --------------------
+  // NO SELECTION
+  // --------------------
+  if (!id) {
+    selectedCourtId = null;
+    clearForm();
     return;
   }
 
   try {
-    const res = await fetch(`${BASE_URL}/${id}`);
+
+    // --------------------
+    // FETCH COURT DATA
+    // --------------------
+    const res = await fetch(`${BASE_URL}/${id}`, {
+      method: "GET",
+      headers: {
+        "Authorization": `Bearer ${token}`
+      }
+    });
+
+    if (!res.ok) {
+      throw new Error(`HTTP ERROR: ${res.status}`);
+    }
+
     const court = await res.json();
 
+    console.log("COURT DATA:", court);
+
+    // --------------------
+    // SAVE SELECTED ID
+    // --------------------
     selectedCourtId = id;
 
-    document.getElementById("ubicacion").value = court.ubicacion || "";
-    document.getElementById("precio").value = court.precioHora || "";
-    document.getElementById("activa").value = court.activa ? "true" : "false";
-    document.getElementById("date").value = court.fechaAlta
-      ? court.fechaAlta.split("T")[0]
-      : "";
+    // --------------------
+    // FILL FORM
+    // --------------------
+    document.getElementById("nombre").value =
+      court.nombre || "";
+
+    document.getElementById("ubicacion").value =
+      court.ubicacion || "";
+
+    document.getElementById("precio").value =
+      court.precioHora || "";
+
+    document.getElementById("activa").value =
+      court.activa ? "true" : "false";
+
+    document.getElementById("date").value =
+      court.fechaAlta
+        ? court.fechaAlta.split("T")[0]
+        : "";
 
   } catch (err) {
+
     console.error("Error loading court:", err);
+
+    alert("Could not load court data");
   }
 }
-
 // --------------------
 // CREATE OR UPDATE COURT
 // --------------------
 async function saveCourt() {
 
+  const nombre = document.getElementById("nombre").value.trim();
+
   const data = {
+    nombre,
     ubicacion: document.getElementById("ubicacion").value,
     precioHora: parseFloat(document.getElementById("precio").value),
     activa: document.getElementById("activa").value === "true",
     fechaAlta: document.getElementById("date").value
   };
+
+  if (!selectedCourtId) {
+
+  const alreadyExists = courtsData.some(court =>
+    court.nombre &&
+    court.nombre.toLowerCase() === nombre.toLowerCase()
+  );
+
+  if (alreadyExists) {
+    alert("Already a court with this name. Choose another name for the court :)");
+    return;
+  }
+}
 
   try {
 
@@ -192,4 +260,14 @@ window.deleteCourt = async function () {
     console.error("Delete error:", err);
   }
 };
+
+document.addEventListener("DOMContentLoaded", () => {
+
+    const role = localStorage.getItem("userRol");
+    const adminBtn = document.getElementById("adminBtn");
+
+    if (role === "ADMIN" && adminBtn) {
+        adminBtn.style.display = "inline-block";
+    }
+});
 

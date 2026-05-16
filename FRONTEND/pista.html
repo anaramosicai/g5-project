@@ -11,6 +11,25 @@
   </head>
   <body>
 
+      <header class="navbar">
+        <div class="logo">
+            <a href="index.html">
+                <img src="Logo dinámico de ChisPadel con detalles.png" alt="Logo Padel Master">
+            </a>
+        </div>
+        <nav>
+            <ul>
+                <li><a href="index.html">Inicio</a></li>
+                <li><a href="reserva.html">Reservas</a></li>
+                <li><a href="disponibilidad.html">Disponibilidad</a></li>
+                <li><a href="registro.html">Registro</a></li>
+                <li><a href="perfil.html">Mi Perfil</a></li>
+                <li><a href="#">Contacto</a></li>
+            </ul>
+        </nav>
+    </header>
+
+
      <section class="hero">
         <div class="hero-overlay">
             <div class="hero-content">
@@ -36,6 +55,11 @@
   </div>
 
   <div class="pista-item">
+    <span class="label">Nombre:</span> 
+    <input type = "text" name = "Nombre" id="nombre" required/>
+  </div>
+
+  <div class="pista-item">
     <span class="label">Ubicación:</span> 
     <input type = "text" name = "Ubicación" id="ubicacion" required/>
   </div>
@@ -57,7 +81,7 @@
 
   
   <button class="pista-button">Guardar</button>
- <button onclick="deleteCourt()">Eliminar pista</button>
+ <button class="pista-delete-button"onclick="deleteCourt()">Eliminar pista</button>
 
 
 
