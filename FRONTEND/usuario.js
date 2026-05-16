@@ -22,8 +22,11 @@ function mostrarMensaje(texto, tipo) {
     }, 3000);
 }
 
+// ========================
+// REGISTER
+// ========================
 
-
+// Para el registro de usuarios:
 formRegister?.addEventListener("submit", async function (event){
     event.preventDefault();
 
@@ -87,6 +90,8 @@ formRegister?.addEventListener("submit", async function (event){
 // LOGIN
 // ========================
 
+// Una vez registrado el usuario, inicia sesión:
+
 const formLogin = document.getElementById("formLogin");
 if (formLogin) {
     formLogin.addEventListener("submit", async function (event) {
@@ -127,10 +132,21 @@ if (formLogin) {
                 const me = await meRes.json();
                 localStorage.setItem("userId", me.id);
                 localStorage.setItem("userRol", me.rol);
+
+                mostrarMensaje("¡Bienvenido!", "ok");
+                setTimeout(() => {
+                    // Redireccionamos según el rol:
+                    if (me.rol === "ADMIN") {
+                        window.location.href = "admin.html";
+                    } else {
+                        window.location.href = "index.html";
+                    }
+                }, 1000);
             }
 
-            mostrarMensaje("¡Bienvenido!", "ok");
-            setTimeout(() => { window.location.href = "index.html"; }, 1000);
+            // mostrarMensaje("¡Bienvenido!", "ok");
+            // setTimeout(() => { window.location.href = "index.html"; }, 1000);
+            
         } catch (error) {
             mostrarMensaje("Error al conectar con el servidor", "error");
         }
@@ -138,8 +154,11 @@ if (formLogin) {
 }
 
 
-// Esta función ponerla en un desplegable del menú "Ver Perfil".
-// Para que, una vez registrado, el usuario pueda ver su perfil:
+// Esta función utilizada en el desplegable del menú "Mi Perfil".
+/* 
+Para que, una vez registrado, el usuario pueda ver su perfil. De no 
+haber iniciado sesión, se redirigirá a login.html
+*/
 async function cargarPerfil() {
     const token = localStorage.getItem("token");
     const userId = localStorage.getItem("userId");
@@ -168,22 +187,29 @@ async function cargarPerfil() {
         const user = await response.json();
 
         // Mostramos los datos del usuario registrado:
-        document.getElementById("bienvenida").textContent =
-            `Bienvenido, ${user.nombre} ${user.apellidos}`;
+        document.getElementById("bienvenida").textContent = `Bienvenido, ${user.nombre} ${user.apellidos}`;
 
-        document.getElementById("email").textContent =
-            `Email: ${user.email}`;
+        document.getElementById("email").textContent = `Email: ${user.email}`;
 
         document.getElementById("perfil-telefono").textContent = user.telefono;
-        document.getElementById("perfil-rol").textContent      = user.rol;
-        document.getElementById("perfil-fecha").textContent    =
-            user.fechaRegistro ? user.fechaRegistro.substring(0, 10) : "—";
+        document.getElementById("perfil-rol").textContent = user.rol;
+        document.getElementById("perfil-fecha").textContent = user.fechaRegistro ? user.fechaRegistro.substring(0, 10) : "—";
 
-        // Pre-rellenar el formulario de edición con los datos actuales
-        document.getElementById("edit-nombre").value    = user.nombre;
-        document.getElementById("edit-apellidos").value = user.apellidos || "";
-        document.getElementById("edit-email").value     = user.email;
-        document.getElementById("edit-telefono").value  = user.telefono;
+        // // Pre-rellenar el formulario de edición con los datos actuales
+        // document.getElementById("edit-nombre").value    = user.nombre;
+        // document.getElementById("edit-apellidos").value = user.apellidos || "";
+        // document.getElementById("edit-email").value     = user.email;
+        // document.getElementById("edit-telefono").value  = user.telefono;
+
+        // Solo si existe el formulario de edición
+        const editNombre = document.getElementById("edit-nombre");
+
+        if (editNombre) {
+            document.getElementById("edit-nombre").value    = user.nombre;
+            document.getElementById("edit-apellidos").value = user.apellidos || "";
+            document.getElementById("edit-email").value     = user.email;
+            document.getElementById("edit-telefono").value  = user.telefono;
+        }
 
     } catch (error) {
         alert("Error cargando perfil");
@@ -293,8 +319,11 @@ async function cerrarSesion() {
     }
 }
 
+
+
 // Cargar al abrir perfil.html
 if (document.getElementById("bienvenida")) {
     window.addEventListener("DOMContentLoaded", cargarPerfil);
 }
+
 
