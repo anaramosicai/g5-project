@@ -270,4 +270,3 @@ document.addEventListener("DOMContentLoaded", () => {
         adminBtn.style.display = "inline-block";
     }
 });
-

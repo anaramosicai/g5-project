@@ -1,0 +1,64 @@
+
+<!DOCTYPE html>
+<html lang="es">
+
+  <head>
+    <title>Pista</title> 
+    <meta charset = "utf-8">
+    <meta name = "viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="index.css"> 
+  </head>
+  <body>
+
+      <header class="navbar">
+        <div class="logo">
+            <a href="index.html">
+                <img src="Logo dinámico de ChisPadel con detalles.png" alt="Logo Padel Master">
+            </a>
+        </div>
+        <nav>
+            <ul>
+                <li><a href="index.html">Inicio</a></li>
+                <li><a href="reserva.html">Reservas</a></li>
+                <li><a href="disponibilidad.html">Disponibilidad</a></li>
+                <li><a href="registro.html">Registro</a></li>
+                <li><a href="perfil.html">Mi Perfil</a></li>
+                <li><a href="#">Contacto</a></li>
+            </ul>
+        </nav>
+    </header>
+
+
+     <section class="hero">
+        <div class="hero-overlay">
+            <div class="hero-content">
+                <h1>Las pistas de pádel</h1>
+                <p>Crea tu pista de pádel aquí</p>
+            </div>
+        </div>
+    </section>
+    <a>
+         <img src=https://skypadel.com/wp-content/uploads/2023/05/pista-pro-padel-league-2-1-1080x675.jpg
+         alt="Foto de una pista"
+         style="width: 100%; height: auto;">
+    </a>
+
+    <div id="courtsContainer"></div>
+    <div id="courtDetails"></div>
+
+    <div class="pista-item">
+    <span class="label">ID:</span> 
+     <select id="allPistasDropdown">
+    <option value="">Selecciona una pista para ver los detalles</option>
+</select>
+  </div>
+
+  
+  <button class="pista-see-all-button" onclick="seeAllCourts()">See all pistas</button>
+ <button class="pista-see-details-button" onclick="seeDetails()">See details for pista with ID</button>
+
+
+
+<script src="todosPistas.js"></script>
+
+</body>

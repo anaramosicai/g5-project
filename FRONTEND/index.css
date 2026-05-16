@@ -867,6 +867,15 @@ body {
     border-radius: 8px;
 }
 
+
+#allPistasDropdown {
+    width: 100%; /* ocupan todo el ancho del cuadro */
+    padding: 10px 12px;
+    font-size: 1rem;
+    border: 2px solid var(--azul-medio-oscuro);
+    border-radius: 8px;
+}
+
 .pista-item input {
     width: 100%; /* ocupan todo el ancho del cuadro */
     padding: 10px 12px;
@@ -908,6 +917,38 @@ body {
     margin: 10px auto;
     display: block;
 }
+
+
+.pista-see-all-button{
+    width: 100%;
+    font-size: 1.1rem;
+    font-weight: bold;
+    background-color: var(--verde-lima);
+    border: none;
+    border-radius: 10px;
+    color: var(--azul-oscuro);
+    cursor: pointer;
+    padding: 12px 20px;
+    margin: 10px auto;
+    display: block;
+}
+
+
+.pista-see-details-button{
+    width: 100%;
+    font-size: 1.1rem;
+    font-weight: bold;
+    background-color: var(--verde-lima);
+    border: none;
+    border-radius: 10px;
+    color: var(--azul-oscuro);
+    cursor: pointer;
+    padding: 12px 20px;
+    margin: 10px auto;
+    display: block;
+}
+
+
 /* --- PERFIL.HTML --- */
 
 .perfil-container {

@@ -330,7 +330,9 @@ function editarUsuarioAdmin() {
 // ============== ACCIONES RELATIVAS A PISTAS ==============
 
 function crearPista() {
+    window.location.href = "pista.html";
     console.log("Creando pista...");
+
 }
 
 function editarPista() {
