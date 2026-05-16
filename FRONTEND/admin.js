@@ -322,17 +322,160 @@ async function ejecutarBusquedaUsuario() {
 }
 
 function editarUsuarioAdmin() {
-    // For u Ana
-    console.log("Editando usuario...");
+    accionActual = "usuario-editar";
+
+    document.getElementById("panelAcciones").style.display = "none";
+    document.getElementById("panelAccion").style.display  = "block";
+
+    document.getElementById("tituloAccion").textContent = "Editar usuario por ID";
+    document.getElementById("contenidoAccion").innerHTML = `
+        <div class="admin-search-bar">
+            <input id="inputEditarUserId" type="number" min="1" placeholder="Introduce el ID del usuario" />
+            <button class="btn-admin" onclick="cargarDatosParaEditar()">🔍 Cargar datos</button>
+        </div>
+
+        <div id="formEdicionAdmin" style="display:none;">
+            <div class="perfil-card" style="margin-top:20px;">
+                <h3 style="color:var(--azul-oscuro); margin-bottom:8px;">Modificar datos</h3>
+                <p style="font-size:0.85rem; color:var(--azul-medio-oscuro); margin-bottom:18px;">
+                    Rellena solo los campos que quieras cambiar.
+                </p>
+                <div class="admin-edit-form">
+                    <label>Nombre</label>
+                    <input id="edit-admin-nombre"    type="text"     placeholder="Nombre" />
+                    <label>Apellidos</label>
+                    <input id="edit-admin-apellidos" type="text"     placeholder="Apellidos" />
+                    <label>Email</label>
+                    <input id="edit-admin-email"     type="email"    placeholder="Email" />
+                    <label>Teléfono</label>
+                    <input id="edit-admin-telefono"  type="text"     placeholder="Teléfono" />
+                    <label>Nueva contraseña <span style="font-weight:normal; font-size:0.82rem;">(opcional)</span></label>
+                    <input id="edit-admin-password"  type="password" placeholder="Nueva contraseña" />
+                    <label>Confirmar contraseña</label>
+                    <input id="edit-admin-confirmar" type="password" placeholder="Confirmar contraseña" />
+                </div>
+                <button class="btn-admin" style="margin-top:20px;" onclick="guardarCambiosUsuario()">
+                    💾 Guardar cambios
+                </button>
+            </div>
+        </div>
+    `;
+}
+
+async function cargarDatosParaEditar() {
+    const userId = document.getElementById("inputEditarUserId")?.value?.trim();
+    if (!userId) {
+        mostrarMensaje("Introduce un ID de usuario", "error");
+        return;
+    }
+
+    const token = localStorage.getItem("token");
+
+    try {
+        const res = await fetch(`${baseUrlAdmin}/pistaPadel/users/${userId}`, {
+            headers: { "Authorization": "Bearer " + token }
+        });
+
+        if (res.status === 404) {
+            mostrarMensaje(`No se encontró ningún usuario con ID ${userId}`, "error");
+            return;
+        }
+        if (res.status === 403) {
+            mostrarMensaje("No tienes permiso para editar este usuario", "error");
+            return;
+        }
+        if (!res.ok) {
+            mostrarMensaje("Error al cargar los datos del usuario", "error");
+            return;
+        }
+
+        const user = await res.json();
+
+        document.getElementById("edit-admin-nombre").value    = user.nombre    ?? "";
+        document.getElementById("edit-admin-apellidos").value = user.apellidos ?? "";
+        document.getElementById("edit-admin-email").value     = user.email     ?? "";
+        document.getElementById("edit-admin-telefono").value  = user.telefono  ?? "";
+        document.getElementById("edit-admin-password").value  = "";
+        document.getElementById("edit-admin-confirmar").value = "";
+
+        document.getElementById("formEdicionAdmin").style.display = "block";
+
+    } catch (error) {
+        mostrarMensaje("Error al conectar con el servidor", "error");
+    }
+}
+
+async function guardarCambiosUsuario() {
+    const userId = document.getElementById("inputEditarUserId")?.value?.trim();
+    if (!userId) {
+        mostrarMensaje("Introduce un ID de usuario", "error");
+        return;
+    }
+
+    const nombre    = document.getElementById("edit-admin-nombre").value.trim();
+    const apellidos = document.getElementById("edit-admin-apellidos").value.trim();
+    const email     = document.getElementById("edit-admin-email").value.trim();
+    const telefono  = document.getElementById("edit-admin-telefono").value.trim();
+    const password  = document.getElementById("edit-admin-password").value.trim();
+    const confirmar = document.getElementById("edit-admin-confirmar").value.trim();
+
+    if (password && password !== confirmar) {
+        mostrarMensaje("Las contraseñas no coinciden", "error");
+        return;
+    }
+
+    const cambios = {};
+    if (nombre)    cambios.nombre    = nombre;
+    if (apellidos) cambios.apellidos = apellidos;
+    if (email)     cambios.email     = email;
+    if (telefono)  cambios.telefono  = telefono;
+    if (password)  cambios.password  = password;
+
+    if (Object.keys(cambios).length === 0) {
+        mostrarMensaje("No hay cambios que guardar", "error");
+        return;
+    }
+
+    const token = localStorage.getItem("token");
+
+    try {
+        const res = await fetch(`${baseUrlAdmin}/pistaPadel/users/${userId}`, {
+            method: "PATCH",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer " + token
+            },
+            body: JSON.stringify(cambios)
+        });
+
+        if (res.status === 409) {
+            mostrarMensaje("El email ya está en uso por otra cuenta", "error");
+            return;
+        }
+        if (res.status === 404) {
+            mostrarMensaje("Usuario no encontrado", "error");
+            return;
+        }
+        if (!res.ok) {
+            mostrarMensaje("Error al actualizar el usuario", "error");
+            return;
+        }
+
+        mostrarMensaje("Usuario actualizado correctamente", "ok");
+        document.getElementById("edit-admin-password").value  = "";
+        document.getElementById("edit-admin-confirmar").value = "";
+        setTimeout(() => cargarDatosParaEditar(), 1500);
+
+    } catch (error) {
+        mostrarMensaje("Error al conectar con el servidor", "error");
+    }
 }
 
 
 // ============== ACCIONES RELATIVAS A PISTAS ==============
 
 function crearPista() {
-    window.location.href = "pista.html";
     console.log("Creando pista...");
-
 }
 
 function editarPista() {

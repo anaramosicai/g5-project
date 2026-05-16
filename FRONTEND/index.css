@@ -1123,3 +1123,33 @@ body {
     font-weight: bold;
     margin-top: 10px;
 }
+
+/* --- FORMULARIO EDICIÓN ADMIN --- */
+
+.admin-edit-form {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.admin-edit-form label {
+    font-weight: 600;
+    color: var(--azul-oscuro);
+    margin-top: 10px;
+    font-size: 0.95rem;
+}
+
+.admin-edit-form input {
+    padding: 10px 12px;
+    font-size: 1rem;
+    border: 2px solid var(--azul-medio-oscuro);
+    border-radius: 8px;
+    font-family: 'Poppins', sans-serif;
+    width: 100%;
+}
+
+.admin-edit-form input:focus {
+    border-color: var(--verde-lima);
+    box-shadow: 0 0 5px var(--verde-lima);
+    outline: none;
+}
