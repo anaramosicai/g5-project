@@ -1,0 +1,3 @@
+2026-05-16 22:39:25.578926+02:00 jdbc[13]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "DISPONIBILIDAD$FRANJA_DISPONIBLE" not found (candidates are: "disponibilidad$franja_disponible"); SQL statement:
+DELETE FROM "DISPONIBILIDAD$FRANJA_DISPONIBLE" [42103-232]
