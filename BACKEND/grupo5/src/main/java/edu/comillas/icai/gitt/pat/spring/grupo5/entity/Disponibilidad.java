@@ -5,6 +5,8 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 @Entity
 public class Disponibilidad {
 
@@ -65,6 +67,7 @@ public class Disponibilidad {
         @GeneratedValue(strategy = GenerationType.IDENTITY)
         private Long id;
 
+        @JsonIgnore     
         @ManyToOne
         @JoinColumn(name = "disponibilidad_id", nullable = false)
         private Disponibilidad disponibilidad;
