@@ -1,0 +1,24 @@
+2026-05-16 21:17:56.170377+02:00 jdbc[55]: null
+org.h2.message.DbException: La conexión no fue cerrada por la aplicación y esta siendo limpiada (garbage collected)
+The connection was not closed by the application and is garbage collected [90018-232]
+	at org.h2.message.DbException.get(DbException.java:223)
+	at org.h2.message.DbException.get(DbException.java:199)
+	at org.h2.message.DbException.get(DbException.java:188)
+	at org.h2.jdbc.JdbcConnection.closeOld(JdbcConnection.java:217)
+	at org.h2.jdbc.JdbcConnection.<init>(JdbcConnection.java:134)
+	at org.h2.Driver.connect(Driver.java:59)
+	at com.zaxxer.hikari.util.DriverDataSource.getConnection(DriverDataSource.java:139)
+	at com.zaxxer.hikari.pool.PoolBase.newConnection(PoolBase.java:368)
+	at com.zaxxer.hikari.pool.PoolBase.newPoolEntry(PoolBase.java:205)
+	at com.zaxxer.hikari.pool.HikariPool.createPoolEntry(HikariPool.java:483)
+	at com.zaxxer.hikari.pool.HikariPool$PoolEntryCreator.call(HikariPool.java:747)
+	at com.zaxxer.hikari.pool.HikariPool$PoolEntryCreator.call(HikariPool.java:726)
+	at java.base/java.util.concurrent.FutureTask.run(FutureTask.java:317)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)
+	at java.base/java.lang.Thread.run(Thread.java:1575)
+Caused by: org.h2.jdbc.JdbcSQLNonTransientConnectionException: La conexión no fue cerrada por la aplicación y esta siendo limpiada (garbage collected)
+The connection was not closed by the application and is garbage collected [90018-232]
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:690)
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:489)
+	... 16 more
