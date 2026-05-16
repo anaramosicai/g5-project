@@ -323,6 +323,13 @@ body {
     color:  rgba(46, 114, 157);
   }
 
+#mensaje {
+    display: none;
+    text-align: center;
+    margin: 20px auto;
+    font-weight: bold;
+    width: 100%;
+}
 
 /* --- RESERVA.HTML --- */
 
