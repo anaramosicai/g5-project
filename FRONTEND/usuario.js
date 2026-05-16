@@ -189,7 +189,7 @@ async function cargarPerfil() {
         // Mostramos los datos del usuario registrado:
         document.getElementById("bienvenida").textContent = `Bienvenido, ${user.nombre} ${user.apellidos}`;
 
-        document.getElementById("email").textContent = `Email: ${user.email}`;
+        document.getElementById("email").textContent = `${user.email}`;
 
         document.getElementById("perfil-telefono").textContent = user.telefono;
         document.getElementById("perfil-rol").textContent = user.rol;
