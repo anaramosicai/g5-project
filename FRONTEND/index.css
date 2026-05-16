@@ -854,7 +854,13 @@ body {
     color: var(--azul-oscuro);
 }
 
-
+#ID {
+    width: 100%; /* ocupan todo el ancho del cuadro */
+    padding: 10px 12px;
+    font-size: 1rem;
+    border: 2px solid var(--azul-medio-oscuro);
+    border-radius: 8px;
+}
 
 .pista-item input {
     width: 100%; /* ocupan todo el ancho del cuadro */

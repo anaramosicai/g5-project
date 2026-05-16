@@ -1,3 +1,5 @@
+
+
 <!DOCTYPE html>
 <html lang="es">
 
@@ -24,16 +26,18 @@
     </a>
 
     <div class="pista-box">
-  <h2>Pista</h2>
+  <h2>Pista - only ADMIN can change here</h2>
 
   <div class="pista-item">
     <span class="label">ID:</span> 
-     <input type="text" name="ID" id="ID" required />
+     <select id="ID">
+    <option value="">Selecciona una pista</option>
+</select>
   </div>
 
   <div class="pista-item">
     <span class="label">Ubicación:</span> 
-    <input type = "text" name = "Ubicación" id="ubicación" required/>
+    <input type = "text" name = "Ubicación" id="ubicacion" required/>
   </div>
 
   <div class="pista-item">
@@ -51,11 +55,15 @@
     <input type = "date" name = "date" id="date" required/>
   </div>
 
+  
   <button class="pista-button">Guardar</button>
+ <button onclick="deleteCourt()">Eliminar pista</button>
 
 
-</div>
 
+
+
+<script src="pista.js"></script>
 </body>
 </html>
 
