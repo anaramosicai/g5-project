@@ -34,7 +34,7 @@ En PostMan, dicho primer registro usaría un JSON como este:
 
 
 ---
-### Datos de disponibilidad
+# Datos de disponibilidad (información adicional práctica)
 
 Para la parte de disponibilidad, donde se trabajó con entidad. No se implementó directamente en Frontend el POST del mismo, por lo que para trabajar con la disponibilidad de las pistas, se optó por su creación directa en base de datos.
 
@@ -47,5 +47,20 @@ En Postman, la creación de una pista se implementó de la siguiente forma:
     "cierre": "22:00:00"
 }
 ```
+
 De otra forma, se podrán crear mediante 'H2 Console'.
+En caso de realizarse por consola, se deberá crear, por un lado la disponibilidad y por otro lado la franja disponible ligada a cada una.
+La información se puede introducir siguiendo el siguiente JSON (que también puede introducirse en Postman) de ejemplo:
+```json
+{
+  "pista": { "id": 1 },
+  "fecha": "2026-05-20",
+  "apertura": "08:00:00",
+  "cierre": "22:00:00",
+  "franjasLibres": [
+    { "inicio": "08:00:00", "fin": "10:00:00" },
+    { "inicio": "14:00:00", "fin": "16:00:00" }
+  ]
+}
+```
 
