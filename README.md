@@ -30,3 +30,4 @@ En PostMan, dicho primer registro usaría un JSON como este:
 }
 ```
 
+**Nota adicional**: Dentro de la base de datos ya creada, existe un usuario ADMIN ('Martina'). Cuya contraseña no cifrada es 'holahola'. Por si se quisiera trabajar con ese usuario ADMIN en lugar de crear uno nuevo. En caso de querer trabajar con un usuario con rol USER, registrar con los datos indicados al principio y hacer el 'login' del mismo.
