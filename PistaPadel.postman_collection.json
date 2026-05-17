@@ -1,0 +1,924 @@
+{
+  "info": {
+    "_postman_id": "ecb606d8-4fab-4a35-8210-f747034f0a14",
+    "name": "PistaPadel",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "51639212",
+    "_collection_link": "https://go.postman.co/collection/51639212-ecb606d8-4fab-4a35-8210-f747034f0a14?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "http://localhost:8080/pistaPadel/auth/register",
+      "request": {
+        "auth": {
+          "type": "noauth"
+        },
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "",
+            "type": "text",
+            "disabled": true
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"nombre\": \"Valeria\",\r\n  \"apellidos\": \"Ortiz\",\r\n  \"email\": \"valeria@gmail.com\",\r\n  \"password\": \"123456\",\r\n  \"telefono\": \"987\"\r\n}\r\n",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8080/pistaPadel/auth/register",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "pistaPadel",
+            "auth",
+            "register"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "http://localhost:8080/pistaPadel/auth/login",
+      "request": {
+        "auth": {
+          "type": "noauth"
+        },
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "",
+            "type": "text",
+            "disabled": true
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"email\": \"valeria@gmail.com\",\r\n  \"password\": \"112233\"\r\n}\r\n",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8080/pistaPadel/auth/login",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "pistaPadel",
+            "auth",
+            "login"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "http://localhost:8080/pistaPadel/auth/logout",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "192c96dd-3bd1-49c6-91cc-f2e79db99be0",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "",
+            "type": "text",
+            "disabled": true
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"email\": \"martina@gmail.com\",\r\n  \"password\": \"123456\"\r\n}\r\n",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8080/pistaPadel/auth/logout",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "pistaPadel",
+            "auth",
+            "logout"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "http://localhost:8080/pistaPadel/auth/me",
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "927884e4-fbd4-4fb4-9433-13e53ece4a0d",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "",
+            "type": "text",
+            "disabled": true
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": ""
+        },
+        "url": {
+          "raw": "http://localhost:8080/pistaPadel/auth/me",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "pistaPadel",
+            "auth",
+            "me"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "http://localhost:8080/pistaPadel/users",
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "auth": {
+          "type": "basic",
+          "basic": [
+            {
+              "key": "password",
+              "value": "clave",
+              "type": "string"
+            },
+            {
+              "key": "username",
+              "value": "admin",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "",
+            "type": "text",
+            "disabled": true
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8080/pistaPadel/users",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "pistaPadel",
+            "users"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "http://localhost:8080/pistaPadel/users/1",
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "68c5667b-8410-45fa-a662-324a9924d209",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "",
+            "type": "text",
+            "disabled": true
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": ""
+        },
+        "url": {
+          "raw": "http://localhost:8080/pistaPadel/users/2",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "pistaPadel",
+            "users",
+            "2"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "http://localhost:8080/pistaPadel/users/1",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "1b284486-05c7-4a81-8b73-a348345c15b9",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "",
+            "type": "text",
+            "disabled": true
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"nombre\": \"Valeria\",\r\n  \"apellidos\": \"Ortiz\",\r\n  \"email\": \"valeria@gmail.com\",\r\n  \"password\": \"112233\",\r\n  \"telefono\": \"123\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8080/pistaPadel/users/4",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "pistaPadel",
+            "users",
+            "4"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "http://localhost:8080/pistaPadel/courts",
+      "request": {
+        "auth": {
+          "type": "basic",
+          "basic": [
+            {
+              "key": "password",
+              "value": "clave",
+              "type": "string"
+            },
+            {
+              "key": "username",
+              "value": "admin",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"nombre\": \"Pista Central\",\r\n  \"ubicacion\": \"Madrid - Centro Deportivo Norte\",\r\n  \"precioHora\": 25,\r\n  \"activa\": true\r\n}\r\n",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8080/pistaPadel/courts",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "pistaPadel",
+            "courts"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "http://localhost:8080/pistaPadel/courts",
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "auth": {
+          "type": "basic",
+          "basic": [
+            {
+              "key": "username",
+              "value": "usuario",
+              "type": "string"
+            },
+            {
+              "key": "password",
+              "value": "clave",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8080/pistaPadel/courts",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "pistaPadel",
+            "courts"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "http://localhost:8080/pistaPadel/courts/1",
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "auth": {
+          "type": "basic",
+          "basic": [
+            {
+              "key": "username",
+              "value": "usuario",
+              "type": "string"
+            },
+            {
+              "key": "password",
+              "value": "clave",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8080/pistaPadel/courts/1",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "pistaPadel",
+            "courts",
+            "1"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "http://localhost:8080/pistaPadel/courts/1",
+      "request": {
+        "auth": {
+          "type": "basic",
+          "basic": [
+            {
+              "key": "password",
+              "value": "clave",
+              "type": "string"
+            },
+            {
+              "key": "username",
+              "value": "admin",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "PATCH",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"nombre\": \"Pista Real Central\",\r\n  \"ubicacion\": \"Madrid - Centro Deportivo Norte\",\r\n  \"precioHora\": 45,\r\n  \"activa\": true\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8080/pistaPadel/courts/1",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "pistaPadel",
+            "courts",
+            "1"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "http://localhost:8080/pistaPadel/courts/1",
+      "request": {
+        "auth": {
+          "type": "basic",
+          "basic": [
+            {
+              "key": "username",
+              "value": "admin",
+              "type": "string"
+            },
+            {
+              "key": "password",
+              "value": "clave",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8080/pistaPadel/courts/1",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "pistaPadel",
+            "courts",
+            "1"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "http://localhost:8080/pistaPadel/availability",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "3dc9af35-06b8-4295-8827-fe29122d0b8f",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"pista\":{\"id\":2},\r\n    \"fecha\": \"2025-06-01\",\r\n    \"apertura\": \"08:00:00\",\r\n    \"cierre\": \"22:00:00\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8080/pistaPadel/availability",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "pistaPadel",
+            "availability"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "http://localhost:8080/pistaPadel/availability",
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "98289084-71d2-4877-acf5-a9cbb34f5a3f",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8080/pistaPadel/availability?date=2025-06-01&courtId=2",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "pistaPadel",
+            "availability"
+          ],
+          "query": [
+            {
+              "key": "date",
+              "value": "2025-06-01",
+              "type": "text"
+            },
+            {
+              "key": "courtId",
+              "value": "2",
+              "type": "text"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "http://localhost:8080/pistaPadel/courts/2/availability",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "2d4f8e60-aa87-4ef3-a112-fb3881d8e10e",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8080/pistaPadel/courts/2/availability?date=2025-06-01",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "pistaPadel",
+            "courts",
+            "2",
+            "availability"
+          ],
+          "query": [
+            {
+              "key": "date",
+              "value": "2025-06-01",
+              "type": "text"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "http://localhost:8080/pistaPadel/reservations",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "3f392642-5e0f-400b-a82f-ed2ca196c36c",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"pista\": {\r\n        \"id\": 2\r\n    },\r\n    \"usuario\": {\r\n        \"id\": 4\r\n    },\r\n\r\n    \"inicio\": \"2026-03-29T10:00:00\",\r\n    \"fin\": \"2026-03-29T11:00:00\",\r\n    \"fechaReservada\": \"2026-03-28T22:15:00\",\r\n    \"duracionMinutos\": 60,\r\n    \"estado\": \"ACTIVA\"\r\n}\r\n",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8080/pistaPadel/reservations",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "pistaPadel",
+            "reservations"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "http://localhost:8080/pistaPadel/reservations",
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "5eacd243-6343-41be-b613-8b150facb427",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8080/pistaPadel/reservations",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "pistaPadel",
+            "reservations"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "http://localhost:8080/pistaPadel/reservations/1",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "2bf64faa-2b56-43dc-8dc5-bc617681982a",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8080/pistaPadel/reservations/1",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "pistaPadel",
+            "reservations",
+            "1"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "http://localhost:8080/pistaPadel/reservations/1",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "2a659e05-53b2-4ff5-8d43-3abec808925e",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8080/pistaPadel/reservations/1",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "pistaPadel",
+            "reservations",
+            "1"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "http://localhost:8080/pistaPadel/reservations/2",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "36255946-0587-4b6c-bca6-3df32dc8bb39",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "PATCH",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"pista\": {\r\n        \"id\": 2\r\n    },\r\n    \"usuario\": {\r\n        \"id\": 4\r\n    },\r\n\r\n    \"inicio\": \"2026-03-29T10:00:00\",\r\n    \"fin\": \"2026-03-29T11:00:00\",\r\n    \"fechaReservada\": \"2026-03-28T22:15:00\",\r\n    \"duracionMinutos\": 90,\r\n    \"estado\": \"ACTIVA\"\r\n}\r\n",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8080/pistaPadel/reservations/2",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "pistaPadel",
+            "reservations",
+            "2"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "http://localhost:8080/pistaPadel/admin",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "0dca69d6-c66b-4318-94f3-3f61e482d2d4",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "dcc6ee0e-d2ba-414e-8c2a-c76e365c490a",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "http://localhost:8080/pistaPadel/admin/reservations",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "pistaPadel",
+            "admin",
+            "reservations"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "http://localhost:8080/pistaPadel/health",
+      "request": {
+        "auth": {
+          "type": "noauth"
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8080/pistaPadel/health",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "pistaPadel",
+            "health"
+          ]
+        }
+      },
+      "response": []
+    }
+  ]
+}
