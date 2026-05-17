@@ -9,7 +9,7 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.dao.DataIntegrityViolationException;
 
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 
@@ -265,46 +265,6 @@ class IntegrationTest {
      * Test de integración del endpoint RESERVAS
      */
 
-    /*
-    @Test
-    @DisplayName("Crear reserva persiste en BD")
-    void crearReserva_persisteEnBD() {
-        // Crear pista
-        Long courtId = crearPistaPrueba();
-        Pista pista = repoPista.findById(courtId).orElseThrow();
-
-        // Crear usuario
-        Usuario usuario = new Usuario(null, "User1", "Test", "user1@test.com", "pwd", "123456", NombreRol.USER, LocalDateTime.now(), true);
-        repoUsuario.save(usuario);
-
-        assertThat(repoReserva.count()).isEqualTo(0);
-
-        // Crear reserva
-        LocalDateTime inicio = LocalDateTime.of(2026, 9, 10, 16, 0);
-        LocalDateTime fin = LocalDateTime.of(2026, 9, 10, 17, 0);
-
-        Reserva reserva = new Reserva();
-        reserva.usuario = usuario;
-        reserva.pista = pista;
-        reserva.inicio = inicio;
-        reserva.fin = fin;
-        reserva.fechaReservada = LocalDateTime.now();
-        reserva.duracionMinutos = 60;
-        reserva.estado = EstadoReserva.ACTIVA;
-        reserva.fechaCreacion = LocalDateTime.now();
-
-        Reserva guardada = repoReserva.save(reserva);
-
-        // Verificar que la reserva está en la BD
-        assertThat(repoReserva.count()).isEqualTo(1);
-
-        Optional<Reserva> reservaEnBD = repoReserva.findById(guardada.reservationId);
-        assertThat(reservaEnBD).isPresent();
-        assertThat(reservaEnBD.get().usuario.getId()).isEqualTo(1L);
-        assertThat(reservaEnBD.get().pista.id).isEqualTo(courtId);
-        assertThat(reservaEnBD.get().inicio).isEqualTo(inicio);
-    }
-    */
     @Test
     @DisplayName("Reprogramar reserva actualiza persistencia")
     void reprogramarReserva_actualizaPersistencia() {
@@ -432,8 +392,7 @@ void disponibilidad_reservas_usuario_test() {
     assertThat(misReservas.size()).isEqualTo(1);
     assertThat(misReservas.get(0).usuario.getEmail()).isEqualTo("pepe@test.com");
 }
-
-    @Test
+ @Test
     void crearDisponibilidad_persisteEnBD() {
         Long pistId = crearPistaPrueba();
         Pista pista = repoPista.findById(pistId).get();
@@ -505,13 +464,13 @@ void disponibilidad_reservas_usuario_test() {
         
         Pista pista1 = repoPista.findById(pistaId1).orElseThrow();
         Pista pista2 = repoPista.findById(pistaId2).orElseThrow();
-    
+
         // Crear usuarios
         Usuario usuario1 = new Usuario(null, "Carlos", "López", "carlos@test.com", "pwd", "123456", NombreRol.USER, LocalDateTime.now(), true);
         Usuario usuario2 = new Usuario(null, "Diana", "García", "diana@test.com", "pwd", "123456", NombreRol.USER, LocalDateTime.now(), true);
         repoUsuario.save(usuario1);
         repoUsuario.save(usuario2);
-    
+
         // Crear 2 reservas en pista1 y 1 en pista2
         Reserva r1 = new Reserva();
         r1.usuario = usuario1;
@@ -523,7 +482,7 @@ void disponibilidad_reservas_usuario_test() {
         r1.estado = EstadoReserva.ACTIVA;
         r1.fechaCreacion = LocalDateTime.now();
         repoReserva.save(r1);
-    
+
         Reserva r2 = new Reserva();
         r2.usuario = usuario2;
         r2.pista = pista1;
@@ -534,7 +493,7 @@ void disponibilidad_reservas_usuario_test() {
         r2.estado = EstadoReserva.ACTIVA;
         r2.fechaCreacion = LocalDateTime.now();
         repoReserva.save(r2);
-    
+
         Reserva r3 = new Reserva();
         r3.usuario = usuario1;
         r3.pista = pista2;
@@ -545,14 +504,14 @@ void disponibilidad_reservas_usuario_test() {
         r3.estado = EstadoReserva.ACTIVA;
         r3.fechaCreacion = LocalDateTime.now();
         repoReserva.save(r3);
-    
+
         // Buscar reservas de pista1
         List<Reserva> reservasPista1 = repoReserva.findByPista_Id(pistaId1);
         
         assertThat(reservasPista1).hasSize(2);
         reservasPista1.forEach(r -> assertThat(r.pista.id).isEqualTo(pistaId1));
     }
-    
+
     @Test
     @DisplayName("Cambiar estado de reserva a CANCELADA")
     void cambiarEstadoReserva_a_CANCELADA() {
@@ -562,7 +521,7 @@ void disponibilidad_reservas_usuario_test() {
         
         Usuario usuario = new Usuario(null, "Elena", "Martín", "elena@test.com", "pwd", "123456", NombreRol.USER, LocalDateTime.now(), true);
         repoUsuario.save(usuario);
-    
+
         // Crear reserva activa
         Reserva reserva = new Reserva();
         reserva.usuario = usuario;
@@ -576,22 +535,22 @@ void disponibilidad_reservas_usuario_test() {
         
         Reserva reservaGuardada = repoReserva.save(reserva);
         Long reservaId = reservaGuardada.reservationId;
-    
+
         // Verificar que está ACTIVA
         Optional<Reserva> reservaActiva = repoReserva.findById(reservaId);
         assertThat(reservaActiva).isPresent();
         assertThat(reservaActiva.get().estado).isEqualTo(EstadoReserva.ACTIVA);
-    
+
         // Cambiar estado a CANCELADA
         reservaGuardada.estado = EstadoReserva.CANCELADA;
         repoReserva.save(reservaGuardada);
-    
+
         // Verificar que ahora está CANCELADA
         Optional<Reserva> reservaCancelada = repoReserva.findById(reservaId);
         assertThat(reservaCancelada).isPresent();
         assertThat(reservaCancelada.get().estado).isEqualTo(EstadoReserva.CANCELADA);
     }
-    
+
     @Test
     @DisplayName("Buscar reservas en rango de fechas → findByInicioBetween")
     void findByInicioBetween_devuelve_reservas_en_rango() {
@@ -602,7 +561,7 @@ void disponibilidad_reservas_usuario_test() {
         // Crear usuario
         Usuario usuario = new Usuario(null, "Fernando", "Díaz", "fernando@test.com", "pwd", "123456", NombreRol.USER, LocalDateTime.now(), true);
         repoUsuario.save(usuario);
-    
+
         // Crear reservas en diferentes fechas
         // 1. Reserva el 1 de junio
         Reserva r1 = new Reserva();
@@ -615,7 +574,7 @@ void disponibilidad_reservas_usuario_test() {
         r1.estado = EstadoReserva.ACTIVA;
         r1.fechaCreacion = LocalDateTime.now();
         repoReserva.save(r1);
-    
+
         // 2. Reserva el 15 de junio
         Reserva r2 = new Reserva();
         r2.usuario = usuario;
@@ -627,7 +586,7 @@ void disponibilidad_reservas_usuario_test() {
         r2.estado = EstadoReserva.ACTIVA;
         r2.fechaCreacion = LocalDateTime.now();
         repoReserva.save(r2);
-    
+
         // 3. Reserva el 30 de julio (fuera del rango)
         Reserva r3 = new Reserva();
         r3.usuario = usuario;
@@ -639,20 +598,20 @@ void disponibilidad_reservas_usuario_test() {
         r3.estado = EstadoReserva.ACTIVA;
         r3.fechaCreacion = LocalDateTime.now();
         repoReserva.save(r3);
-    
+
         // Buscar reservas entre 1 y 30 de junio
         LocalDateTime inicioRango = LocalDateTime.of(2026, 6, 1, 0, 0);
         LocalDateTime finRango = LocalDateTime.of(2026, 6, 30, 23, 59);
         
         List<Reserva> reservasEnRango = repoReserva.findByInicioBetween(inicioRango, finRango);
-    
+
         assertThat(reservasEnRango).hasSize(2);
         reservasEnRango.forEach(r -> {
             assertThat(r.inicio).isAfter(inicioRango);
             assertThat(r.inicio).isBefore(finRango);
         });
     }
-    
+
     @Test
     @DisplayName("Verificar duración en minutos se calcula correctamente")
     void duracionMinutos_calculo_correcto() {
@@ -662,7 +621,7 @@ void disponibilidad_reservas_usuario_test() {
         
         Usuario usuario = new Usuario(null, "Gisela", "Ruiz", "gisela@test.com", "pwd", "123456", NombreRol.USER, LocalDateTime.now(), true);
         repoUsuario.save(usuario);
-    
+
         // Crear reserva de 90 minutos
         Reserva reserva = new Reserva();
         reserva.usuario = usuario;
@@ -673,9 +632,9 @@ void disponibilidad_reservas_usuario_test() {
         reserva.duracionMinutos = 90;
         reserva.estado = EstadoReserva.ACTIVA;
         reserva.fechaCreacion = LocalDateTime.now();
-    
+
         Reserva reservaGuardada = repoReserva.save(reserva);
-    
+
         // Verificar que la duración se guardó correctamente
         Optional<Reserva> reservaRecuperada = repoReserva.findById(reservaGuardada.reservationId);
         assertThat(reservaRecuperada).isPresent();
@@ -688,7 +647,7 @@ void disponibilidad_reservas_usuario_test() {
         );
         assertThat(minutosCalculados).isEqualTo(90);
     }
-    
+
     @Test
     @DisplayName("Reserva mantiene datos de usuario y pista después de guardar")
     void reserva_mantiene_relaciones_tras_guardar() {
@@ -702,7 +661,7 @@ void disponibilidad_reservas_usuario_test() {
             "2026-05-10"
         );
         Pista pistaGuardada = repoPista.save(pista);
-    
+
         // Crear usuario con datos específicos
         Usuario usuario = new Usuario(
             null, 
@@ -716,7 +675,7 @@ void disponibilidad_reservas_usuario_test() {
             true
         );
         Usuario usuarioGuardado = repoUsuario.save(usuario);
-    
+
         // Crear reserva con relaciones
         Reserva reserva = new Reserva();
         reserva.usuario = usuarioGuardado;
@@ -727,9 +686,9 @@ void disponibilidad_reservas_usuario_test() {
         reserva.duracionMinutos = 90;
         reserva.estado = EstadoReserva.ACTIVA;
         reserva.fechaCreacion = LocalDateTime.now();
-    
+
         Reserva reservaGuardada = repoReserva.save(reserva);
-    
+
         // Recuperar y verificar que mantiene las relaciones
         Optional<Reserva> reservaRecuperada = repoReserva.findById(reservaGuardada.reservationId);
         assertThat(reservaRecuperada).isPresent();
@@ -744,5 +703,4 @@ void disponibilidad_reservas_usuario_test() {
         assertThat(r.pista.ubicacion).isEqualTo("Barcelona");
         assertThat(r.pista.precioHora).isEqualTo(3500L);
     }
-
 }
