@@ -887,6 +887,3 @@ function mostrarMensaje(texto, tipo) {
     }, 3000);
 }
 
-function cargarReservas() {
-    console.log("Cargando reservas...");
-}
