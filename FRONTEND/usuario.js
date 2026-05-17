@@ -162,9 +162,17 @@ haber iniciado sesión, se redirigirá a login.html
 async function cargarPerfil() {
     const token = localStorage.getItem("token");
     const userId = localStorage.getItem("userId");
+    const userRol = localStorage.getItem("userRol");
 
     if (!token || !userId) {
         window.location.href = "login.html";
+        return;
+    }
+
+    const paginaActual = window.location.pathname;
+
+    if (userRol === "ADMIN" && !paginaActual.endsWith("admin.html")) {
+        window.location.href = "admin.html";
         return;
     }
 
