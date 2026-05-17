@@ -1,6 +1,29 @@
 const BASE_URL = "http://localhost:8080/pistaPadel";
 
-const token = localStorage.getItem("token");
+async function cargarPistas() {
+    const select = document.getElementById('pistaConsulta');
+    const token = localStorage.getItem("token");
+
+    try {
+        const res = await fetch(`${BASE_URL}/courts`, {
+            headers: token ? { "Authorization": "Bearer " + token } : {}
+        });
+        if (!res.ok) throw new Error(res.status);
+        const pistas = await res.json();
+
+        select.innerHTML = '<option value="">Todas las pistas</option>';
+        pistas.forEach(p => {
+            const opt = document.createElement('option');
+            opt.value = p.id;
+            opt.textContent = p.nombre;
+            select.appendChild(opt);
+        });
+    } catch (err) {
+        console.error('Error al cargar pistas:', err);
+    }
+}
+
+document.addEventListener('DOMContentLoaded', cargarPistas);
 
 function formatTime(t) {
     return t ? t.substring(0, 5) : '--:--';
@@ -19,9 +42,7 @@ async function mostrarResultados() {
     if (pistaId) url += `&courtId=${pistaId}`;
 
     try {
-        const res = await fetch(url, {
-            headers: token ? { "Authorization": "Bearer " + token } : {}
-        });
+        const res = await fetch(url);
         if (!res.ok) throw new Error(res.status);
         const disponibilidades = await res.json();
 
@@ -79,9 +100,7 @@ async function mostrarDetalle(pistaId) {
     }
 
     try {
-        const res = await fetch(`${BASE_URL}/courts/${pistaId}/availability?date=${fecha}`, {
-            headers: token ? { "Authorization": "Bearer " + token } : {}
-        });
+        const res = await fetch(`${BASE_URL}/courts/${pistaId}/availability?date=${fecha}`);
         if (!res.ok) throw new Error(res.status);
         const d = await res.json();
 
