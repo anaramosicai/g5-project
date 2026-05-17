@@ -495,4 +495,254 @@ void disponibilidad_reservas_usuario_test() {
         assertThat(repoDisponibilidad.findById(id).isPresent()).isFalse();
     }
 
+
+    @Test
+    @DisplayName("Buscar reservas por pista ID → findByPista_Id")
+    void findByPistaId_devuelve_reservas_de_pista() {
+        // Crear dos pistas
+        Long pistaId1 = crearPistaPrueba();
+        Long pistaId2 = crearPistaPrueba();
+        
+        Pista pista1 = repoPista.findById(pistaId1).orElseThrow();
+        Pista pista2 = repoPista.findById(pistaId2).orElseThrow();
+    
+        // Crear usuarios
+        Usuario usuario1 = new Usuario(null, "Carlos", "López", "carlos@test.com", "pwd", "123456", NombreRol.USER, LocalDateTime.now(), true);
+        Usuario usuario2 = new Usuario(null, "Diana", "García", "diana@test.com", "pwd", "123456", NombreRol.USER, LocalDateTime.now(), true);
+        repoUsuario.save(usuario1);
+        repoUsuario.save(usuario2);
+    
+        // Crear 2 reservas en pista1 y 1 en pista2
+        Reserva r1 = new Reserva();
+        r1.usuario = usuario1;
+        r1.pista = pista1;
+        r1.inicio = LocalDateTime.of(2026, 8, 15, 9, 0);
+        r1.fin = LocalDateTime.of(2026, 8, 15, 10, 0);
+        r1.fechaReservada = LocalDateTime.now();
+        r1.duracionMinutos = 60;
+        r1.estado = EstadoReserva.ACTIVA;
+        r1.fechaCreacion = LocalDateTime.now();
+        repoReserva.save(r1);
+    
+        Reserva r2 = new Reserva();
+        r2.usuario = usuario2;
+        r2.pista = pista1;
+        r2.inicio = LocalDateTime.of(2026, 8, 15, 11, 0);
+        r2.fin = LocalDateTime.of(2026, 8, 15, 12, 0);
+        r2.fechaReservada = LocalDateTime.now();
+        r2.duracionMinutos = 60;
+        r2.estado = EstadoReserva.ACTIVA;
+        r2.fechaCreacion = LocalDateTime.now();
+        repoReserva.save(r2);
+    
+        Reserva r3 = new Reserva();
+        r3.usuario = usuario1;
+        r3.pista = pista2;
+        r3.inicio = LocalDateTime.of(2026, 8, 16, 9, 0);
+        r3.fin = LocalDateTime.of(2026, 8, 16, 10, 0);
+        r3.fechaReservada = LocalDateTime.now();
+        r3.duracionMinutos = 60;
+        r3.estado = EstadoReserva.ACTIVA;
+        r3.fechaCreacion = LocalDateTime.now();
+        repoReserva.save(r3);
+    
+        // Buscar reservas de pista1
+        List<Reserva> reservasPista1 = repoReserva.findByPista_Id(pistaId1);
+        
+        assertThat(reservasPista1).hasSize(2);
+        reservasPista1.forEach(r -> assertThat(r.pista.id).isEqualTo(pistaId1));
+    }
+    
+    @Test
+    @DisplayName("Cambiar estado de reserva a CANCELADA")
+    void cambiarEstadoReserva_a_CANCELADA() {
+        // Crear pista y usuario
+        Long pistaId = crearPistaPrueba();
+        Pista pista = repoPista.findById(pistaId).orElseThrow();
+        
+        Usuario usuario = new Usuario(null, "Elena", "Martín", "elena@test.com", "pwd", "123456", NombreRol.USER, LocalDateTime.now(), true);
+        repoUsuario.save(usuario);
+    
+        // Crear reserva activa
+        Reserva reserva = new Reserva();
+        reserva.usuario = usuario;
+        reserva.pista = pista;
+        reserva.inicio = LocalDateTime.of(2026, 9, 1, 15, 0);
+        reserva.fin = LocalDateTime.of(2026, 9, 1, 16, 0);
+        reserva.fechaReservada = LocalDateTime.now();
+        reserva.duracionMinutos = 60;
+        reserva.estado = EstadoReserva.ACTIVA;
+        reserva.fechaCreacion = LocalDateTime.now();
+        
+        Reserva reservaGuardada = repoReserva.save(reserva);
+        Long reservaId = reservaGuardada.reservationId;
+    
+        // Verificar que está ACTIVA
+        Optional<Reserva> reservaActiva = repoReserva.findById(reservaId);
+        assertThat(reservaActiva).isPresent();
+        assertThat(reservaActiva.get().estado).isEqualTo(EstadoReserva.ACTIVA);
+    
+        // Cambiar estado a CANCELADA
+        reservaGuardada.estado = EstadoReserva.CANCELADA;
+        repoReserva.save(reservaGuardada);
+    
+        // Verificar que ahora está CANCELADA
+        Optional<Reserva> reservaCancelada = repoReserva.findById(reservaId);
+        assertThat(reservaCancelada).isPresent();
+        assertThat(reservaCancelada.get().estado).isEqualTo(EstadoReserva.CANCELADA);
+    }
+    
+    @Test
+    @DisplayName("Buscar reservas en rango de fechas → findByInicioBetween")
+    void findByInicioBetween_devuelve_reservas_en_rango() {
+        // Crear pista
+        Long pistaId = crearPistaPrueba();
+        Pista pista = repoPista.findById(pistaId).orElseThrow();
+        
+        // Crear usuario
+        Usuario usuario = new Usuario(null, "Fernando", "Díaz", "fernando@test.com", "pwd", "123456", NombreRol.USER, LocalDateTime.now(), true);
+        repoUsuario.save(usuario);
+    
+        // Crear reservas en diferentes fechas
+        // 1. Reserva el 1 de junio
+        Reserva r1 = new Reserva();
+        r1.usuario = usuario;
+        r1.pista = pista;
+        r1.inicio = LocalDateTime.of(2026, 6, 1, 10, 0);
+        r1.fin = LocalDateTime.of(2026, 6, 1, 11, 0);
+        r1.fechaReservada = LocalDateTime.now();
+        r1.duracionMinutos = 60;
+        r1.estado = EstadoReserva.ACTIVA;
+        r1.fechaCreacion = LocalDateTime.now();
+        repoReserva.save(r1);
+    
+        // 2. Reserva el 15 de junio
+        Reserva r2 = new Reserva();
+        r2.usuario = usuario;
+        r2.pista = pista;
+        r2.inicio = LocalDateTime.of(2026, 6, 15, 14, 0);
+        r2.fin = LocalDateTime.of(2026, 6, 15, 15, 0);
+        r2.fechaReservada = LocalDateTime.now();
+        r2.duracionMinutos = 60;
+        r2.estado = EstadoReserva.ACTIVA;
+        r2.fechaCreacion = LocalDateTime.now();
+        repoReserva.save(r2);
+    
+        // 3. Reserva el 30 de julio (fuera del rango)
+        Reserva r3 = new Reserva();
+        r3.usuario = usuario;
+        r3.pista = pista;
+        r3.inicio = LocalDateTime.of(2026, 7, 30, 10, 0);
+        r3.fin = LocalDateTime.of(2026, 7, 30, 11, 0);
+        r3.fechaReservada = LocalDateTime.now();
+        r3.duracionMinutos = 60;
+        r3.estado = EstadoReserva.ACTIVA;
+        r3.fechaCreacion = LocalDateTime.now();
+        repoReserva.save(r3);
+    
+        // Buscar reservas entre 1 y 30 de junio
+        LocalDateTime inicioRango = LocalDateTime.of(2026, 6, 1, 0, 0);
+        LocalDateTime finRango = LocalDateTime.of(2026, 6, 30, 23, 59);
+        
+        List<Reserva> reservasEnRango = repoReserva.findByInicioBetween(inicioRango, finRango);
+    
+        assertThat(reservasEnRango).hasSize(2);
+        reservasEnRango.forEach(r -> {
+            assertThat(r.inicio).isAfter(inicioRango);
+            assertThat(r.inicio).isBefore(finRango);
+        });
+    }
+    
+    @Test
+    @DisplayName("Verificar duración en minutos se calcula correctamente")
+    void duracionMinutos_calculo_correcto() {
+        // Crear pista y usuario
+        Long pistaId = crearPistaPrueba();
+        Pista pista = repoPista.findById(pistaId).orElseThrow();
+        
+        Usuario usuario = new Usuario(null, "Gisela", "Ruiz", "gisela@test.com", "pwd", "123456", NombreRol.USER, LocalDateTime.now(), true);
+        repoUsuario.save(usuario);
+    
+        // Crear reserva de 90 minutos
+        Reserva reserva = new Reserva();
+        reserva.usuario = usuario;
+        reserva.pista = pista;
+        reserva.inicio = LocalDateTime.of(2026, 5, 20, 18, 0);
+        reserva.fin = LocalDateTime.of(2026, 5, 20, 19, 30);
+        reserva.fechaReservada = LocalDateTime.now();
+        reserva.duracionMinutos = 90;
+        reserva.estado = EstadoReserva.ACTIVA;
+        reserva.fechaCreacion = LocalDateTime.now();
+    
+        Reserva reservaGuardada = repoReserva.save(reserva);
+    
+        // Verificar que la duración se guardó correctamente
+        Optional<Reserva> reservaRecuperada = repoReserva.findById(reservaGuardada.reservationId);
+        assertThat(reservaRecuperada).isPresent();
+        assertThat(reservaRecuperada.get().duracionMinutos).isEqualTo(90);
+        
+        // Verificar que la diferencia entre fin e inicio es correcta
+        long minutosCalculados = java.time.temporal.ChronoUnit.MINUTES.between(
+            reservaRecuperada.get().inicio,
+            reservaRecuperada.get().fin
+        );
+        assertThat(minutosCalculados).isEqualTo(90);
+    }
+    
+    @Test
+    @DisplayName("Reserva mantiene datos de usuario y pista después de guardar")
+    void reserva_mantiene_relaciones_tras_guardar() {
+        // Crear pista con características específicas
+        Pista pista = new Pista(
+            null,
+            "Pista-Integración-" + System.currentTimeMillis(),
+            "Barcelona",
+            3500L,
+            true,
+            "2026-05-10"
+        );
+        Pista pistaGuardada = repoPista.save(pista);
+    
+        // Crear usuario con datos específicos
+        Usuario usuario = new Usuario(
+            null, 
+            "Héctor", 
+            "Sánchez", 
+            "hector@test.com", 
+            "password123", 
+            "987654321", 
+            NombreRol.USER, 
+            LocalDateTime.now(), 
+            true
+        );
+        Usuario usuarioGuardado = repoUsuario.save(usuario);
+    
+        // Crear reserva con relaciones
+        Reserva reserva = new Reserva();
+        reserva.usuario = usuarioGuardado;
+        reserva.pista = pistaGuardada;
+        reserva.inicio = LocalDateTime.of(2026, 10, 15, 19, 0);
+        reserva.fin = LocalDateTime.of(2026, 10, 15, 20, 30);
+        reserva.fechaReservada = LocalDateTime.now();
+        reserva.duracionMinutos = 90;
+        reserva.estado = EstadoReserva.ACTIVA;
+        reserva.fechaCreacion = LocalDateTime.now();
+    
+        Reserva reservaGuardada = repoReserva.save(reserva);
+    
+        // Recuperar y verificar que mantiene las relaciones
+        Optional<Reserva> reservaRecuperada = repoReserva.findById(reservaGuardada.reservationId);
+        assertThat(reservaRecuperada).isPresent();
+        
+        Reserva r = reservaRecuperada.get();
+        assertThat(r.usuario).isNotNull();
+        assertThat(r.usuario.getNombre()).isEqualTo("Héctor");
+        assertThat(r.usuario.getEmail()).isEqualTo("hector@test.com");
+        
+        assertThat(r.pista).isNotNull();
+        assertThat(r.pista.nombre).startsWith("Pista-Integración-");
+        assertThat(r.pista.ubicacion).isEqualTo("Barcelona");
+        assertThat(r.pista.precioHora).isEqualTo(3500L);
+    }
+
 }
