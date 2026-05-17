@@ -20,20 +20,30 @@ let reservaEnEdicion = null;
 
 document.addEventListener("DOMContentLoaded", function () {
     cargarPistasEnSelect();
-    cargarMisReservas();
+
+    const token = localStorage.getItem("token");
+    if (token) {
+        cargarMisReservas();
+        const userRol = localStorage.getItem("userRol");
+        if (userRol === "ADMIN") {
+            cargarTodasReservas();
+        }
+    }
 });
 
 // ========================
 // CARGAR PISTAS EN SELECT
 // ========================
-
 async function cargarPistasEnSelect() {
     const selectPista = document.getElementById("pista");
     const selectPistaReprogramar = document.getElementById("pistaReprogramar");
 
+    const token = localStorage.getItem("token");
+
     try {
         const response = await fetch(baseUrl + "/pistaPadel/courts", {
-            method: "GET"
+            method: "GET",
+            headers: token ? { "Authorization": "Bearer " + token } : {}
         });
 
         if (!response.ok) {
@@ -57,13 +67,13 @@ async function cargarPistasEnSelect() {
         pistas.forEach(pista => {
             const option = document.createElement("option");
             option.value = pista.id;
-            option.textContent = `Pista ${pista.numero} - ${pista.ubicacion}`;
+            option.textContent = pista.nombre;
             selectPista.appendChild(option);
 
             if (selectPistaReprogramar) {
                 const optionReprogramar = document.createElement("option");
                 optionReprogramar.value = pista.id;
-                optionReprogramar.textContent = `Pista ${pista.numero} - ${pista.ubicacion}`;
+                optionReprogramar.textContent = pista.nombre;
                 selectPistaReprogramar.appendChild(optionReprogramar);
             }
         });
@@ -71,65 +81,6 @@ async function cargarPistasEnSelect() {
         console.error("Error:", error);
     }
 }
-
-// ========================
-// CARGAR PISTAS AL INICIAR
-// ========================
-
-document.addEventListener("DOMContentLoaded", function () {
-    cargarPistasEnSelect();
-    cargarMisReservas();
-});
-
-// ========================
-// CARGAR PISTAS EN SELECT
-// ========================
-
-async function cargarPistasEnSelect() {
-    const selectPista = document.getElementById("pista");
-    const selectPistaReprogramar = document.getElementById("pistaReprogramar");
-
-    try {
-        const response = await fetch(baseUrl + "/pistaPadel/courts", {
-            method: "GET"
-        });
-
-        if (!response.ok) {
-            console.error("Error al obtener pistas");
-            return;
-        }
-
-        const pistas = await response.json();
-
-        // Limpiar opciones excepto la primera
-        while (selectPista.options.length > 1) {
-            selectPista.remove(1);
-        }
-        if (selectPistaReprogramar) {
-            while (selectPistaReprogramar.options.length > 1) {
-                selectPistaReprogramar.remove(1);
-            }
-        }
-
-        // Agregar pistas
-        pistas.forEach(pista => {
-            const option = document.createElement("option");
-            option.value = pista.id;
-            option.textContent = `Pista ${pista.numero} - ${pista.ubicacion}`;
-            selectPista.appendChild(option);
-
-            if (selectPistaReprogramar) {
-                const optionReprogramar = document.createElement("option");
-                optionReprogramar.value = pista.id;
-                optionReprogramar.textContent = `Pista ${pista.numero} - ${pista.ubicacion}`;
-                selectPistaReprogramar.appendChild(optionReprogramar);
-            }
-        });
-    } catch (error) {
-        console.error("Error:", error);
-    }
-}
-
 // ========================
 // MENSAJES
 // ========================
@@ -248,7 +199,7 @@ function mostrarReservasEnTabla(reservas, tbody, mostrarUsuario = false) {
 
     reservas.forEach(reserva => {
         console.log("Reserva cargada:", reserva); // DEBUG: Ver qué propiedades tiene el objeto
-        
+
         const fila = tbody.insertRow();
 
         // ID
@@ -281,7 +232,7 @@ function mostrarReservasEnTabla(reservas, tbody, mostrarUsuario = false) {
 
         // Acciones
         const celdaAcciones = fila.insertCell();
-        
+
         if (reserva.estado === "ACTIVA") {
             const btnEditar = document.createElement("button");
             btnEditar.textContent = "Editar";
@@ -407,7 +358,7 @@ function abrirModalEditar(reserva, reservaId) {
     // Usar el ID explícitamente pasado si la propiedad reservationId no está disponible
     const idActual = reservaId || reserva.reservationId;
     reservaEnEdicion = reserva;
-    
+
     // También guardar el ID por separado para asegurarnos
     if (!reservaEnEdicion.reservationId && idActual) {
         reservaEnEdicion.reservationId = idActual;
@@ -486,7 +437,7 @@ if (formReprogramar) {
 
         // Obtener el ID desde el campo del formulario o desde reservaEnEdicion
         const reservaId = document.getElementById("reservaIdReprogramar").value || reservaEnEdicion.reservationId;
-        
+
         if (!reservaId) {
             mostrarMensaje("Error: no se pudo obtener el ID de la reserva", "error");
             return;
@@ -593,17 +544,16 @@ async function cancelarReserva(reservaId) {
 function configurarFiltrosReservas() {
     // Buscar secciones por sus características
     const secciones = document.querySelectorAll(".reserva-section");
-    
+
     secciones.forEach((seccion) => {
         const btnFiltro = seccion.querySelector("button.btn-filtro");
         const filtroDesdeFin = seccion.querySelector("input[id^='filtroDesde']");
         const tbody = seccion.querySelector("tbody");
-        
+
         if (btnFiltro && filtroDesdeFin && tbody) {
             // Determinar qué tabla es y qué IDs de filtro usar
             const filtrosIds = filtroDesdeFin.id; // "filtroDesde" o "filtroDesdeAdmin"
-            const tablaIds = tbody.id; // "misReservasTabla" o "todasReservasTabla"
-            
+
             btnFiltro.onclick = function() {
                 if (filtrosIds === "filtroDesde") {
                     filtrarReservasPorFecha(tbody, "filtroDesde", "filtroHasta");
@@ -618,7 +568,7 @@ function configurarFiltrosReservas() {
 function filtrarReservasPorFecha(tabla, idDesde, idHasta) {
     const desde = document.getElementById(idDesde)?.value;
     const hasta = document.getElementById(idHasta)?.value;
-    
+
     if (!desde || !hasta) {
         mostrarMensaje("Por favor selecciona ambas fechas", "error");
         return;
@@ -641,7 +591,7 @@ function filtrarReservasPorFecha(tabla, idDesde, idHasta) {
         // Detectar en qué columna está la fecha de inicio
         let fechaInicioTexto = "";
 
-        if (fila.cells.length >= 8) { 
+        if (fila.cells.length >= 8) {
             // Es tabla de ADMIN (más columnas)
             fechaInicioTexto = fila.cells[3]?.textContent;
         } else {
@@ -670,19 +620,3 @@ function filtrarReservasPorFecha(tabla, idDesde, idHasta) {
         mostrarMensaje(`Filtro aplicado: ${filasVisibles} reserva(s) mostrada(s)`, "ok");
     }
 }
-
-// ========================
-// CARGAR RESERVAS AL INICIAR
-// ========================
-
-document.addEventListener("DOMContentLoaded", function () {
-    const token = localStorage.getItem("token");
-    if (token) {
-        cargarMisReservas();
-        // Opcional: cargar todas las reservas si es admin
-        const userRol = localStorage.getItem("userRol");
-        if (userRol === "ADMIN") {
-            cargarTodasReservas();
-        }
-    }
-});
