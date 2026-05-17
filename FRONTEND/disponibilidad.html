@@ -48,10 +48,6 @@
                 <label for="pistaConsulta">Pista (opcional):</label>
                 <select id="pistaConsulta" class="filtro-select">
                     <option value="">Todas las pistas</option>
-                    <option value="1">Pista 1 - Cristal</option>
-                    <option value="2">Pista 2 - Cristal</option>
-                    <option value="3">Pista 3 - Cemento</option>
-                    <option value="4">Pista 4 - Cemento</option>
                 </select>
 
                 <button class="btn btn-filtro" onclick="mostrarResultados()">Consultar</button>
@@ -59,90 +55,16 @@
         </section>
 
         <!-- RESULTADOS: TODAS LAS PISTAS -->
-        <!-- Se puede ver quitando el style="display: none;" -->
         <section class="reserva-section" id="seccionTodasPistas" style="display: none;">
             <h2>Disponibilidad del día seleccionado</h2>
-            <div class="disponibilidad-grid">
-
-                <div class="disponibilidad-card">
-                    <div class="disp-card-header">
-                        <h3>Pista 1 - Cristal</h3>
-                        <span class="disp-estado disp-disponible">Disponible</span>
-                    </div>
-                    <div class="disp-horario">
-                        <span>Apertura: <strong>08:00</strong></span>
-                        <span>Cierre: <strong>22:00</strong></span>
-                    </div>
-                    <div class="disp-franjas">
-                        <p class="franjas-titulo">Franjas libres:</p>
-                        <span class="franja-tag">08:00 – 10:00</span>
-                        <span class="franja-tag">12:00 – 14:00</span>
-                        <span class="franja-tag">17:00 – 19:00</span>
-                    </div>
-                    <button class="btn btn-filtro disp-btn-detalle" onclick="mostrarDetalle(1)">Ver detalle</button>
-                </div>
-
-                <div class="disponibilidad-card">
-                    <div class="disp-card-header">
-                        <h3>Pista 2 - Cristal</h3>
-                        <span class="disp-estado disp-disponible">Disponible</span>
-                    </div>
-                    <div class="disp-horario">
-                        <span>Apertura: <strong>08:00</strong></span>
-                        <span>Cierre: <strong>22:00</strong></span>
-                    </div>
-                    <div class="disp-franjas">
-                        <p class="franjas-titulo">Franjas libres:</p>
-                        <span class="franja-tag">09:00 – 11:00</span>
-                        <span class="franja-tag">15:00 – 17:00</span>
-                    </div>
-                    <button class="btn btn-filtro disp-btn-detalle" onclick="mostrarDetalle(2)">Ver detalle</button>
-                </div>
-
-                <div class="disponibilidad-card">
-                    <div class="disp-card-header">
-                        <h3>Pista 3 - Cemento</h3>
-                        <span class="disp-estado disp-ocupada">Ocupada</span>
-                    </div>
-                    <div class="disp-horario">
-                        <span>Apertura: <strong>08:00</strong></span>
-                        <span>Cierre: <strong>22:00</strong></span>
-                    </div>
-                    <div class="disp-franjas">
-                        <p class="franjas-titulo">Franjas libres:</p>
-                        <span class="sin-franjas">Sin franjas libres</span>
-                    </div>
-                    <button class="btn btn-filtro disp-btn-detalle" onclick="mostrarDetalle(3)">Ver detalle</button>
-                </div>
-
-                <div class="disponibilidad-card">
-                    <div class="disp-card-header">
-                        <h3>Pista 4 - Cemento</h3>
-                        <span class="disp-estado disp-disponible">Disponible</span>
-                    </div>
-                    <div class="disp-horario">
-                        <span>Apertura: <strong>08:00</strong></span>
-                        <span>Cierre: <strong>22:00</strong></span>
-                    </div>
-                    <div class="disp-franjas">
-                        <p class="franjas-titulo">Franjas libres:</p>
-                        <span class="franja-tag">10:00 – 12:00</span>
-                        <span class="franja-tag">20:00 – 22:00</span>
-                    </div>
-                    <button class="btn btn-filtro disp-btn-detalle" onclick="mostrarDetalle(4)">Ver detalle</button>
-                </div>
-
-            </div>
+            <div class="disponibilidad-grid"></div>
         </section>
 
         <!-- DETALLE DE PISTA ESPECÍFICA -->
-        <!-- Se puede ver quitando el style="display: none;" -->
         <section class="reserva-section" id="seccionDetalle" style="display: none;">
             <h2 id="tituloDetalle">Detalle de Pista</h2>
             <div class="disp-detalle-info">
-                <div class="disp-detalle-meta" id="metaDetalle">
-                    <!-- Rellena el JavaScript -->
-                </div>
+                <div class="disp-detalle-meta" id="metaDetalle"></div>
             </div>
             <div class="tabla-reservas" style="margin-top: 15px;">
                 <table>
@@ -153,9 +75,7 @@
                             <th>Estado</th>
                         </tr>
                     </thead>
-                    <tbody id="tablaDetalle">
-                        <!-- Rellena el JavaScript -->
-                    </tbody>
+                    <tbody id="tablaDetalle"></tbody>
                 </table>
             </div>
             <div style="text-align: center; margin-top: 20px;">
