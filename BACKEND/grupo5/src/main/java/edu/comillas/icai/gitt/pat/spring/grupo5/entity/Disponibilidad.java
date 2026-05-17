@@ -5,6 +5,8 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 @Entity
 public class Disponibilidad {
 
@@ -57,15 +59,7 @@ public class Disponibilidad {
     public LocalTime getCierre() { return cierre; }
     public void setCierre(LocalTime cierre) { this.cierre = cierre; }
     public List<FranjaDisponible> getFranjasLibres() { return franjasLibres; }
-    //public void setFranjasLibres(List<FranjaDisponible> franjasLibres) { this.franjasLibres = franjasLibres; }
-
-    public void setFranjasLibres(List<FranjaDisponible> franjasLibres) {
-        this.franjasLibres = franjasLibres;
-
-        if (this.franjasLibres != null) {
-            this.franjasLibres.forEach(f -> f.setDisponibilidad(this));
-        }
-    }
+    public void setFranjasLibres(List<FranjaDisponible> franjasLibres) { this.franjasLibres = franjasLibres; }
 
     @Entity
     public static class FranjaDisponible {
@@ -73,6 +67,7 @@ public class Disponibilidad {
         @GeneratedValue(strategy = GenerationType.IDENTITY)
         private Long id;
 
+        @JsonIgnore     
         @ManyToOne
         @JoinColumn(name = "disponibilidad_id", nullable = false)
         private Disponibilidad disponibilidad;
