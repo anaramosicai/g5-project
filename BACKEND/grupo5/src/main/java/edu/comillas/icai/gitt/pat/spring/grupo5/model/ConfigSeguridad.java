@@ -53,7 +53,8 @@ public class ConfigSeguridad {
                                 "/pistaPadel/reservations/{reservationId}",
                                 "/pistaPadel/admin/reservations",
                                 "/pistaPadel/availability",
-                                "/pistaPadel/courts/{courtId}/availability"
+                                "/pistaPadel/courts/{courtId}/availability",
+                                "/pistaPadel/availablereservations"
 
                         ).permitAll()
                         .requestMatchers("/pistaPadel/health").permitAll()
