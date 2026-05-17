@@ -13,7 +13,10 @@ const accionesAdmin = {
     "pista-editar": editarPista,
     "pista-eliminar": eliminarPista,
 
-    "reservas-cargar": cargarReservas
+    "reservas-cargar":  fetchTodasReservas,
+    "reserva-buscar":   fetchReservaPorId,
+    "reserva-eliminar": fetchEliminarReserva,
+    "reserva-editar":   fetchEditarReserva
 };
 
 
@@ -80,10 +83,39 @@ function abrirPanel(tipo) {
 
         case "reservas-cargar":
             titulo.textContent = "Cargar reservas";
-            contenido.innerHTML = `<p>Se mostrarán todas las reservas.</p>`;
+            contenido.innerHTML = `<p>Cargando todas las reservas del sistema...</p>`;
+            ejecutarAccion();
             break;
-        
-        
+
+        case "reserva-buscar":
+            titulo.textContent = "Ver reserva por ID";
+            contenido.innerHTML = `
+                <div class="admin-search-bar">
+                    <input id="inputBuscarReservaId" type="number" min="1" placeholder="Introduce el ID de la reserva" />
+                </div>
+                <div id="resultadoReserva"></div>
+            `;
+            break;
+
+        case "reserva-eliminar":
+            titulo.textContent = "Borrar reserva por ID";
+            contenido.innerHTML = `
+                <div class="admin-search-bar">
+                    <input id="reservaIdBorrar" type="number" min="1" placeholder="ID de la reserva a borrar" />
+                </div>
+            `;
+            break;
+
+        case "reserva-editar":
+            titulo.textContent = "Editar reserva por ID";
+            contenido.innerHTML = `
+                <div class="admin-search-bar">
+                    <input id="reservaIdEditar" type="number" min="1" placeholder="ID de la reserva" />
+                    <button class="btn-admin" onclick="cargarReservaParaEditar()">Cargar reserva</button>
+                </div>
+                <div id="formularioEdicionReserva"></div>
+            `;
+            break;
     }
 }
 
@@ -109,6 +141,19 @@ async function ejecutarAccion() {
         switch (accionActual) {
             case "usuarios-cargar":
                 renderUsuarios(data);
+                break;
+            case "reservas-cargar":
+                renderizarReservasAdmin(data, document.getElementById("contenidoAccion"));
+                break;
+            case "reserva-buscar":
+                renderReservaBuscada(data);
+                break;
+            case "reserva-eliminar":
+                // fetchEliminarReserva gestiona confirmación, feedback y volverAtras() internamente
+                break;
+            case "reserva-editar":
+                const reservaId = document.getElementById("reservaIdEditar")?.value.trim();
+                if (reservaId) await confirmarEdicionReserva(reservaId);
                 break;
         }
 
@@ -215,7 +260,7 @@ function buscarUsuarioPorId() {
         </div>
         <div id="resultadoUsuario"></div>
     `;
-}       
+}
 
 async function ejecutarBusquedaUsuario() {
     const input  = document.getElementById("inputBuscarUserId");
@@ -486,7 +531,360 @@ function eliminarPista() {
     console.log("Eliminando pista...");
 }
 
+
 // ============== ACCIONES RELATIVAS A RESERVAS ==============
+
+// Alias para los onclick del HTML original
+function cargarReservas()  { abrirPanel("reservas-cargar");  }
+function cargarReservaId() { abrirPanel("reserva-buscar");   }
+function borrarReservaId() { abrirPanel("reserva-eliminar"); }
+function editarReservaId() { abrirPanel("reserva-editar");   }
+
+// Funciones de fetch: devuelven datos o gestionan la operación.
+// El renderizado lo hace ejecutarAccion() a través del switch.
+
+async function fetchTodasReservas() {
+    const token = localStorage.getItem("token");
+    const rol   = localStorage.getItem("userRol");
+
+    if (rol !== "ADMIN") {
+        mostrarMensaje("Acceso restringido a administradores", "error");
+        volverAtras();
+        return;
+    }
+
+    const response = await fetch(baseUrlAdmin + "/pistaPadel/admin/reservations", {
+        method: "GET",
+        headers: { "Authorization": "Bearer " + token }
+    });
+
+    if (response.status === 401) throw new Error("401");
+    if (response.status === 403) throw new Error("403");
+    if (!response.ok) throw new Error("Error al cargar las reservas");
+
+    return await response.json();
+}
+
+async function fetchReservaPorId() {
+    const input     = document.getElementById("inputBuscarReservaId");
+    const reservaId = input ? input.value.trim() : "";
+
+    if (!reservaId) {
+        mostrarMensaje("Introduce un ID de reserva", "error");
+        return;
+    }
+
+    const token     = localStorage.getItem("token");
+    const resultado = document.getElementById("resultadoReserva");
+    resultado.innerHTML = "<p>Cargando...</p>";
+
+    const response = await fetch(`${baseUrlAdmin}/pistaPadel/reservations/${reservaId}`, {
+        headers: { "Authorization": "Bearer " + token }
+    });
+
+    if (response.status === 404) {
+        resultado.innerHTML = `<p class="admin-error">No se encontró ninguna reserva con ID ${reservaId}.</p>`;
+        return null;
+    }
+    if (response.status === 403) {
+        resultado.innerHTML = `<p class="admin-error">No tienes permiso para ver esta reserva.</p>`;
+        return null;
+    }
+    if (!response.ok) {
+        resultado.innerHTML = `<p class="admin-error">Error al buscar la reserva.</p>`;
+        return null;
+    }
+
+    return await response.json();
+}
+
+async function fetchEliminarReserva() {
+    const reservaId = document.getElementById("reservaIdBorrar")?.value.trim();
+
+    if (!reservaId) {
+        mostrarMensaje("Introduce un ID de reserva", "error");
+        return;
+    }
+
+    if (!confirm("¿Estás seguro de que deseas eliminar esta reserva?")) return;
+
+    const token = localStorage.getItem("token");
+
+    const response = await fetch(`${baseUrlAdmin}/pistaPadel/reservations/${reservaId}`, {
+        method: "DELETE",
+        headers: { "Authorization": "Bearer " + token }
+    });
+
+    if (response.status === 403) { mostrarMensaje("No tienes permiso para eliminar esta reserva", "error"); return; }
+    if (response.status === 404) { mostrarMensaje("La reserva no existe", "error"); return; }
+    if (!response.ok)            { mostrarMensaje("Error al eliminar la reserva", "error"); return; }
+
+    mostrarMensaje("Reserva eliminada correctamente", "ok");
+    volverAtras();
+}
+
+// No se invoca desde ejecutarAccion(); el flujo de edición va por
+// cargarReservaParaEditar() + confirmarEdicionReserva().
+// Se mantiene en accionesAdmin por coherencia estructural.
+async function fetchEditarReserva() {
+    return null;
+}
+
+
+// ========================
+// RENDER DE RESERVAS
+// ========================
+
+function renderReservaBuscada(reserva) {
+    const resultado = document.getElementById("resultadoReserva");
+    if (!reserva) return;
+
+    resultado.innerHTML = `
+        <div class="perfil-card" style="margin-top:20px;">
+            <h3 style="color:var(--azul-oscuro); margin-bottom:15px;">Detalles de la reserva</h3>
+            <div class="perfil-info">
+                <p><strong>ID Reserva:</strong> <span>${reserva.reservationId}</span></p>
+                <p><strong>Usuario:</strong> <span>${reserva.usuario?.nombre ?? "—"} ${reserva.usuario?.apellidos ?? ""}</span></p>
+                <p><strong>Pista:</strong> <span>${reserva.pista?.nombre ?? "Pista " + (reserva.pista?.id ?? "—")}</span></p>
+                <p><strong>Fecha Inicio:</strong> <span>${formatearFechaAdmin(reserva.inicio)}</span></p>
+                <p><strong>Fecha Fin:</strong> <span>${formatearFechaAdmin(reserva.fin)}</span></p>
+                <p><strong>Duración:</strong> <span>${reserva.duracionMinutos} minutos</span></p>
+                <p><strong>Estado:</strong> <span class="estado-${reserva.estado?.toLowerCase()}">${reserva.estado}</span></p>
+                <p><strong>Fecha Creación:</strong> <span>${formatearFechaAdmin(reserva.fechaCreacion)}</span></p>
+            </div>
+        </div>
+    `;
+}
+
+function renderizarReservasAdmin(reservas, contenedor) {
+    if (!reservas || reservas.length === 0) {
+        contenedor.innerHTML = `<p style="font-style:italic; color:var(--azul-medio-oscuro);">No hay reservas registradas.</p>`;
+        return;
+    }
+
+    const filas = reservas.map(r => `
+        <tr class="fila-reserva" data-fecha-inicio="${r.inicio.substring(0, 10)}">
+            <td>${r.reservationId}</td>
+            <td>${r.usuario?.nombre ?? "—"} ${r.usuario?.apellidos ?? ""}</td>
+            <td>${r.pista?.nombre ?? "Pista " + (r.pista?.id ?? "—")}</td>
+            <td>${r.inicio?.substring(0, 16).replace("T", " ")}</td>
+            <td>${r.fin?.substring(0, 16).replace("T", " ")}</td>
+            <td>${r.duracionMinutos} min</td>
+            <td><span class="estado-${r.estado?.toLowerCase()}">${r.estado}</span></td>
+        </tr>
+    `).join("");
+
+    contenedor.innerHTML = `
+        <div class="filtro-fechas" style="margin-bottom: 20px;">
+            <label for="filtroDesdeAdmin">Desde:</label>
+            <input type="date" id="filtroDesdeAdmin" name="filtroDesdeAdmin">
+            <label for="filtroHastaAdmin">Hasta:</label>
+            <input type="date" id="filtroHastaAdmin" name="filtroHastaAdmin">
+            <button class="btn-admin" onclick="aplicarFiltroReservasAdmin()">Filtrar</button>
+            <button class="btn-admin" onclick="limpiarFiltroReservasAdmin()">Limpiar filtro</button>
+        </div>
+        <div class="tabla-reservas">
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Usuario</th>
+                        <th>Pista</th>
+                        <th>Inicio</th>
+                        <th>Fin</th>
+                        <th>Duración</th>
+                        <th>Estado</th>
+                    </tr>
+                </thead>
+                <tbody id="cuerpoTablaReservasAdmin">${filas}</tbody>
+            </table>
+        </div>
+    `;
+}
+
+function aplicarFiltroReservasAdmin() {
+    const desde = document.getElementById("filtroDesdeAdmin")?.value;
+    const hasta = document.getElementById("filtroHastaAdmin")?.value;
+
+    if (!desde || !hasta) {
+        mostrarMensaje("Por favor selecciona ambas fechas", "error");
+        return;
+    }
+
+    const desdeDate = new Date(desde);
+    const hastaDate = new Date(hasta);
+
+    if (hastaDate <= desdeDate) {
+        mostrarMensaje("La fecha 'hasta' debe ser posterior a 'desde'", "error");
+        return;
+    }
+
+    const filas = document.querySelectorAll("#cuerpoTablaReservasAdmin .fila-reserva");
+    let contadorVisibles = 0;
+
+    filas.forEach(fila => {
+        const fechaStr = fila.getAttribute("data-fecha-inicio");
+        if (!fechaStr) return;
+
+        const fecha = new Date(fechaStr);
+
+        if (fecha >= desdeDate && fecha <= hastaDate) {
+            fila.style.display = "";
+            contadorVisibles++;
+        } else {
+            fila.style.display = "none";
+        }
+    });
+
+    mostrarMensaje(`Filtro aplicado: ${contadorVisibles} reserva(s) mostrada(s)`, "ok");
+}
+
+function limpiarFiltroReservasAdmin() {
+    document.getElementById("filtroDesdeAdmin").value = "";
+    document.getElementById("filtroHastaAdmin").value = "";
+
+    const filas = document.querySelectorAll("#cuerpoTablaReservasAdmin .fila-reserva");
+    filas.forEach(fila => {
+        fila.style.display = "";
+    });
+
+    mostrarMensaje("Filtro eliminado", "ok");
+}
+
+
+// ========================
+// EDITAR RESERVA — flujo de dos pasos
+// ========================
+
+async function cargarReservaParaEditar() {
+    const reservaId     = document.getElementById("reservaIdEditar")?.value.trim();
+    const formularioDiv = document.getElementById("formularioEdicionReserva");
+
+    if (!reservaId) {
+        mostrarMensaje("Introduce un ID de reserva", "error");
+        return;
+    }
+
+    const token = localStorage.getItem("token");
+    formularioDiv.innerHTML = "<p>Cargando...</p>";
+
+    try {
+        const response = await fetch(`${baseUrlAdmin}/pistaPadel/reservations/${reservaId}`, {
+            headers: { "Authorization": "Bearer " + token }
+        });
+
+        if (response.status === 404) { formularioDiv.innerHTML = `<p class="admin-error">No se encontró la reserva.</p>`; return; }
+        if (!response.ok)            { formularioDiv.innerHTML = `<p class="admin-error">Error al cargar la reserva.</p>`; return; }
+
+        const reserva = await response.json();
+
+        formularioDiv.innerHTML = `
+            <div style="margin-top: 15px; border: 1px solid var(--azul-claro); padding: 15px; border-radius: 5px;">
+                <h4>Detalles actuales</h4>
+                <p><strong>Usuario:</strong> ${reserva.usuario?.nombre ?? "—"}</p>
+                <p><strong>Pista:</strong> ${reserva.pista?.nombre ?? "—"}</p>
+                <p><strong>Inicio:</strong> ${formatearFechaAdmin(reserva.inicio)}</p>
+                <p><strong>Fin:</strong> ${formatearFechaAdmin(reserva.fin)}</p>
+                <p><strong>Estado:</strong> <span class="estado-${reserva.estado?.toLowerCase()}">${reserva.estado}</span></p>
+
+                <hr style="margin: 15px 0;">
+
+                <h4>Editar</h4>
+                <label for="reservaNuevaFechaInicio">Nueva fecha inicio:</label>
+                <input type="datetime-local" id="reservaNuevaFechaInicio" style="margin-bottom: 10px; padding: 8px; border: 1px solid var(--azul-claro); border-radius: 4px; font-size: 14px; width: 100%; box-sizing: border-box;">
+
+                <label for="reservaNuevaFechaFin">Nueva fecha fin:</label>
+                <input type="datetime-local" id="reservaNuevaFechaFin" style="margin-bottom: 10px; padding: 8px; border: 1px solid var(--azul-claro); border-radius: 4px; font-size: 14px; width: 100%; box-sizing: border-box;">
+
+                <label for="reservaNuevoPista">Nueva pista ID:</label>
+                <input type="number" id="reservaNuevoPista" placeholder="Opcional" style="margin-bottom: 10px; padding: 8px; border: 1px solid var(--azul-claro); border-radius: 4px; font-size: 14px; width: 100%; box-sizing: border-box;">
+            </div>
+        `;
+    } catch (error) {
+        formularioDiv.innerHTML = `<p class="admin-error">Error al conectar con el servidor.</p>`;
+    }
+}
+
+async function confirmarEdicionReserva(reservaId) {
+    const fechaInicio = document.getElementById("reservaNuevaFechaInicio")?.value;
+    const fechaFin    = document.getElementById("reservaNuevaFechaFin")?.value;
+    const pistaId     = document.getElementById("reservaNuevoPista")?.value;
+
+    if (!fechaInicio && !fechaFin && !pistaId) {
+        mostrarMensaje("Debes cambiar al menos un campo", "error");
+        return;
+    }
+
+    const token = localStorage.getItem("token");
+    const body  = {};
+
+    if (fechaInicio) body.inicio = fechaInicio;
+    if (fechaFin)    body.fin    = fechaFin;
+    if (pistaId)     body.pista  = { id: parseInt(pistaId) };
+
+    try {
+        const response = await fetch(`${baseUrlAdmin}/pistaPadel/reservations/${reservaId}`, {
+            method: "PATCH",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer " + token
+            },
+            body: JSON.stringify(body)
+        });
+
+        if (response.status === 400) { mostrarMensaje("Datos inválidos", "error"); return; }
+        if (response.status === 409) { mostrarMensaje("La pista no está disponible en esas horas", "error"); return; }
+        if (response.status === 403) { mostrarMensaje("No tienes permiso para editar esta reserva", "error"); return; }
+        if (!response.ok)            { mostrarMensaje("Error al actualizar la reserva", "error"); return; }
+
+        mostrarMensaje("Reserva actualizada correctamente", "ok");
+        volverAtras();
+    } catch (error) {
+        console.error("Error:", error);
+        mostrarMensaje("Error al conectar con el servidor", "error");
+    }
+}
+
+
+// ========================
+// UTILIDADES
+// ========================
+
+function formatearFechaAdmin(fechaString) {
+    if (!fechaString) return "—";
+    const fecha   = new Date(fechaString);
+    const dia     = String(fecha.getDate()).padStart(2, "0");
+    const mes     = String(fecha.getMonth() + 1).padStart(2, "0");
+    const año     = fecha.getFullYear();
+    const horas   = String(fecha.getHours()).padStart(2, "0");
+    const minutos = String(fecha.getMinutes()).padStart(2, "0");
+    return `${dia}/${mes}/${año} ${horas}:${minutos}`;
+}
+
+
+// ========================
+// MENSAJES
+// ========================
+
+function mostrarMensaje(texto, tipo) {
+    const div = document.createElement("div");
+    div.textContent = texto;
+    div.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        padding: 15px 20px;
+        border-radius: 5px;
+        z-index: 1000;
+        font-weight: bold;
+        ${tipo === "error" ? "background-color: #ffcccc; color: #cc0000;" : "background-color: #ccffcc; color: #009900;"}
+    `;
+    document.body.appendChild(div);
+
+    setTimeout(() => {
+        div.remove();
+    }, 3000);
+}
 
 function cargarReservas() {
     console.log("Cargando reservas...");
