@@ -63,4 +63,7 @@ La información se puede introducir siguiendo el siguiente JSON (que también pu
   ]
 }
 ```
-
+---
+# Pruebas tanto del Frontedn como del Backend
+Las pruebas del Backend (Postman) se incluyen dentro del json adjunto en el repositorio del proyecto, además de en el enlace que se envió al profesor en la entrega final del Backend.
+Las pruebas del Frontend se incluyen como capturas dentro de la memoria final.
