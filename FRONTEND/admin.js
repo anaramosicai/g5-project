@@ -520,6 +520,7 @@ async function guardarCambiosUsuario() {
 // ============== ACCIONES RELATIVAS A PISTAS ==============
 
 function crearPista() {
+    window.location.href = "pista.html";
     console.log("Creando pista...");
 }
 
